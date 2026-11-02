@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>*</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>ApexTrigger</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>AuraDefinitionBundle</name>
+    </types>
+    <types>
+        <members>Contact.FailedLoginCount__c</members>
+        <members>Contact.LockoutUntil__c</members>
+        <members>Contact.PasswordHash__c</members>
+        <members>Contact.PasswordSalt__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>SessionManagement__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <version>68.0</version>
+</Package>

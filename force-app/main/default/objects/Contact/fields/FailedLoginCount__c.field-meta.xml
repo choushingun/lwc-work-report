@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FailedLoginCount__c</fullName>
+    <label>ログイン失敗回数</label>
+    <description>アカウントロック判定用の連続ログイン失敗回数</description>
+    <inlineHelpText>ログイン成功時に0へ戻ります</inlineHelpText>
+    <type>Number</type>
+    <precision>3</precision>
+    <scale>0</scale>
+    <required>false</required>
+    <defaultValue>0</defaultValue>
+</CustomField>

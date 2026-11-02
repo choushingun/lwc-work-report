@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>LockoutUntil__c</fullName>
+    <label>ロック解除日時</label>
+    <description>連続失敗によるログイン禁止の解除日時</description>
+    <inlineHelpText
+  >この日時を過ぎるまでログインできません。空にすると解除されます</inlineHelpText>
+    <type>DateTime</type>
+    <required>false</required>
+</CustomField>

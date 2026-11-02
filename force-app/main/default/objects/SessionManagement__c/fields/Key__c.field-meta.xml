@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Key__c</fullName>
+    <label>セッションキー</label>
+    <description>セッションキーのSHA-256ハッシュ値</description>
+    <inlineHelpText>ログイン時に自動設定されます</inlineHelpText>
+    <type>Text</type>
+    <length>64</length>
+    <unique>true</unique>
+    <externalId>true</externalId>
+    <caseSensitive>true</caseSensitive>
+    <required>true</required>
+</CustomField>
