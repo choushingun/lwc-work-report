@@ -58,10 +58,7 @@ private class LoginControllerTest {
     Assert.isNull(LoginController.login('', PASSWORD));
     Assert.isNull(LoginController.login(LOGIN_EMAIL, ''));
     Assert.isNull(LoginController.login('unknown@example.com', PASSWORD));
-    Assert.areEqual(
-      0,
-      [SELECT COUNT() FROM SessionManagement__c WITH SYSTEM_MODE]
-    );
+    Assert.areEqual(0, [SELECT COUNT() FROM SessionManagement__c WITH SYSTEM_MODE]);
   }
 
   @IsTest
@@ -80,10 +77,7 @@ private class LoginControllerTest {
     Assert.isNull(LoginController.login(LOGIN_EMAIL, 'wrong'));
 
     Assert.areEqual(1, getContact().FailedLoginCount__c);
-    Assert.areEqual(
-      0,
-      [SELECT COUNT() FROM SessionManagement__c WITH SYSTEM_MODE]
-    );
+    Assert.areEqual(0, [SELECT COUNT() FROM SessionManagement__c WITH SYSTEM_MODE]);
   }
 
   @IsTest
@@ -106,11 +100,48 @@ private class LoginControllerTest {
 
   @IsTest
   static void login_afterLockoutExpired_succeeds() {
-    update as system new Contact(
-      Id = getContact().Id,
-      LockoutUntil__c = System.now().addMinutes(-1)
-    );
+    update as system new Contact(Id = getContact().Id, LockoutUntil__c = System.now().addMinutes(-1));
 
     Assert.isNotNull(LoginController.login(LOGIN_EMAIL, PASSWORD));
+  }
+
+  private static SessionManagement__c getSession() {
+    return [
+      SELECT LogoutDatetime__c
+      FROM SessionManagement__c
+      WITH SYSTEM_MODE
+    ];
+  }
+
+  @IsTest
+  static void logout_success_setsLogoutDatetime() {
+    String sessionKey = LoginController.login(LOGIN_EMAIL, PASSWORD);
+
+    LoginController.logout(sessionKey);
+
+    Assert.isNotNull(getSession().LogoutDatetime__c);
+  }
+
+  @IsTest
+  static void logout_alreadyLoggedOut_keepsLogoutDatetime() {
+    String sessionKey = LoginController.login(LOGIN_EMAIL, PASSWORD);
+    Datetime loggedOutAt = Datetime.newInstance(2026, 1, 1, 0, 0, 0);
+    SessionManagement__c session = getSession();
+    session.LogoutDatetime__c = loggedOutAt;
+    update as system session;
+
+    LoginController.logout(sessionKey);
+
+    Assert.areEqual(loggedOutAt, getSession().LogoutDatetime__c);
+  }
+
+  @IsTest
+  static void logout_invalidKey_doesNothing() {
+    LoginController.login(LOGIN_EMAIL, PASSWORD);
+
+    LoginController.logout('');
+    LoginController.logout('unknown-session-key');
+
+    Assert.isNull(getSession().LogoutDatetime__c);
   }
 }

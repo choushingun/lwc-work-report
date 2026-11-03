@@ -1,0 +1,14 @@
+.logout-page {
+  display: flex;
+  justify-content: center;
+  padding: var(--lwc-spacingXxLarge, 3rem) var(--lwc-spacingMedium, 1rem);
+}
+
+.logout-box {
+  width: 100%;
+  max-width: 24rem;
+}
+
+.logout-button {
+  display: block;
+}

@@ -1,0 +1,33 @@
+<template>
+  <main class="logout-page">
+    <div class="logout-box slds-box slds-theme_default slds-is-relative">
+      <lightning-spinner lwc:if={isLoading} alternative-text="ログアウト中" size="small"></lightning-spinner>
+
+      <h1 class="slds-text-heading_medium slds-text-align_center slds-m-bottom_medium">ログアウト</h1>
+
+      <p lwc:if={isLoading} class="slds-text-align_center">ログアウトしています。</p>
+
+      <template lwc:if={isLoggedOut}>
+        <p class="slds-text-align_center slds-m-bottom_medium" role="status">ログアウトしました。</p>
+        <lightning-button
+          class="logout-button"
+          variant="brand"
+          label="ログイン画面へ"
+          stretch
+          onclick={handleGoToLogin}
+        ></lightning-button>
+      </template>
+
+      <template lwc:if={errorMessage}>
+        <div class="slds-text-color_error slds-m-bottom_medium" role="alert">{errorMessage}</div>
+        <lightning-button
+          class="logout-button"
+          variant="brand"
+          label="再試行"
+          stretch
+          onclick={handleLogout}
+        ></lightning-button>
+      </template>
+    </div>
+  </main>
+</template>

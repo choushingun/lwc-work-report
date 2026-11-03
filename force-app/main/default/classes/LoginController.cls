@@ -18,12 +18,7 @@ public without sharing class LoginController {
       return null;
     }
     List<Contact> contacts = [
-      SELECT
-        Id,
-        PasswordHash__c,
-        PasswordSalt__c,
-        FailedLoginCount__c,
-        LockoutUntil__c
+      SELECT Id, PasswordHash__c, PasswordSalt__c, FailedLoginCount__c, LockoutUntil__c
       FROM Contact
       WHERE Email = :email.trim()
       WITH SYSTEM_MODE
@@ -37,10 +32,9 @@ public without sharing class LoginController {
     }
 
     Contact con = contacts[0];
-    system.debug('con.PasswordHash__c'+con.PasswordHash__c);
-    system.debug('con.PasswordSalt__c'+con.PasswordSalt__c);
-    Boolean isMatched = hashPassword(password, con.PasswordSalt__c)
-      .equals(con.PasswordHash__c);
+    system.debug('con.PasswordHash__c' + con.PasswordHash__c);
+    system.debug('con.PasswordSalt__c' + con.PasswordSalt__c);
+    Boolean isMatched = hashPassword(password, con.PasswordSalt__c).equals(con.PasswordHash__c);
     if (con.LockoutUntil__c != null && System.now() < con.LockoutUntil__c) {
       return null;
     }
@@ -53,6 +47,25 @@ public without sharing class LoginController {
     con.LockoutUntil__c = null;
     update as system con;
     return createSession(con.Id);
+  }
+
+  // ログアウト処理(有効なセッションにログアウト日時を記録する)
+  @AuraEnabled
+  public static void logout(String sessionKey) {
+    if (String.isBlank(sessionKey)) {
+      return;
+    }
+    List<SessionManagement__c> sessions = [
+      SELECT Id
+      FROM SessionManagement__c
+      WHERE Key__c = :hashSessionKey(sessionKey) AND LogoutDatetime__c = NULL
+      WITH SYSTEM_MODE
+    ];
+    Datetime now = System.now();
+    for (SessionManagement__c session : sessions) {
+      session.LogoutDatetime__c = now;
+    }
+    update as system sessions;
   }
 
   // パスワード設定(管理者が匿名Apexから実行する)
@@ -71,9 +84,7 @@ public without sharing class LoginController {
   }
 
   private static void recordFailure(Contact con) {
-    Integer failedCount = con.FailedLoginCount__c == null
-      ? 1
-      : con.FailedLoginCount__c.intValue() + 1;
+    Integer failedCount = con.FailedLoginCount__c == null ? 1 : con.FailedLoginCount__c.intValue() + 1;
     if (failedCount >= MAX_FAILED_COUNT) {
       con.LockoutUntil__c = System.now().addMinutes(LOCKOUT_MINUTES);
       failedCount = 0;
@@ -97,9 +108,7 @@ public without sharing class LoginController {
 
   @TestVisible
   private static String hashSessionKey(String sessionKey) {
-    return EncodingUtil.convertToHex(
-      Crypto.generateDigest('SHA-256', Blob.valueOf(sessionKey))
-    );
+    return EncodingUtil.convertToHex(Crypto.generateDigest('SHA-256', Blob.valueOf(sessionKey)));
   }
 
   private static String hashPassword(String password, String salt) {
