@@ -1,8 +1,8 @@
 import { LightningElement } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import login from '@salesforce/apex/LoginController.login';
+import { navigateAfterLogin, setSessionKey } from 'c/workReportAuth';
 
-const SESSION_STORAGE_KEY = 'workReportSessionKey';
 const LOGIN_FAILED_MESSAGE = 'メールアドレスまたはパスワードが正しくありません。';
 const SYSTEM_ERROR_MESSAGE = 'ログインに失敗しました。時間をおいて再度お試しください。';
 
@@ -39,11 +39,9 @@ export default class WorkReportLogin extends NavigationMixin(LightningElement) {
         password: this.password
       });
       if (sessionKey) {
-        sessionStorage.setItem(SESSION_STORAGE_KEY, sessionKey);
-        this[NavigationMixin.Navigate]({
-          type: 'comm__namedPage',
-          attributes: { name: 'Home' }
-        });
+        setSessionKey(sessionKey);
+        // 未ログインで直接アクセスした画面があれば、その画面へ戻る
+        navigateAfterLogin(this);
         return;
       }
       this.showError(LOGIN_FAILED_MESSAGE);

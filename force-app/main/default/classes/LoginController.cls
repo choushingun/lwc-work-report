@@ -106,8 +106,8 @@ public without sharing class LoginController {
     return sessionKey;
   }
 
-  @TestVisible
-  private static String hashSessionKey(String sessionKey) {
+  // 他画面のコントローラーからもセッション照合に使う
+  public static String hashSessionKey(String sessionKey) {
     return EncodingUtil.convertToHex(Crypto.generateDigest('SHA-256', Blob.valueOf(sessionKey)));
   }
 

@@ -1,0 +1,324 @@
+<template>
+  <main class="creatework-page">
+    <lightning-spinner lwc:if={isLoading} alternative-text="処理中" size="small"></lightning-spinner>
+    <!-- 初期表示失敗時(フォームを表示できない場合)もエラーが見えるよう、カードの外に出す -->
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
+    <lightning-card lwc:if={isAuthenticated} title="新規勤務表" icon-name="standard:timesheet">
+      <lightning-button
+        slot="actions"
+        label="キャンセル"
+        disabled={isLoading}
+        onclick={handleCancel}
+      ></lightning-button>
+      <lightning-button
+        slot="actions"
+        class="slds-m-left_x-small"
+        variant="brand"
+        label="保存"
+        disabled={isLoading}
+        onclick={handleSave}
+      ></lightning-button>
+
+      <div class="slds-p-horizontal_medium">
+        <div lwc:if={errorMessage} class="slds-scoped-notification slds-theme_error slds-m-bottom_small" role="alert">
+          <lightning-icon
+            icon-name="utility:error"
+            alternative-text="エラー"
+            size="x-small"
+            variant="inverse"
+            class="slds-m-right_x-small"
+          ></lightning-icon>
+          {errorMessage}
+        </div>
+
+        <!-- 勤務条件 -->
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small">勤務条件</span>
+          </h2>
+          <lightning-layout multiple-rows>
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <fieldset class="slds-form-element slds-form-element_horizontal">
+                <legend class="slds-form-element__legend slds-form-element__label">
+                  <abbr class="slds-required" title="必須">*</abbr>作業年月
+                </legend>
+                <div class="slds-form-element__control">
+                  <div class="slds-grid slds-grid_vertical-align-center">
+                    <lightning-combobox
+                      class="compound-item"
+                      label="作業年"
+                      variant="label-hidden"
+                      required
+                      value={report.Year__c}
+                      options={yearOptions}
+                      data-field="Year__c"
+                      onchange={handleChange}
+                    ></lightning-combobox>
+                    <span class="slds-p-horizontal_xx-small">年</span>
+                    <lightning-combobox
+                      class="compound-item"
+                      label="作業月"
+                      variant="label-hidden"
+                      required
+                      value={report.Month__c}
+                      options={monthOptions}
+                      data-field="Month__c"
+                      onchange={handleChange}
+                    ></lightning-combobox>
+                    <span class="slds-p-left_xx-small">月</span>
+                  </div>
+                </div>
+              </fieldset>
+            </lightning-layout-item>
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <lightning-combobox
+                class="slds-form-element_horizontal"
+                label="昼休憩時間"
+                variant="label-inline"
+                required
+                value={report.LunchTime__c}
+                options={lunchTimeOptions}
+                data-field="LunchTime__c"
+                onchange={handleChange}
+              ></lightning-combobox>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <fieldset class="slds-form-element slds-form-element_horizontal">
+                <legend class="slds-form-element__legend slds-form-element__label">
+                  <abbr class="slds-required" title="必須">*</abbr>勤務開始時間
+                </legend>
+                <div class="slds-form-element__control">
+                  <div class="slds-grid slds-grid_vertical-align-center">
+                    <lightning-combobox
+                      class="compound-item"
+                      label="勤務開始(時)"
+                      variant="label-hidden"
+                      required
+                      value={report.StartHour__c}
+                      options={startHourOptions}
+                      data-field="StartHour__c"
+                      onchange={handleChange}
+                    ></lightning-combobox>
+                    <span class="slds-p-horizontal_xx-small">:</span>
+                    <lightning-combobox
+                      class="compound-item"
+                      label="勤務開始(分)"
+                      variant="label-hidden"
+                      required
+                      value={report.StartTime__c}
+                      options={startTimeOptions}
+                      data-field="StartTime__c"
+                      onchange={handleChange}
+                    ></lightning-combobox>
+                  </div>
+                </div>
+              </fieldset>
+            </lightning-layout-item>
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <fieldset class="slds-form-element slds-form-element_horizontal">
+                <legend class="slds-form-element__legend slds-form-element__label">
+                  <abbr class="slds-required" title="必須">*</abbr>勤務終了時間
+                </legend>
+                <div class="slds-form-element__control">
+                  <div class="slds-grid slds-grid_vertical-align-center">
+                    <lightning-combobox
+                      class="compound-item"
+                      label="勤務終了(時)"
+                      variant="label-hidden"
+                      required
+                      value={report.EndHour__c}
+                      options={endHourOptions}
+                      data-field="EndHour__c"
+                      onchange={handleChange}
+                    ></lightning-combobox>
+                    <span class="slds-p-horizontal_xx-small">:</span>
+                    <lightning-combobox
+                      class="compound-item"
+                      label="勤務終了(分)"
+                      variant="label-hidden"
+                      required
+                      value={report.EndTime__c}
+                      options={endTimeOptions}
+                      data-field="EndTime__c"
+                      onchange={handleChange}
+                    ></lightning-combobox>
+                  </div>
+                </div>
+              </fieldset>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <lightning-input
+                class="slds-form-element_horizontal"
+                type="number"
+                label="休憩(分)"
+                variant="label-inline"
+                required
+                min="0"
+                max="999"
+                step="15"
+                message-when-step-mismatch="15分単位で入力してください。"
+                value={report.RestTime__c}
+                data-field="RestTime__c"
+                onchange={handleChange}
+              ></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <fieldset class="slds-form-element slds-form-element_horizontal">
+                <legend class="slds-form-element__legend slds-form-element__label">
+                  <abbr class="slds-required" title="必須">*</abbr>本月標準時間
+                </legend>
+                <div class="slds-form-element__control">
+                  <div class="slds-grid slds-grid_vertical-align-center">
+                    <lightning-input
+                      class="compound-item"
+                      type="number"
+                      label="本月標準時間(下限)"
+                      variant="label-hidden"
+                      required
+                      min="0"
+                      max="999"
+                      value={report.UndertimeWork__c}
+                      data-field="UndertimeWork__c"
+                      onchange={handleChange}
+                    ></lightning-input>
+                    <span class="slds-p-horizontal_xx-small">～</span>
+                    <lightning-input
+                      class="compound-item"
+                      type="number"
+                      label="本月標準時間(上限)"
+                      variant="label-hidden"
+                      required
+                      min="0"
+                      max="999"
+                      value={report.OvertimeWork__c}
+                      data-field="OvertimeWork__c"
+                      onchange={handleChange}
+                    ></lightning-input>
+                    <span class="slds-p-left_xx-small">時間</span>
+                  </div>
+                </div>
+              </fieldset>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <lightning-input
+                class="slds-form-element_horizontal"
+                label="作業場所"
+                variant="label-inline"
+                max-length="50"
+                field-level-help="複数ある場合は「;」で区切って入力してください。先頭の作業場所が勤務実績の初期値になります。"
+                value={report.Workplace__c}
+                data-field="Workplace__c"
+                onchange={handleChange}
+              ></lightning-input>
+            </lightning-layout-item>
+          </lightning-layout>
+        </div>
+
+        <!-- 送付先・承認者 -->
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small">送付先・承認者</span>
+          </h2>
+          <lightning-layout multiple-rows>
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly">
+                <span class="slds-form-element__label">勤務表自社送付先</span>
+                <div class="slds-form-element__control">
+                  <div class="slds-form-element__static" title={reportToMail}>{reportTo}</div>
+                </div>
+              </div>
+            </lightning-layout-item>
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly">
+                <span class="slds-form-element__label">上長</span>
+                <div class="slds-form-element__control">
+                  <div class="slds-form-element__static">{superiorName}</div>
+                </div>
+              </div>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <lightning-input
+                class="slds-form-element_horizontal"
+                label="現場承認者(敬称不要)"
+                variant="label-inline"
+                max-length="20"
+                value={report.Approver__c}
+                data-field="Approver__c"
+                onchange={handleChange}
+              ></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <lightning-input
+                class="slds-form-element_horizontal"
+                type="email"
+                label="現場承認者メール"
+                variant="label-inline"
+                value={report.ApproverMail__c}
+                data-field="ApproverMail__c"
+                onchange={handleChange}
+              ></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <lightning-input
+                class="slds-form-element_horizontal"
+                label="現場承認者メール(CC)"
+                variant="label-inline"
+                max-length="255"
+                value={report.ApproverCC__c}
+                data-field="ApproverCC__c"
+                onchange={handleChange}
+              ></lightning-input>
+            </lightning-layout-item>
+          </lightning-layout>
+        </div>
+
+        <!-- プロジェクト -->
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small">プロジェクト</span>
+          </h2>
+          <lightning-layout multiple-rows>
+            <template for:each={projects} for:item="project">
+              <lightning-layout-item
+                key={project.nameField}
+                size="12"
+                medium-device-size="6"
+                padding="horizontal-small"
+              >
+                <lightning-input
+                  class="slds-form-element_horizontal"
+                  label={project.nameLabel}
+                  variant="label-inline"
+                  max-length="50"
+                  value={project.name}
+                  data-field={project.nameField}
+                  onchange={handleChange}
+                ></lightning-input>
+              </lightning-layout-item>
+              <lightning-layout-item
+                key={project.codeField}
+                size="12"
+                medium-device-size="6"
+                padding="horizontal-small"
+              >
+                <lightning-input
+                  class="slds-form-element_horizontal"
+                  label={project.codeLabel}
+                  variant="label-inline"
+                  max-length="20"
+                  value={project.code}
+                  data-field={project.codeField}
+                  onchange={handleChange}
+                ></lightning-input>
+              </lightning-layout-item>
+            </template>
+          </lightning-layout>
+        </div>
+      </div>
+    </lightning-card>
+  </main>
+</template>

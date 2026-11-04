@@ -1,25 +1,66 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
-        <members>*</members>
+        <members>CreateWorkController</members>
+        <members>CreateWorkControllerTest</members>
+        <members>LoginController</members>
+        <members>LoginControllerTest</members>
+        <members>WorkListController</members>
+        <members>WorkListControllerTest</members>
+        <members>WorkReportSession</members>
+        <members>WorkReportSessionTest</members>
         <name>ApexClass</name>
     </types>
     <types>
+        <members>Account.Abbreviation__c</members>
+        <members>Account.ReportToMail__c</members>
+        <members>Account.ReportTo__c</members>
+        <members>Contact.EmployeeNo__c</members>
+        <members>Contact.EmploymentType__c</members>
         <members>Contact.FailedLoginCount__c</members>
+        <members>Contact.Hiredate__c</members>
         <members>Contact.LockoutUntil__c</members>
+        <members>Contact.Management__c</members>
         <members>Contact.PasswordHash__c</members>
         <members>Contact.PasswordSalt__c</members>
+        <members>Contact.ReportToMail__c</members>
+        <members>Contact.ReportTo__c</members>
+        <members>Contact.RetirementDate__c</members>
+        <members>Contact.ServiceYear__c</members>
         <name>CustomField</name>
     </types>
     <types>
+        <members>Holiday__c</members>
+        <members>MonthlyReport__c</members>
         <members>SessionManagement__c</members>
+        <members>WorkTime__c</members>
         <name>CustomObject</name>
     </types>
     <types>
+        <members>EmploymentType</members>
+        <name>GlobalValueSet</name>
+    </types>
+    <types>
         <members>*</members>
+        <members>workReportAuth</members>
+        <members>workReportAuthGuard</members>
+        <members>workReportCreateWork</members>
         <members>workReportLogin</members>
         <members>workReportLogout</members>
+        <members>workReportList</members>
         <name>LightningComponentBundle</name>
+    </types>
+    <types>
+        <members>workreport</members>
+        <name>PermissionSet</name>
+    </types>
+    <types>
+        <members>GoogleApiKey</members>
+        <name>CustomLabel</name>
+    </types>
+    <types>
+        <members>GoogleCalendar</members>
+        <name>RemoteSiteSetting</name>
     </types>
     <version>68.0</version>
 </Package>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>GoogleApiKey</fullName>
+        <language>ja</language>
+        <protected>true</protected>
+        <shortDescription>Google Web Service呼出し用ApiKye</shortDescription>
+        <value>AIzaSyBM_UqEGJce6Zow4iBxwA8WzD7b80uVAcE</value>
+    </labels>
+</CustomLabels>

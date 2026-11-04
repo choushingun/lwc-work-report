@@ -1,0 +1,13 @@
+.worklist-page {
+  position: relative;
+  min-height: 10rem;
+  padding: var(--lwc-spacingMedium, 1rem);
+}
+
+.page-size {
+  width: 5rem;
+}
+
+.delete-button {
+  --slds-c-icon-color-foreground-default: var(--lwc-colorTextError, #ea001e);
+}

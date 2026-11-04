@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>StatusForOrder__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(ISPICKVAL(Status__c,&apos;ドラフト&apos;), 0,
+  IF(ISPICKVAL(Status__c,&apos;申請取消&apos;), 1,
+    IF(ISPICKVAL(Status__c,&apos;却下&apos;), 2,
+      IF(ISPICKVAL(Status__c,&apos;作成完了&apos;), 3,
+        IF(ISPICKVAL(Status__c,&apos;申請中&apos;), 4,
+          IF(ISPICKVAL(Status__c,&apos;承認済&apos;), 5,
+            IF(ISPICKVAL(Status__c,&apos;クローズ&apos;), 6, 0)
+          )
+        )
+      )
+    )
+  )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>状況（並び替え）</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

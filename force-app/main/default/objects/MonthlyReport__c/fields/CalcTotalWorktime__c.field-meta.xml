@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CalcTotalWorktime__c</fullName>
+    <externalId>false</externalId>
+    <formula>/* 総労働時間 */
+LEFT(TEXT(TotalWorkTime__c*100),LEN(TEXT(TotalWorkTime__c*100))-2) &amp; &apos;.&apos; &amp; RIGHT(TEXT(TotalWorkTime__c*100),2) &amp;
+/* 記号 */
+IF(Overtime__c&gt;0,&apos;(+&apos;,IF(Overtime__c&lt;0,&apos;(&apos;,&apos;&apos;)) &amp;
+/* 残業不足時間 */
+IF(Overtime__c==0,&apos;&apos;,
+  LEFT(TEXT(Overtime__c*100),LEN(TEXT(Overtime__c*100))-2) &amp; &apos;.&apos; &amp; RIGHT(TEXT(Overtime__c*100),2) &amp; &apos;)&apos;
+)</formula>
+    <label>総労働時間</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

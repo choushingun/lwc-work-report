@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsHoliday__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>土日と祝日</description>
+    <externalId>false</externalId>
+    <label>休日</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

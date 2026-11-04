@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>thisMonthReport</fullName>
+    <columns>NAME</columns>
+    <columns>Contact__c</columns>
+    <columns>WorkDays__c</columns>
+    <columns>StandardWorktime__c</columns>
+    <columns>TotalWorkTime__c</columns>
+    <columns>Overtime__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>SubmitDate__c</field>
+        <operation>equals</operation>
+        <value>THIS_MONTH</value>
+    </filters>
+    <label>今月勤務表</label>
+</ListView>

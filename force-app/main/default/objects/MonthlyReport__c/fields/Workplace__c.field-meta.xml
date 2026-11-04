@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Workplace__c</fullName>
+    <defaultValue>&apos;自宅作業;勝どき&apos;</defaultValue>
+    <externalId>false</externalId>
+    <inlineHelpText>複数場所があった場合はセミコロンで区切って入力してください。</inlineHelpText>
+    <label>作業場所</label>
+    <length>50</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

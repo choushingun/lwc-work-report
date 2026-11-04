@@ -1,0 +1,15 @@
+.creatework-page {
+  position: relative;
+  min-height: 10rem;
+  padding: var(--lwc-spacingMedium, 1rem);
+}
+
+/* 年月・時分・標準時間など横並びの入力欄 */
+.compound-item {
+  width: 6rem;
+}
+
+/* fieldsetの見出しはSLDS既定で太字になるため、他の項目ラベルに合わせる */
+.slds-form-element__legend {
+  font-weight: normal;
+}

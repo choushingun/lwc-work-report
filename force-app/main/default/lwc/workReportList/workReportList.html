@@ -1,0 +1,154 @@
+<template>
+  <main class="worklist-page">
+    <lightning-spinner lwc:if={isLoading} alternative-text="処理中" size="small"></lightning-spinner>
+    <!-- 初回読み込み失敗時(一覧を表示できない場合)もエラーが見えるよう、カードの外に出す -->
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+      {errorMessage}
+    </div>
+    <article lwc:if={isAuthenticated} class="slds-card">
+      <div class="slds-card__header slds-grid slds-grid_vertical-align-center">
+        <h1 class="slds-card__header-title slds-col slds-has-flexi-truncate">勤務表一覧</h1>
+        <div class="slds-no-flex">
+          <lightning-button
+            variant="brand"
+            label="打刻する"
+            disabled={isLoading}
+            onclick={handleClockInOut}
+          ></lightning-button>
+          <lightning-button
+            class="slds-m-left_x-small"
+            label="新規勤務表"
+            disabled={isLoading}
+            onclick={handleCreateReport}
+          ></lightning-button>
+        </div>
+      </div>
+
+      <div class="slds-card__body slds-card__body_inner">
+        <div lwc:if={errorMessage} class="slds-text-color_error slds-m-bottom_small" role="alert">{errorMessage}</div>
+        <div lwc:if={infoMessage} class="slds-text-color_success slds-m-bottom_small" role="status">{infoMessage}</div>
+
+        <div class="slds-scrollable_x">
+          <table class="slds-table slds-table_bordered slds-table_striped slds-table_cell-buffer">
+            <thead>
+              <tr class="slds-line-height_reset">
+                <th scope="col">アクション</th>
+                <th scope="col">勤務表名</th>
+                <th scope="col" class="slds-text-align_right slds-show_medium">勤務日数</th>
+                <th scope="col" class="slds-text-align_right slds-show_medium">標準時間</th>
+                <th scope="col" class="slds-text-align_right">時間</th>
+                <th scope="col" class="slds-text-align_right slds-show_medium">残業(不足)時間</th>
+                <th scope="col" class="slds-text-align_center">状況</th>
+                <th scope="col" class="slds-show_medium">日付(申請/承認)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template for:each={displayReports} for:item="report">
+                <tr key={report.Id}>
+                  <td>
+                    <lightning-button-group>
+                      <lightning-button-icon
+                        icon-name="utility:edit"
+                        alternative-text="参照"
+                        title="参照"
+                        size="small"
+                        data-id={report.Id}
+                        onclick={handleViewReport}
+                      ></lightning-button-icon>
+                      <lightning-button-icon
+                        icon-name="utility:copy"
+                        alternative-text="複製"
+                        title="複製"
+                        size="small"
+                        data-id={report.Id}
+                        onclick={handleCopyReport}
+                      ></lightning-button-icon>
+                      <lightning-button-icon
+                        icon-name="utility:delete"
+                        alternative-text="削除"
+                        title="削除"
+                        size="small"
+                        variant="border-filled"
+                        class="delete-button"
+                        disabled={report.deleteDisabled}
+                        data-id={report.Id}
+                        onclick={handleDeleteReport}
+                      ></lightning-button-icon>
+                    </lightning-button-group>
+                  </td>
+                  <td>{report.ReportName__c}勤務表</td>
+                  <td class="slds-text-align_right slds-show_medium">{report.workDaysLabel}</td>
+                  <td class="slds-text-align_right slds-show_medium">{report.StandardWorktime__c}</td>
+                  <td class="slds-text-align_right">
+                    <lightning-formatted-number
+                      value={report.TotalWorkTime__c}
+                      minimum-fraction-digits="2"
+                    ></lightning-formatted-number>
+                  </td>
+                  <td class="slds-text-align_right slds-show_medium">
+                    <lightning-formatted-number
+                      value={report.Overtime__c}
+                      minimum-fraction-digits="2"
+                    ></lightning-formatted-number>
+                  </td>
+                  <td class="slds-text-align_center">
+                    <lightning-icon
+                      icon-name={report.statusIcon}
+                      alternative-text={report.Status__c}
+                      title={report.Status__c}
+                      size="x-small"
+                    ></lightning-icon>
+                  </td>
+                  <td class="slds-show_medium">
+                    <template lwc:if={report.ApplicationApprovalDT__c}>
+                      <lightning-formatted-date-time
+                        value={report.ApplicationApprovalDT__c}
+                        year="numeric"
+                        month="2-digit"
+                        day="2-digit"
+                        hour="2-digit"
+                        minute="2-digit"
+                        second="2-digit"
+                        hour12="false"
+                        time-zone="Asia/Tokyo"
+                      ></lightning-formatted-date-time>
+                    </template>
+                    <template lwc:else>-</template>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+
+        <p lwc:if={noReports} class="slds-text-align_center slds-p-vertical_medium">勤務表がありません。</p>
+
+        <!-- ページング -->
+        <div lwc:if={hasReports} class="slds-grid slds-grid_vertical-align-center slds-m-top_small">
+          <div class="slds-col slds-grid slds-grid_vertical-align-center">
+            <span>{rangeLabel}</span>
+            <lightning-combobox
+              lwc:if={showPageSize}
+              class="page-size slds-m-left_x-small"
+              label="表示件数"
+              variant="label-hidden"
+              value={pageSizeValue}
+              options={pageSizeOptions}
+              onchange={handlePageSizeChange}
+            ></lightning-combobox>
+          </div>
+          <div lwc:if={hasPaging} class="slds-no-flex">
+            <lightning-button
+              variant="base"
+              label="前へ"
+              disabled={isFirstPage}
+              onclick={handlePrevious}
+            ></lightning-button>
+            <span class="slds-m-horizontal_small">{pageNumber}/{totalPages}</span>
+            <lightning-button variant="base" label="次へ" disabled={isLastPage} onclick={handleNext}></lightning-button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </main>
+</template>

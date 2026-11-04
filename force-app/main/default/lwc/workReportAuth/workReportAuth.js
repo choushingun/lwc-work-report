@@ -1,0 +1,80 @@
+/**
+ * 認証の共通処理(各画面のコンポーネントから使う)
+ *
+ * 未ログインまたはセッション切れの場合、表示中のURLを保存してログイン画面へ遷移する。
+ * ログイン後は保存したURLへ戻る。
+ */
+import { NavigationMixin } from 'lightning/navigation';
+import validateSession from '@salesforce/apex/WorkReportSession.validateSession';
+
+const SESSION_STORAGE_KEY = 'workReportSessionKey';
+const RETURN_URL_STORAGE_KEY = 'workReportReturnUrl';
+const SESSION_INVALID = 'SESSION_INVALID';
+const LOGIN_PAGE = 'custom_employee_login__c';
+const HOME_PAGE = 'Home';
+
+export function getSessionKey() {
+  return sessionStorage.getItem(SESSION_STORAGE_KEY);
+}
+
+export function setSessionKey(sessionKey) {
+  sessionStorage.setItem(SESSION_STORAGE_KEY, sessionKey);
+}
+
+export function clearSessionKey() {
+  sessionStorage.removeItem(SESSION_STORAGE_KEY);
+}
+
+// Apexの例外がセッション無効によるものか判定する
+export function isSessionInvalidError(error) {
+  return error?.body?.message === SESSION_INVALID;
+}
+
+// 表示中のURLを保存してログイン画面へ遷移する
+export function redirectToLogin(component) {
+  clearSessionKey();
+  sessionStorage.setItem(RETURN_URL_STORAGE_KEY, window.location.pathname + window.location.search);
+  component[NavigationMixin.Navigate]({
+    type: 'comm__namedPage',
+    attributes: { name: LOGIN_PAGE }
+  });
+}
+
+// ログインチェック(未ログインの場合はログイン画面へ遷移し、falseを返す)
+export async function requireLogin(component) {
+  const sessionKey = getSessionKey();
+  let isValid = false;
+  if (sessionKey) {
+    try {
+      isValid = await validateSession({ sessionKey });
+    } catch {
+      isValid = false;
+    }
+  }
+  if (!isValid) {
+    redirectToLogin(component);
+  }
+  return isValid;
+}
+
+// ログイン後の遷移(保存したURLがあればそこへ、無ければホームへ)
+export function navigateAfterLogin(component) {
+  const returnUrl = sessionStorage.getItem(RETURN_URL_STORAGE_KEY);
+  sessionStorage.removeItem(RETURN_URL_STORAGE_KEY);
+  if (isSafeReturnUrl(returnUrl)) {
+    component[NavigationMixin.Navigate]({
+      type: 'standard__webPage',
+      attributes: { url: returnUrl }
+    });
+    return;
+  }
+  component[NavigationMixin.Navigate]({
+    type: 'comm__namedPage',
+    attributes: { name: HOME_PAGE }
+  });
+}
+
+// オープンリダイレクト防止のため、同一サイト内のパスのみ許可する
+function isSafeReturnUrl(url) {
+  return typeof url === 'string' && url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/\\');
+}
