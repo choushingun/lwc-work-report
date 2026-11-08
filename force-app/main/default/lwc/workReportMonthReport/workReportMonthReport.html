@@ -36,136 +36,106 @@
           </template>
         </template>
 
-        <!-- 勤務表の情報(レコード詳細画面と同じく、項目名と値を2列で表示する) -->
+        <!-- 勤務表の情報 -->
         <div class="slds-section slds-is-open">
-          <h2 class="slds-section__title section-title">
+          <h2 class="slds-section__title slds-theme_shade">
             <span class="slds-truncate slds-p-horizontal_small">勤務表の情報</span>
           </h2>
-          <div class="slds-grid slds-wrap slds-gutters_medium section-body" role="list">
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span class="slds-form-element__label">作業年月</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static">{report.Year__c}年{report.Month__c}月</div>
-                </div>
-              </div>
+          <div class="slds-grid slds-wrap section-body">
+            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+              <table class="slds-table slds-table_bordered slds-table_striped info-table">
+                <tbody>
+                  <tr>
+                    <th scope="row" class="info-label">作業年月</th>
+                    <td>{report.Year__c}年{report.Month__c}月</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="info-label">自社送付先</th>
+                    <td title={reportToMail}>{reportTo}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="info-label">上長</th>
+                    <td>{superiorName}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="info-label">申請状況</th>
+                    <td title={report.Status__c}>
+                      <div class="slds-grid slds-grid_vertical-align-center">
+                        <lightning-icon
+                          icon-name={statusIcon}
+                          alternative-text={report.Status__c}
+                          size="x-small"
+                          class={statusClass}
+                        ></lightning-icon>
+                        <span class="slds-m-left_x-small">{report.Status__c}</span>
+                        <template lwc:if={statusDateTime}>
+                          <lightning-formatted-date-time
+                            class="slds-m-left_small"
+                            value={statusDateTime}
+                            year="numeric"
+                            month="2-digit"
+                            day="2-digit"
+                            hour="2-digit"
+                            minute="2-digit"
+                            second="2-digit"
+                            hour12="false"
+                            time-zone="Asia/Tokyo"
+                          ></lightning-formatted-date-time>
+                        </template>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span class="slds-form-element__label">申請状況</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static" title={report.Status__c}>
-                    <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
-                      <lightning-icon
-                        icon-name={statusIcon}
-                        alternative-text={report.Status__c}
-                        size="x-small"
-                        class={statusClass}
-                      ></lightning-icon>
-                      <span class="slds-m-left_x-small">{report.Status__c}</span>
-                      <template lwc:if={statusDateTime}>
-                        <lightning-formatted-date-time
-                          class="slds-m-left_small"
-                          value={statusDateTime}
-                          year="numeric"
-                          month="2-digit"
-                          day="2-digit"
-                          hour="2-digit"
-                          minute="2-digit"
-                          second="2-digit"
-                          hour12="false"
-                          time-zone="Asia/Tokyo"
-                        ></lightning-formatted-date-time>
-                      </template>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+              <table class="slds-table slds-table_bordered slds-table_striped info-table">
+                <tbody>
+                  <tr>
+                    <th scope="row" class="info-label">勤務時間</th>
+                    <td>{workHours}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="info-label">本月標準時間</th>
+                    <td>{standardHours}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="info-label">勤務日数</th>
+                    <td>{report.WorkDays__c}日</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="info-label">
+                      <span title="労働時間が下限を下回るまたは上限を越える場合、赤字で表示する">総労働時間</span>
+                    </th>
+                    <td><span class={totalWorkTimeClass}>{totalWorkTime}</span>時間</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span class="slds-form-element__label">勤務時間</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static">{workHours}</div>
-                </div>
-              </div>
-            </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span class="slds-form-element__label">本月標準時間</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static">{standardHours}</div>
-                </div>
-              </div>
-            </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span class="slds-form-element__label">勤務日数</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static">{report.WorkDays__c}日</div>
-                </div>
-              </div>
-            </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span
-                  class="slds-form-element__label"
-                  title="労働時間が下限を下回るまたは上限を越える場合、赤字で表示する"
-                  >総労働時間</span
-                >
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static">
-                    <span class={totalWorkTimeClass}>{totalWorkTime}</span>時間
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span class="slds-form-element__label">プロジェクト</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static" title={projects}>{projectLabel}</div>
-                </div>
-              </div>
-            </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span class="slds-form-element__label">プロジェクトコード</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static" title={projectCodes}>{projectCodeLabel}</div>
-                </div>
-              </div>
-            </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span class="slds-form-element__label">現場責任者</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static" title={report.ApproverMail__c}>{report.Approver__c}</div>
-                </div>
-              </div>
-            </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span class="slds-form-element__label">上長</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static">{superiorName}</div>
-                </div>
-              </div>
-            </div>
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" role="listitem">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly detail-item">
-                <span class="slds-form-element__label">自社送付先</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static" title={reportToMail}>{reportTo}</div>
-                </div>
-              </div>
+            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
+              <table class="slds-table slds-table_bordered slds-table_striped info-table">
+                <tbody>
+                  <tr>
+                    <th scope="row" class="info-label">現場責任者</th>
+                    <td title={report.ApproverMail__c}>{report.Approver__c}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="info-label">プロジェクト</th>
+                    <td title={projects}>{projectLabel}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="info-label">プロジェクトコード</th>
+                    <td title={projectCodes}>{projectCodeLabel}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
         <!-- 勤務実績 -->
         <div class="slds-section slds-is-open">
-          <h2 class="slds-section__title section-title section-title-with-action">
+          <h2 class="slds-section__title slds-theme_shade section-title-with-action">
             <span class="slds-truncate slds-p-horizontal_small slds-col">勤務実績</span>
             <lightning-button
               class="slds-m-right_x-small"

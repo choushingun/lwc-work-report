@@ -7,11 +7,19 @@
         <members>LoginControllerTest</members>
         <members>MonthReportController</members>
         <members>MonthReportControllerTest</members>
+        <members>ReportUtility</members>
         <members>WorkListController</members>
         <members>WorkListControllerTest</members>
         <members>WorkReportSession</members>
         <members>WorkReportSessionTest</members>
         <name>ApexClass</name>
+    </types>
+    <types>
+        <members>TRG_MonthlyReport_A</members>
+        <members>TRG_MonthlyReport_B</members>
+        <members>TRG_WorkTime_A</members>
+        <members>TRG_WorkTime_B</members>
+        <name>ApexTrigger</name>
     </types>
     <types>
         <members>Account.Abbreviation__c</members>

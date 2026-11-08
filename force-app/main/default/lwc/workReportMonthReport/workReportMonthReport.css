@@ -9,20 +9,21 @@
   font-weight: 700;
 }
 
-/* セクション見出し(折りたたみなし・灰色の帯・本文より少し大きい文字) */
-.section-title {
-  min-height: 2rem;
-  padding: 0.25rem 0;
-  border-radius: 0.25rem;
-  background-color: #f3f3f3;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
+/* セクションの上下の余白(SLDS標準の0.5remより少し広げる) */
+.slds-section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* セクション見出し(高さと文字を本文より少し大きくする) */
+.slds-section__title {
+  min-height: 2.5rem;
+  font-size: 1.125rem;
 }
 
 /* セクション見出しと一行目の間の余白 */
 .section-body {
-  padding-top: 0.5rem;
+  padding-top: 0.75rem;
 }
 
 /* 見出しの右端にボタンを置く */
@@ -32,23 +33,14 @@
   justify-content: space-between;
 }
 
-/* 勤務表の情報(項目名は灰色の小さい文字、値は本文の文字で下線区切り) */
-.detail-item {
-  margin-bottom: 0;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+/* 勤務表の情報(項目名と値の表) */
+.info-label {
+  width: 40%;
+  font-weight: normal;
 }
 
-.detail-item .slds-form-element__label {
-  color: #444444;
-  font-size: 0.75rem;
-}
-
-.detail-item .slds-form-element__static {
-  font-size: 0.875rem;
-  min-height: 1.25rem;
-}
-
+.info-table th,
+.info-table td,
 .worktime-table th,
 .worktime-table td {
   padding-top: 0.5rem;
