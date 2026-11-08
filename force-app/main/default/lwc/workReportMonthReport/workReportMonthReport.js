@@ -2,14 +2,19 @@ import { LightningElement, wire } from 'lwc';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import getReport from '@salesforce/apex/MonthReportController.getReport';
 import clockInOut from '@salesforce/apex/WorkListController.clockInOut';
+import completeReport from '@salesforce/apex/MonthReportController.completeReport';
+import cancelCompleteReport from '@salesforce/apex/MonthReportController.cancelCompleteReport';
 import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/workReportAuth';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
 // 勤務実績入力画面(Experience Builderのページ名)
 const WORKTIME_INPUT_PAGE = 'worktime_input__c';
+// 勤務表作成画面(編集モードで開く)
+const CREATE_WORK_PAGE = 'create_work__c';
 // プロジェクト・プロジェクトコードの表示文字数(超える分はマウスを乗せると表示する)
 const PROJECT_DISPLAY_LENGTH = 20;
 const STATUS_ICONS = {
+  作成完了: 'utility:lock',
   申請中: 'utility:clock',
   承認済: 'utility:success',
   却下: 'utility:error',
@@ -17,9 +22,11 @@ const STATUS_ICONS = {
 };
 // 状況アイコンの色(CSSのクラス名)
 const STATUS_CLASSES = {
-  申請中: 'status-success',
+  作成完了: 'status-completed',
+  申請中: 'status-pending',
   承認済: 'status-success',
-  却下: 'status-error'
+  却下: 'status-error',
+  申請取消: 'status-canceled'
 };
 // 承認日時を表示する状況(それ以外は申請日時を表示する)
 const APPROVED_STATUSES = ['承認済', '却下'];
@@ -30,12 +37,19 @@ export default class WorkReportMonthReport extends NavigationMixin(LightningElem
   worktimes = [];
   isCurrentMonth = false;
   isReadonly = true;
+  // 締め取消できる(作成完了で、対象の年月の場合)
+  canCancelComplete = false;
   messages = [];
   isLoading = false;
   // ログイン確認済み(確認できるまで画面を表示しない)
   isAuthenticated = false;
   errorMessage = '';
+  // 日時はSalesforce標準画面と同じ24時間表記(例：2026/11/09 0:15)にする
+  hour12 = false;
   infoMessage = '';
+  // 月末締め確認ダイアログ
+  showCompleteConfirm = false;
+  focusCompleteConfirm = false;
   clockTitle = '午後2時までは出勤、以降は退勤と見なされます。\n徹夜など日を跨る場合は使用しないでください。';
 
   @wire(CurrentPageReference)
@@ -62,6 +76,7 @@ export default class WorkReportMonthReport extends NavigationMixin(LightningElem
     this.worktimes = data.worktimes;
     this.isCurrentMonth = data.isCurrentMonth;
     this.isReadonly = data.isReadonly;
+    this.canCancelComplete = data.canCancelComplete;
     this.messages = data.messages.map((message, index) => ({ key: `${index}`, message }));
     this.isAuthenticated = true;
   }
@@ -159,6 +174,20 @@ export default class WorkReportMonthReport extends NavigationMixin(LightningElem
     });
   }
 
+  // 作成完了以降の状況などで編集できない勤務表は、勤務表編集ボタンを押せない
+  get editDisabled() {
+    return this.isLoading || this.isReadonly;
+  }
+
+  // 勤務表作成画面を編集モードで開く
+  handleEditReport() {
+    this[NavigationMixin.Navigate]({
+      type: 'comm__namedPage',
+      attributes: { name: CREATE_WORK_PAGE },
+      state: { id: this.reportId, edit: '1' }
+    });
+  }
+
   get clockDisabled() {
     return this.isLoading || !this.isCurrentMonth || this.isReadonly;
   }
@@ -205,6 +234,59 @@ export default class WorkReportMonthReport extends NavigationMixin(LightningElem
     const mm = `${now.getMonth() + 1}`.padStart(2, '0');
     const dd = `${now.getDate()}`.padStart(2, '0');
     return `${now.getFullYear()}-${mm}-${dd}`;
+  }
+
+  // 月末締め確認ダイアログを開く(はいボタンにフォーカスする)
+  handleComplete() {
+    this.showCompleteConfirm = true;
+    this.focusCompleteConfirm = true;
+  }
+
+  renderedCallback() {
+    if (this.focusCompleteConfirm) {
+      this.focusCompleteConfirm = false;
+      this.template.querySelector('.complete-confirm-button')?.focus();
+    }
+  }
+
+  handleCompleteConfirmClose() {
+    this.showCompleteConfirm = false;
+  }
+
+  handleCompleteConfirmKeyDown(event) {
+    if (event.key === 'Escape') {
+      this.handleCompleteConfirmClose();
+    }
+  }
+
+  // 月末締め済(作成完了)の場合は締め取消ボタンを表示する
+  get isCompleted() {
+    return this.report.Status__c === '作成完了';
+  }
+
+  get cancelCompleteDisabled() {
+    return this.isLoading || !this.canCancelComplete;
+  }
+
+  // 締め取消(ドラフトに戻す。成功後は勤務表を再取得し、編集できる状態で表示する)
+  handleCancelComplete() {
+    this.infoMessage = '';
+    this.callApex(async () => {
+      const message = await cancelCompleteReport({ sessionKey: getSessionKey(), reportId: this.reportId });
+      await this.fetchReport();
+      this.infoMessage = message;
+    });
+  }
+
+  // 月末締め(成功後は勤務表を再取得し、編集不可の状態で表示する)
+  handleCompleteConfirm() {
+    this.showCompleteConfirm = false;
+    this.infoMessage = '';
+    this.callApex(async () => {
+      const message = await completeReport({ sessionKey: getSessionKey(), reportId: this.reportId });
+      await this.fetchReport();
+      this.infoMessage = message;
+    });
   }
 
   handleClockInOut() {

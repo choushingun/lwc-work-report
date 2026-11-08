@@ -26,6 +26,17 @@ public without sharing class WorkTimeDao {
     ];
   }
 
+  // 勤務表の会社提出分の勤務実績(月末締めのチェック用、実績日順)
+  public static List<WorkTime__c> getCompanyListByReport(Id reportId) {
+    return [
+      SELECT Id, WorkDay__c, WorkTime__c, ProjectName__c, Workplace__c, Memo__c, IsPaidHoliday__c
+      FROM WorkTime__c
+      WHERE MonthlyReport__c = :reportId AND IsSubmit__c = FALSE
+      WITH SYSTEM_MODE
+      ORDER BY WorkDay__c
+    ];
+  }
+
   // 勤務表の全勤務実績(会社提出・客先提出の両方、実績日順)
   public static List<WorkTime__c> getListByReport(Id reportId) {
     return [

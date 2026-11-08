@@ -89,16 +89,34 @@
   --slds-c-icon-color-foreground-default: #747474;
 }
 
-/* 状況アイコンの色(申請中・承認済:緑、却下:赤、それ以外:グレー) */
+/* 状況アイコンの色(状況ごとに色分けする) */
+.status-default {
+  /* ドラフト：青 */
+  --slds-c-icon-color-foreground-default: #0176d3;
+}
+
+.status-completed {
+  /* 作成完了：緑(承認済と同じ) */
+  --slds-c-icon-color-foreground-default: #2ead4b;
+}
+
+.status-pending {
+  /* 申請中：オレンジ */
+  --slds-c-icon-color-foreground-default: #fe9339;
+}
+
 .status-success {
-  --slds-c-icon-color-foreground-default: #2e844a;
+  /* 承認済：緑 */
+  --slds-c-icon-color-foreground-default: #2ead4b;
 }
 
 .status-error {
+  /* 却下：赤 */
   --slds-c-icon-color-foreground-default: #ea001e;
 }
 
-.status-default {
+.status-canceled {
+  /* 申請取消：グレー(取り消し済のため控えめにする) */
   --slds-c-icon-color-foreground-default: #747474;
 }
 
@@ -108,4 +126,27 @@
   justify-content: flex-start;
   text-align: left;
   font-weight: 700;
+}
+
+/* 確認ダイアログ(他の画面のキャンセル確認と同じ) */
+.confirm-dialog {
+  width: 90%;
+  max-width: 46rem;
+  min-width: auto;
+}
+
+.confirm-dialog-header {
+  position: relative;
+}
+
+.confirm-dialog-close {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+}
+
+.confirm-footer {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
 }

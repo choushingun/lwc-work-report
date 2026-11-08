@@ -4,7 +4,7 @@
     <!-- 初期表示失敗時(フォームを表示できない場合)もエラーが見えるよう、カードの外に出す -->
     <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
     <lightning-card lwc:if={isAuthenticated} icon-name="standard:timesheet">
-      <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">新規勤務表</span>
+      <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">{pageTitle}</span>
       <lightning-button
         slot="actions"
         label="キャンセル"
@@ -16,7 +16,7 @@
         class="slds-m-left_x-small"
         variant="brand"
         label="保存"
-        disabled={isLoading}
+        disabled={saveDisabled}
         onclick={handleSave}
       ></lightning-button>
 
@@ -31,11 +31,14 @@
           ></lightning-icon>
           {errorMessage}
         </div>
+        <div lwc:if={isReadonly} class="slds-scoped-notification slds-scoped-notification_light slds-m-bottom_small">
+          この勤務表は編集できません。
+        </div>
 
         <!-- 勤務条件 -->
         <div class="slds-section slds-is-open">
           <h2 class="slds-section__title slds-theme_shade">
-            <span class="slds-truncate slds-p-horizontal_small">勤務条件</span>
+            <span class="slds-truncate section-title-text">勤務条件</span>
           </h2>
           <lightning-layout multiple-rows class="section-body">
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
@@ -52,6 +55,7 @@
                       required
                       value={report.Year__c}
                       options={yearOptions}
+                      disabled={yearMonthDisabled}
                       data-field="Year__c"
                       onchange={handleChange}
                     ></lightning-combobox>
@@ -63,6 +67,7 @@
                       required
                       value={report.Month__c}
                       options={monthOptions}
+                      disabled={yearMonthDisabled}
                       data-field="Month__c"
                       onchange={handleChange}
                     ></lightning-combobox>
@@ -83,6 +88,7 @@
                     required
                     value={report.LunchTime__c}
                     options={lunchTimeOptions}
+                    disabled={isReadonly}
                     data-field="LunchTime__c"
                     onchange={handleChange}
                   ></lightning-combobox>
@@ -104,6 +110,7 @@
                       required
                       value={report.StartHour__c}
                       options={startHourOptions}
+                      disabled={isReadonly}
                       data-field="StartHour__c"
                       onchange={handleChange}
                     ></lightning-combobox>
@@ -115,6 +122,7 @@
                       required
                       value={report.StartTime__c}
                       options={startTimeOptions}
+                      disabled={isReadonly}
                       data-field="StartTime__c"
                       onchange={handleChange}
                     ></lightning-combobox>
@@ -137,6 +145,7 @@
                       required
                       value={report.EndHour__c}
                       options={endHourOptions}
+                      disabled={isReadonly}
                       data-field="EndHour__c"
                       onchange={handleChange}
                     ></lightning-combobox>
@@ -148,6 +157,7 @@
                       required
                       value={report.EndTime__c}
                       options={endTimeOptions}
+                      disabled={isReadonly}
                       data-field="EndTime__c"
                       onchange={handleChange}
                     ></lightning-combobox>
@@ -171,6 +181,7 @@
                     step="15"
                     message-when-step-mismatch="15分単位で入力してください。"
                     value={report.RestTime__c}
+                    disabled={isReadonly}
                     data-field="RestTime__c"
                     onchange={handleChange}
                   ></lightning-input>
@@ -193,6 +204,7 @@
                       min="0"
                       max="999"
                       value={report.UndertimeWork__c}
+                      disabled={isReadonly}
                       data-field="UndertimeWork__c"
                       onchange={handleChange}
                     ></lightning-input>
@@ -206,6 +218,7 @@
                       min="0"
                       max="999"
                       value={report.OvertimeWork__c}
+                      disabled={isReadonly}
                       data-field="OvertimeWork__c"
                       onchange={handleChange}
                     ></lightning-input>
@@ -222,6 +235,7 @@
                 max-length="50"
                 field-level-help="複数ある場合は「;」で区切って入力してください。先頭の作業場所が勤務実績の初期値になります。"
                 value={report.Workplace__c}
+                disabled={isReadonly}
                 data-field="Workplace__c"
                 onchange={handleChange}
               ></lightning-input>
@@ -232,7 +246,7 @@
         <!-- 送付先・承認者 -->
         <div class="slds-section slds-is-open">
           <h2 class="slds-section__title slds-theme_shade">
-            <span class="slds-truncate slds-p-horizontal_small">送付先・承認者</span>
+            <span class="slds-truncate section-title-text">送付先・承認者</span>
           </h2>
           <lightning-layout multiple-rows class="section-body">
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
@@ -259,6 +273,7 @@
                 variant="label-inline"
                 max-length="20"
                 value={report.Approver__c}
+                disabled={isReadonly}
                 data-field="Approver__c"
                 onchange={handleChange}
               ></lightning-input>
@@ -270,6 +285,7 @@
                 label="現場承認者メール"
                 variant="label-inline"
                 value={report.ApproverMail__c}
+                disabled={isReadonly}
                 data-field="ApproverMail__c"
                 onchange={handleChange}
               ></lightning-input>
@@ -281,6 +297,7 @@
                 variant="label-inline"
                 max-length="255"
                 value={report.ApproverCC__c}
+                disabled={isReadonly}
                 data-field="ApproverCC__c"
                 onchange={handleChange}
               ></lightning-input>
@@ -291,7 +308,7 @@
         <!-- プロジェクト -->
         <div class="slds-section slds-is-open">
           <h2 class="slds-section__title slds-theme_shade">
-            <span class="slds-truncate slds-p-horizontal_small">プロジェクト</span>
+            <span class="slds-truncate section-title-text">プロジェクト</span>
           </h2>
           <lightning-layout multiple-rows class="section-body">
             <template for:each={projects} for:item="project">
@@ -307,6 +324,7 @@
                   variant="label-inline"
                   max-length="50"
                   value={project.name}
+                  disabled={isReadonly}
                   data-field={project.nameField}
                   onchange={handleChange}
                 ></lightning-input>
@@ -323,6 +341,7 @@
                   variant="label-inline"
                   max-length="20"
                   value={project.code}
+                  disabled={isReadonly}
                   data-field={project.codeField}
                   onchange={handleChange}
                 ></lightning-input>
@@ -358,9 +377,9 @@
           </div>
           <div
             id="cancel-confirm-message"
-            class="slds-modal__content slds-p-horizontal_medium slds-p-vertical_xx-large"
+            class="slds-modal__content slds-p-horizontal_medium slds-p-top_medium slds-p-bottom_xx-large"
           >
-            <p>入力内容を破棄して勤務表一覧に戻りますか？</p>
+            <p>入力内容を破棄して{returnPageLabel}に戻りますか？</p>
             <p>保存されていない内容は失われます。</p>
           </div>
           <div class="slds-modal__footer confirm-footer">

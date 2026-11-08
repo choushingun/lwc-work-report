@@ -6,6 +6,8 @@ import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/workRep
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
 const WORK_LIST_PAGE = 'work_report_list__c';
+// 編集モードの戻り先(勤務表画面)
+const MONTH_REPORT_PAGE = 'month_report__c';
 const NUMBER_FIELDS = ['RestTime__c', 'UndertimeWork__c', 'OvertimeWork__c'];
 const INPUT_FIELDS = [
   'Year__c',
@@ -47,7 +49,12 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
   // ログイン確認済み(確認できるまで画面を表示しない)
   isAuthenticated = false;
   errorMessage = '';
+  // 複製元または編集対象の勤務表Id
   sourceId;
+  // 編集モード(勤務表画面の「勤務表編集」から遷移した場合)
+  isEdit = false;
+  // 編集不可(編集モードで、作成完了以降の状況または対象外の年月の場合)
+  isReadonly = false;
   initialized = false;
   // キャンセル確認ダイアログを表示中
   showCancelConfirm = false;
@@ -58,6 +65,7 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
   @wire(CurrentPageReference)
   setPageReference(pageRef) {
     this.sourceId = pageRef?.state?.id;
+    this.isEdit = pageRef?.state?.edit === '1' && !!this.sourceId;
     if (this.initialized) {
       return;
     }
@@ -67,8 +75,9 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
       return;
     }
     this.callApex(async () => {
-      const data = await getInitData({ sessionKey: getSessionKey(), sourceId: this.sourceId });
+      const data = await getInitData({ sessionKey: getSessionKey(), sourceId: this.sourceId, isEdit: this.isEdit });
       this.report = { ...data.report };
+      this.isReadonly = data.isReadonly;
       this.initialInput = JSON.stringify(this.toInput());
       this.yearOptions = data.yearOptions;
       this.picklistOptions = data.picklistOptions;
@@ -77,6 +86,28 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
       this.superiorName = data.superiorName;
       this.isAuthenticated = true;
     });
+  }
+
+  get pageTitle() {
+    if (!this.isEdit) {
+      return '新規勤務表';
+    }
+    const reportName = this.report.ReportName__c;
+    return reportName ? `勤務表編集（${reportName}）` : '勤務表編集';
+  }
+
+  // 編集モードでは年月は変更不可
+  get yearMonthDisabled() {
+    return this.isEdit || this.isReadonly;
+  }
+
+  get saveDisabled() {
+    return this.isLoading || this.isReadonly;
+  }
+
+  // 戻り先(キャンセル確認ダイアログのメッセージに使う)
+  get returnPageLabel() {
+    return this.isEdit ? '勤務表' : '勤務表一覧';
   }
 
   get showPageError() {
@@ -131,7 +162,7 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
     this.callApex(async () => {
       await saveReport({ sessionKey: getSessionKey(), input: this.toInput() });
       this.isNavigating = true;
-      this.navigateTo(WORK_LIST_PAGE);
+      this.navigateBack();
     });
   }
 
@@ -167,12 +198,22 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
     this.isNavigating = true;
     this.isLoading = true;
     this.showSpinner();
-    this.navigateTo(WORK_LIST_PAGE);
+    this.navigateBack();
+  }
+
+  // 編集モードは勤務表画面、新規・複製は勤務表一覧へ戻る
+  navigateBack() {
+    if (this.isEdit) {
+      this.navigateTo(MONTH_REPORT_PAGE, { id: this.sourceId });
+    } else {
+      this.navigateTo(WORK_LIST_PAGE);
+    }
   }
 
   // 入力値をApexに渡す形式に変換する(数値項目は空の場合nullにする)
   toInput() {
-    const input = {};
+    // 編集モードはIdを渡して更新する
+    const input = this.isEdit ? { Id: this.sourceId } : {};
     INPUT_FIELDS.forEach((field) => {
       const value = this.report[field];
       if (value === '' || value === null || value === undefined) {

@@ -12,6 +12,7 @@ const READONLY_STATUSES = ['申請中', '承認済'];
 const MIN_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [MIN_PAGE_SIZE, 20, 50].map((size) => ({ label: `${size}`, value: `${size}` }));
 const STATUS_ICONS = {
+  作成完了: 'utility:lock',
   申請中: 'utility:clock',
   承認済: 'utility:success',
   却下: 'utility:error',
@@ -19,9 +20,11 @@ const STATUS_ICONS = {
 };
 // 状況アイコンの色(CSSのクラス名)
 const STATUS_CLASSES = {
-  申請中: 'status-success',
+  作成完了: 'status-completed',
+  申請中: 'status-pending',
   承認済: 'status-success',
-  却下: 'status-error'
+  却下: 'status-error',
+  申請取消: 'status-canceled'
 };
 
 export default class WorkReportList extends NavigationMixin(LightningElement) {
@@ -32,6 +35,8 @@ export default class WorkReportList extends NavigationMixin(LightningElement) {
   // ログイン確認済み(確認できるまで画面を表示しない)
   isAuthenticated = false;
   errorMessage = '';
+  // 日時はSalesforce標準画面と同じ24時間表記(例：2026/11/09 0:15)にする
+  hour12 = false;
   infoMessage = '';
   pageSizeOptions = PAGE_SIZE_OPTIONS;
   // 削除確認中の勤務表Id(設定中は確認ダイアログを表示する)

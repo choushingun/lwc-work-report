@@ -4,6 +4,27 @@
   padding: var(--lwc-spacingMedium, 1rem);
 }
 
+/* セクションの上下の余白(勤務表参照画面と同じ) */
+.slds-section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* セクション見出し(勤務表参照画面と同じ高さ・文字サイズ・太さ) */
+.slds-section__title {
+  min-height: 3.25rem;
+  padding-left: 0;
+  font-size: 1.125rem;
+  /* 普通(400)と太字(700)の中間 */
+  font-weight: 600;
+}
+
+/* 見出しの文字の左位置を入力欄(lightning-layout-itemのhorizontal-small)と揃える */
+.section-title-text {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
 /* セクション見出しと一行目の間の余白 */
 .section-body {
   padding-top: 0.75rem;

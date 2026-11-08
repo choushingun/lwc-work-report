@@ -2,6 +2,7 @@
  * 機能名 : 勤務表作成画面(workReportCreateWork)のコントローラー
  *
  * 新規作成または既存勤務表の複製で勤務表を作成し、当月分の勤務実績を一括作成する。
+ * 編集モード(勤務表画面の「勤務表編集」から遷移)では既存の勤務表を更新する(勤務実績は作り直さない)。
  * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
 public class CreateWorkController {
@@ -46,6 +47,9 @@ public class CreateWorkController {
     // 上長
     @AuraEnabled
     public String superiorName;
+    // 編集不可(編集モードで、作成完了以降の状況または対象外の年月の場合)
+    @AuraEnabled
+    public Boolean isReadonly = false;
   }
 
   public class Option {
@@ -60,11 +64,14 @@ public class CreateWorkController {
     }
   }
 
-  // 初期表示データ取得(sourceIdを指定した場合は複製)
+  // 初期表示データ取得(sourceIdを指定した場合は複製、isEditがtrueの場合はsourceIdの勤務表を編集)
   @AuraEnabled
-  public static InitData getInitData(String sessionKey, Id sourceId) {
+  public static InitData getInitData(String sessionKey, Id sourceId, Boolean isEdit) {
     Id contactId = WorkReportSession.getContactId(sessionKey);
     Contact con = ContactDao.getWithAccountById(contactId);
+    if (isEdit == true) {
+      return getEditData(sourceId, contactId, con);
+    }
 
     MonthlyReport__c report;
     if (sourceId != null) {
@@ -95,7 +102,7 @@ public class CreateWorkController {
     return data;
   }
 
-  // 勤務表保存(勤務実績も一括作成し、作成した勤務表Idを返す)
+  // 勤務表保存(新規・複製の場合は勤務実績も一括作成し、勤務表Idを返す。Idがある場合は編集として更新する)
   @AuraEnabled
   public static Id saveReport(String sessionKey, MonthlyReport__c input) {
     if (input == null || String.isBlank(input.Year__c) || String.isBlank(input.Month__c)) {
@@ -107,6 +114,9 @@ public class CreateWorkController {
       input.OvertimeWork__c < input.UndertimeWork__c
     ) {
       throw createException('本月標準時間の下限は上限を超えています。');
+    }
+    if (input.Id != null) {
+      return updateReport(sessionKey, input);
     }
     if (isOutOfRange(input.Year__c, input.Month__c)) {
       throw createException('先月以前来月以降の勤務表を作成することができません。');
@@ -157,6 +167,67 @@ public class CreateWorkController {
       WorkTimeDao.insertWorkTimes(createWorkTimes(report));
     } catch (DmlException e) {
       Database.rollback(sp);
+      throw createException(e.getDmlMessage(0));
+    }
+    return report.Id;
+  }
+
+  // 編集モードの初期表示データ(年月は変更不可。上長は勤務表に設定済みの上長を表示する)
+  private static InitData getEditData(Id reportId, Id contactId, Contact con) {
+    List<String> fields = new List<String>(INPUT_FIELDS);
+    fields.addAll(new List<String>{ 'Id', 'Year__c', 'Month__c', 'Status__c', 'ReportName__c', 'Superior__r.Name' });
+    List<MonthlyReport__c> reports = reportId == null
+      ? new List<MonthlyReport__c>()
+      : MonthlyReportDao.getFieldListById(reportId, contactId, fields);
+    if (reports.isEmpty()) {
+      throw createException('勤務表が見つかりません。');
+    }
+    MonthlyReport__c report = reports[0];
+
+    InitData data = new InitData();
+    data.report = report;
+    data.isReadonly = MonthReportController.isReadonly(report);
+    // 勤務表の年が選択肢にない場合(前年など)も表示できるよう、その年だけを選択肢にする
+    data.yearOptions = new List<Option>{ new Option(report.Year__c, report.Year__c) };
+    data.picklistOptions = new Map<String, List<Option>>{
+      'Month__c' => getPicklistOptions(MonthlyReport__c.Month__c),
+      'StartHour__c' => getPicklistOptions(MonthlyReport__c.StartHour__c),
+      'StartTime__c' => getPicklistOptions(MonthlyReport__c.StartTime__c),
+      'EndHour__c' => getPicklistOptions(MonthlyReport__c.EndHour__c),
+      'EndTime__c' => getPicklistOptions(MonthlyReport__c.EndTime__c),
+      'LunchTime__c' => getPicklistOptions(MonthlyReport__c.LunchTime__c)
+    };
+    data.reportTo = con.Account?.ReportTo__c;
+    data.reportToMail = con.Account?.ReportToMail__c;
+    data.superiorName = report.Superior__r?.Name;
+    return data;
+  }
+
+  // 勤務表更新(入力項目のみ更新する。年月・状況は変更しない。勤務実績は作り直さない)
+  private static Id updateReport(String sessionKey, MonthlyReport__c input) {
+    Id contactId = WorkReportSession.getContactId(sessionKey);
+    List<MonthlyReport__c> reports = MonthlyReportDao.getFieldListById(
+      input.Id,
+      contactId,
+      new List<String>{ 'Id', 'Year__c', 'Month__c', 'Status__c' }
+    );
+    if (reports.isEmpty()) {
+      throw createException('勤務表が見つかりません。');
+    }
+    if (MonthReportController.isReadonly(reports[0])) {
+      throw createException('作成完了以降の勤務表は編集できません。');
+    }
+
+    MonthlyReport__c report = new MonthlyReport__c(Id = input.Id);
+    // 空にした項目もクリアできるよう、入力項目はすべて上書きする
+    for (String field : INPUT_FIELDS) {
+      report.put(field, input.get(field));
+    }
+    report.LastModifiedBy__c = contactId;
+    report.LastModified__c = System.now();
+    try {
+      MonthlyReportDao.updateReports(new List<MonthlyReport__c>{ report });
+    } catch (DmlException e) {
       throw createException(e.getDmlMessage(0));
     }
     return report.Id;

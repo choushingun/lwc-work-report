@@ -39,8 +39,34 @@
 
         <!-- 勤務表の情報 -->
         <div class="slds-section slds-is-open">
-          <h2 class="slds-section__title slds-theme_shade">
-            <span class="slds-truncate section-title-text">勤務表の情報</span>
+          <h2 class="slds-section__title slds-theme_shade section-title-with-action">
+            <span class="slds-truncate section-title-text slds-col">勤務表の情報</span>
+            <lightning-button
+              class="slds-m-right_x-small"
+              label="情報編集"
+              title="勤務条件・承認者・プロジェクトを編集します。"
+              disabled={editDisabled}
+              onclick={handleEditReport}
+            ></lightning-button>
+            <!-- 作成完了(月末締め済)の場合は締め取消、それ以外は月末締めを表示する -->
+            <lightning-button
+              lwc:if={isCompleted}
+              class="slds-m-right_x-small"
+              variant="brand"
+              label="締め取消"
+              title="月末締めを取り消してドラフトに戻します。"
+              disabled={cancelCompleteDisabled}
+              onclick={handleCancelComplete}
+            ></lightning-button>
+            <lightning-button
+              lwc:else
+              class="slds-m-right_x-small"
+              variant="brand"
+              label="月末締め"
+              title="月末締めをすると編集ができなくなります。"
+              disabled={editDisabled}
+              onclick={handleComplete}
+            ></lightning-button>
           </h2>
           <div class="slds-grid slds-wrap section-body">
             <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
@@ -60,6 +86,7 @@
                   </tr>
                   <tr>
                     <th scope="row" class="info-label">申請状況</th>
+                    <!-- 状況はアイコンのみ表示する(マウスを乗せると状況名を表示する) -->
                     <td title={report.Status__c}>
                       <div class="slds-grid slds-grid_vertical-align-center">
                         <lightning-icon
@@ -68,7 +95,6 @@
                           size="x-small"
                           class={statusClass}
                         ></lightning-icon>
-                        <span class="slds-m-left_x-small">{report.Status__c}</span>
                         <template lwc:if={statusDateTime}>
                           <lightning-formatted-date-time
                             class="slds-m-left_small"
@@ -76,10 +102,9 @@
                             year="numeric"
                             month="2-digit"
                             day="2-digit"
-                            hour="2-digit"
+                            hour="numeric"
                             minute="2-digit"
-                            second="2-digit"
-                            hour12="false"
+                            hour12={hour12}
                             time-zone="Asia/Tokyo"
                           ></lightning-formatted-date-time>
                         </template>
@@ -230,5 +255,46 @@
         </div>
       </div>
     </lightning-card>
+    <!-- 月末締め確認ダイアログ -->
+    <template lwc:if={showCompleteConfirm}>
+      <section
+        role="alertdialog"
+        tabindex="-1"
+        aria-modal="true"
+        aria-labelledby="complete-confirm-heading"
+        aria-describedby="complete-confirm-message"
+        class="slds-modal slds-fade-in-open"
+        onkeydown={handleCompleteConfirmKeyDown}
+      >
+        <div class="slds-modal__container confirm-dialog">
+          <div class="slds-modal__header confirm-dialog-header">
+            <lightning-button-icon
+              class="confirm-dialog-close"
+              icon-name="utility:close"
+              variant="bare"
+              size="large"
+              alternative-text="閉じる"
+              title="閉じる"
+              onclick={handleCompleteConfirmClose}
+            ></lightning-button-icon>
+            <h1 id="complete-confirm-heading" class="slds-modal__title">月末締め</h1>
+          </div>
+          <div
+            id="complete-confirm-message"
+            class="slds-modal__content slds-p-horizontal_medium slds-p-top_medium slds-p-bottom_xx-large"
+          >
+            <p>勤務表を締めて作成完了にしますか？</p>
+            <p>月末締めをすると、勤務表・勤務実績の編集ができなくなります。</p>
+          </div>
+          <div class="slds-modal__footer confirm-footer">
+            <button class="slds-button slds-button_neutral" onclick={handleCompleteConfirmClose}>いいえ</button>
+            <button class="slds-button slds-button_brand complete-confirm-button" onclick={handleCompleteConfirm}>
+              はい
+            </button>
+          </div>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
   </main>
 </template>
