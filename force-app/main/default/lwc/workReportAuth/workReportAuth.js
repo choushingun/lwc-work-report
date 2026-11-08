@@ -10,7 +10,7 @@ import validateSession from '@salesforce/apex/WorkReportSession.validateSession'
 const SESSION_STORAGE_KEY = 'workReportSessionKey';
 const RETURN_URL_STORAGE_KEY = 'workReportReturnUrl';
 const SESSION_INVALID = 'SESSION_INVALID';
-const LOGIN_PAGE = 'custom_employee_login__c';
+export const LOGIN_PAGE = 'employee_login__c';
 const HOME_PAGE = 'Home';
 
 export function getSessionKey() {

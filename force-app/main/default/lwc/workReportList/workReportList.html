@@ -1,13 +1,11 @@
 <template>
   <main class="worklist-page">
-    <lightning-spinner lwc:if={isLoading} alternative-text="処理中" size="small"></lightning-spinner>
+    <c-spinner></c-spinner>
     <!-- 初回読み込み失敗時(一覧を表示できない場合)もエラーが見えるよう、カードの外に出す -->
-    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">
-      {errorMessage}
-    </div>
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
     <article lwc:if={isAuthenticated} class="slds-card">
       <div class="slds-card__header slds-grid slds-grid_vertical-align-center">
-        <h1 class="slds-card__header-title slds-col slds-has-flexi-truncate">勤務表一覧</h1>
+        <h1 class="slds-card__header-title slds-col slds-has-flexi-truncate slds-text-heading_medium slds-text-color_default page-title">勤務表一覧</h1>
         <div class="slds-no-flex">
           <lightning-button
             variant="brand"
@@ -29,7 +27,7 @@
         <div lwc:if={infoMessage} class="slds-text-color_success slds-m-bottom_small" role="status">{infoMessage}</div>
 
         <div class="slds-scrollable_x">
-          <table class="slds-table slds-table_bordered slds-table_striped slds-table_cell-buffer">
+          <table class="slds-table slds-table_bordered slds-table_striped slds-table_cell-buffer report-table">
             <thead>
               <tr class="slds-line-height_reset">
                 <th scope="col">アクション</th>
@@ -46,35 +44,36 @@
               <template for:each={displayReports} for:item="report">
                 <tr key={report.Id}>
                   <td>
-                    <lightning-button-group>
-                      <lightning-button-icon
-                        icon-name="utility:edit"
-                        alternative-text="参照"
+                    <div class="slds-button-group" role="group">
+                      <button
+                        class="slds-button slds-button_icon slds-button_icon-border-filled action-button"
                         title="参照"
-                        size="small"
                         data-id={report.Id}
                         onclick={handleViewReport}
-                      ></lightning-button-icon>
-                      <lightning-button-icon
-                        icon-name="utility:copy"
-                        alternative-text="複製"
+                      >
+                        <lightning-icon icon-name="utility:edit" size="x-small" class="icon-view"></lightning-icon>
+                        <span class="slds-assistive-text">参照</span>
+                      </button>
+                      <button
+                        class="slds-button slds-button_icon slds-button_icon-border-filled action-button"
                         title="複製"
-                        size="small"
                         data-id={report.Id}
                         onclick={handleCopyReport}
-                      ></lightning-button-icon>
-                      <lightning-button-icon
-                        icon-name="utility:delete"
-                        alternative-text="削除"
+                      >
+                        <lightning-icon icon-name="utility:copy" size="x-small" class="icon-copy"></lightning-icon>
+                        <span class="slds-assistive-text">複製</span>
+                      </button>
+                      <button
+                        class="slds-button slds-button_icon slds-button_icon-border-filled action-button"
                         title="削除"
-                        size="small"
-                        variant="border-filled"
-                        class="delete-button"
                         disabled={report.deleteDisabled}
                         data-id={report.Id}
                         onclick={handleDeleteReport}
-                      ></lightning-button-icon>
-                    </lightning-button-group>
+                      >
+                        <lightning-icon icon-name="utility:delete" size="x-small" class="icon-delete"></lightning-icon>
+                        <span class="slds-assistive-text">削除</span>
+                      </button>
+                    </div>
                   </td>
                   <td>{report.ReportName__c}勤務表</td>
                   <td class="slds-text-align_right slds-show_medium">{report.workDaysLabel}</td>
@@ -97,6 +96,7 @@
                       alternative-text={report.Status__c}
                       title={report.Status__c}
                       size="x-small"
+                      class={report.statusClass}
                     ></lightning-icon>
                   </td>
                   <td class="slds-show_medium">
@@ -150,5 +150,46 @@
         </div>
       </div>
     </article>
+    <!-- 削除確認ダイアログ -->
+    <template lwc:if={showDeleteConfirm}>
+      <section
+        role="alertdialog"
+        tabindex="-1"
+        aria-modal="true"
+        aria-labelledby="delete-confirm-heading"
+        aria-describedby="delete-confirm-message"
+        class="slds-modal slds-fade-in-open"
+        onkeydown={handleDeleteKeyDown}
+      >
+        <div class="slds-modal__container delete-confirm">
+          <div class="slds-modal__header delete-confirm-header">
+            <lightning-button-icon
+              class="delete-confirm-close"
+              icon-name="utility:close"
+              variant="bare"
+              size="large"
+              alternative-text="閉じる"
+              title="閉じる"
+              onclick={handleDeleteCancel}
+            ></lightning-button-icon>
+            <h1 id="delete-confirm-heading" class="slds-modal__title">勤務表を削除</h1>
+          </div>
+          <div
+            id="delete-confirm-message"
+            class="slds-modal__content slds-p-horizontal_medium slds-p-top_medium slds-p-bottom_xx-large"
+          >
+            <p>この勤務表を削除しますか？</p>
+            <p>勤務実績もすべて削除されます。</p>
+          </div>
+          <div class="slds-modal__footer confirm-footer">
+            <button class="slds-button slds-button_neutral" onclick={handleDeleteCancel}>キャンセル</button>
+            <button class="slds-button slds-button_brand delete-confirm-button" onclick={handleDeleteConfirm}>
+              削除
+            </button>
+          </div>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
   </main>
 </template>

@@ -1,0 +1,92 @@
+.monthreport-page {
+  position: relative;
+  min-height: 10rem;
+  padding: var(--lwc-spacingMedium, 1rem);
+}
+
+/* 画面タイトルは太字にする(他の画面と同じ) */
+.page-title {
+  font-weight: 700;
+}
+
+/* セクション見出し(折りたたみなし・灰色の帯・本文より少し大きい文字) */
+.section-title {
+  min-height: 2rem;
+  padding: 0.25rem 0;
+  border-radius: 0.25rem;
+  background-color: #f3f3f3;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* セクション見出しと一行目の間の余白 */
+.section-body {
+  padding-top: 0.5rem;
+}
+
+/* 見出しの右端にボタンを置く */
+.section-title-with-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 勤務表の情報(項目名は灰色の小さい文字、値は本文の文字で下線区切り) */
+.detail-item {
+  margin-bottom: 0;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.detail-item .slds-form-element__label {
+  color: #444444;
+  font-size: 0.75rem;
+}
+
+.detail-item .slds-form-element__static {
+  font-size: 0.875rem;
+  min-height: 1.25rem;
+}
+
+.worktime-table th,
+.worktime-table td {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.col-day {
+  white-space: nowrap;
+}
+
+/* 当日の実績行 */
+.row-today td {
+  background-color: #d8edff;
+}
+
+/* 土曜は青、日祝・有給休暇・会社提出の時間は赤 */
+.text-blue {
+  color: #0176d3;
+}
+
+.text-red {
+  color: #ea001e;
+}
+
+/* 備考ありのアイコン */
+.memo-icon {
+  --slds-c-icon-color-foreground-default: #747474;
+}
+
+/* 状況アイコンの色(申請中・承認済:緑、却下:赤、それ以外:グレー) */
+.status-success {
+  --slds-c-icon-color-foreground-default: #2e844a;
+}
+
+.status-error {
+  --slds-c-icon-color-foreground-default: #ea001e;
+}
+
+.status-default {
+  --slds-c-icon-color-foreground-default: #747474;
+}

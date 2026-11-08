@@ -8,6 +8,93 @@
   width: 5rem;
 }
 
-.delete-button {
+/* 一覧のタイトル行・データ行の高さを少し大きくする */
+.report-table th,
+.report-table td {
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+}
+
+/* アクションボタンは正方形にし、マウスを乗せても枠を残す */
+.action-button,
+.action-button:hover,
+.action-button:focus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  line-height: 1;
+  border: 1px solid #c9c9c9;
+  background-color: #ffffff;
+}
+
+.action-button:hover:not(:disabled) {
+  background-color: #f3f3f3;
+}
+
+/* ボタン同士の境目の枠が二重にならないようにする */
+.action-button + .action-button {
+  margin-left: -1px;
+}
+
+/* アクションボタンのアイコン色(参照:青、複製:グレー、削除:赤) */
+.icon-view {
+  --slds-c-icon-color-foreground-default: #0176d3;
+}
+
+.icon-copy {
+  --slds-c-icon-color-foreground-default: #444444;
+}
+
+.icon-delete {
   --slds-c-icon-color-foreground-default: var(--lwc-colorTextError, #ea001e);
+}
+
+/* 削除できない場合はアイコンを薄くする */
+.action-button:disabled lightning-icon {
+  --slds-c-icon-color-foreground-default: #c9c9c9;
+}
+
+/* 状況アイコンの色(申請中・承認済:緑、却下:赤、それ以外:グレー) */
+.status-success {
+  --slds-c-icon-color-foreground-default: #2e844a;
+}
+
+.status-error {
+  --slds-c-icon-color-foreground-default: var(--lwc-colorTextError, #ea001e);
+}
+
+.status-default {
+  --slds-c-icon-color-foreground-default: #747474;
+}
+
+.delete-confirm {
+  width: 90%;
+  max-width: 46rem;
+  min-width: auto;
+}
+
+.delete-confirm-header {
+  position: relative;
+}
+
+/* 閉じるボタンはヘッダー内の右端に置く */
+.delete-confirm-close {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+}
+
+/* 確認ダイアログのボタン上下余白 */
+.confirm-footer {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+/* 画面タイトルは太字にする(勤務表作成画面と同じ) */
+.page-title {
+  font-weight: 700;
 }

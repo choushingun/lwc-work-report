@@ -5,7 +5,7 @@ import saveReport from '@salesforce/apex/CreateWorkController.saveReport';
 import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/workReportAuth';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
-const WORK_LIST_PAGE = 'custom_work_report_list__c';
+const WORK_LIST_PAGE = 'work_report_list__c';
 const NUMBER_FIELDS = ['RestTime__c', 'UndertimeWork__c', 'OvertimeWork__c'];
 const INPUT_FIELDS = [
   'Year__c',
@@ -40,12 +40,20 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
   reportTo = '';
   reportToMail = '';
   superiorName = '';
-  isLoading = false;
+  // 初期表示データを取得するまでスピナーを表示する
+  isLoading = true;
+  // 保存成功後の画面遷移中(遷移が終わるまでスピナーを表示し続ける)
+  isNavigating = false;
   // ログイン確認済み(確認できるまで画面を表示しない)
   isAuthenticated = false;
   errorMessage = '';
   sourceId;
   initialized = false;
+  // キャンセル確認ダイアログを表示中
+  showCancelConfirm = false;
+  focusCancelConfirm = false;
+  // 初期表示時の入力値(変更有無の判定に使う)
+  initialInput = '';
 
   @wire(CurrentPageReference)
   setPageReference(pageRef) {
@@ -61,6 +69,7 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
     this.callApex(async () => {
       const data = await getInitData({ sessionKey: getSessionKey(), sourceId: this.sourceId });
       this.report = { ...data.report };
+      this.initialInput = JSON.stringify(this.toInput());
       this.yearOptions = data.yearOptions;
       this.picklistOptions = data.picklistOptions;
       this.reportTo = data.reportTo;
@@ -121,11 +130,43 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
     }
     this.callApex(async () => {
       await saveReport({ sessionKey: getSessionKey(), input: this.toInput() });
+      this.isNavigating = true;
       this.navigateTo(WORK_LIST_PAGE);
     });
   }
 
+  // 入力内容に変更がある場合のみキャンセル確認ダイアログを開く(はいボタンにフォーカスする)
   handleCancel() {
+    if (JSON.stringify(this.toInput()) === this.initialInput) {
+      this.handleCancelConfirm();
+      return;
+    }
+    this.showCancelConfirm = true;
+    this.focusCancelConfirm = true;
+  }
+
+  renderedCallback() {
+    if (this.focusCancelConfirm) {
+      this.focusCancelConfirm = false;
+      this.template.querySelector('.cancel-confirm-button')?.focus();
+    }
+  }
+
+  handleCancelConfirmClose() {
+    this.showCancelConfirm = false;
+  }
+
+  handleCancelConfirmKeyDown(event) {
+    if (event.key === 'Escape') {
+      this.handleCancelConfirmClose();
+    }
+  }
+
+  handleCancelConfirm() {
+    this.showCancelConfirm = false;
+    this.isNavigating = true;
+    this.isLoading = true;
+    this.showSpinner();
     this.navigateTo(WORK_LIST_PAGE);
   }
 
@@ -147,6 +188,7 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
   async callApex(action) {
     this.errorMessage = '';
     this.isLoading = true;
+    this.showSpinner();
     try {
       await action();
     } catch (error) {
@@ -156,7 +198,10 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
       }
       this.errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
     } finally {
-      this.isLoading = false;
+      this.isLoading = this.isNavigating;
+      if (!this.isNavigating) {
+        this.hideSpinner();
+      }
     }
   }
 
@@ -166,5 +211,16 @@ export default class WorkReportCreateWork extends NavigationMixin(LightningEleme
       attributes: { name },
       state
     });
+  }
+
+  // スピナーは描画後でないと取得できないため、描画を待ってから操作する
+  async showSpinner() {
+    await Promise.resolve();
+    this.template.querySelector('c-spinner')?.showSpinner();
+  }
+
+  async hideSpinner() {
+    await Promise.resolve();
+    this.template.querySelector('c-spinner')?.hideSpinner();
   }
 }

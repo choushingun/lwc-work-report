@@ -1,9 +1,10 @@
 <template>
   <main class="creatework-page">
-    <lightning-spinner lwc:if={isLoading} alternative-text="処理中" size="small"></lightning-spinner>
+    <c-spinner></c-spinner>
     <!-- 初期表示失敗時(フォームを表示できない場合)もエラーが見えるよう、カードの外に出す -->
     <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
-    <lightning-card lwc:if={isAuthenticated} title="新規勤務表" icon-name="standard:timesheet">
+    <lightning-card lwc:if={isAuthenticated} icon-name="standard:timesheet">
+      <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">新規勤務表</span>
       <lightning-button
         slot="actions"
         label="キャンセル"
@@ -36,11 +37,11 @@
           <h2 class="slds-section__title slds-theme_shade">
             <span class="slds-truncate slds-p-horizontal_small">勤務条件</span>
           </h2>
-          <lightning-layout multiple-rows>
+          <lightning-layout multiple-rows class="section-body">
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
               <fieldset class="slds-form-element slds-form-element_horizontal">
                 <legend class="slds-form-element__legend slds-form-element__label">
-                  <abbr class="slds-required" title="必須">*</abbr>作業年月
+                  作業年月<abbr class="slds-required" title="必須">*</abbr>
                 </legend>
                 <div class="slds-form-element__control">
                   <div class="slds-grid slds-grid_vertical-align-center">
@@ -71,22 +72,28 @@
               </fieldset>
             </lightning-layout-item>
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
-              <lightning-combobox
-                class="slds-form-element_horizontal"
-                label="昼休憩時間"
-                variant="label-inline"
-                required
-                value={report.LunchTime__c}
-                options={lunchTimeOptions}
-                data-field="LunchTime__c"
-                onchange={handleChange}
-              ></lightning-combobox>
+              <div class="slds-form-element slds-form-element_horizontal">
+                <span class="slds-form-element__label"
+                  >昼休憩時間<abbr class="slds-required" title="必須">*</abbr></span
+                >
+                <div class="slds-form-element__control">
+                  <lightning-combobox
+                    label="昼休憩時間"
+                    variant="label-hidden"
+                    required
+                    value={report.LunchTime__c}
+                    options={lunchTimeOptions}
+                    data-field="LunchTime__c"
+                    onchange={handleChange}
+                  ></lightning-combobox>
+                </div>
+              </div>
             </lightning-layout-item>
 
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
               <fieldset class="slds-form-element slds-form-element_horizontal">
                 <legend class="slds-form-element__legend slds-form-element__label">
-                  <abbr class="slds-required" title="必須">*</abbr>勤務開始時間
+                  勤務開始時間<abbr class="slds-required" title="必須">*</abbr>
                 </legend>
                 <div class="slds-form-element__control">
                   <div class="slds-grid slds-grid_vertical-align-center">
@@ -100,7 +107,7 @@
                       data-field="StartHour__c"
                       onchange={handleChange}
                     ></lightning-combobox>
-                    <span class="slds-p-horizontal_xx-small">:</span>
+                    <span class="slds-p-horizontal_xx-small">時</span>
                     <lightning-combobox
                       class="compound-item"
                       label="勤務開始(分)"
@@ -111,6 +118,7 @@
                       data-field="StartTime__c"
                       onchange={handleChange}
                     ></lightning-combobox>
+                    <span class="slds-p-left_xx-small">分</span>
                   </div>
                 </div>
               </fieldset>
@@ -118,7 +126,7 @@
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
               <fieldset class="slds-form-element slds-form-element_horizontal">
                 <legend class="slds-form-element__legend slds-form-element__label">
-                  <abbr class="slds-required" title="必須">*</abbr>勤務終了時間
+                  勤務終了時間<abbr class="slds-required" title="必須">*</abbr>
                 </legend>
                 <div class="slds-form-element__control">
                   <div class="slds-grid slds-grid_vertical-align-center">
@@ -132,7 +140,7 @@
                       data-field="EndHour__c"
                       onchange={handleChange}
                     ></lightning-combobox>
-                    <span class="slds-p-horizontal_xx-small">:</span>
+                    <span class="slds-p-horizontal_xx-small">時</span>
                     <lightning-combobox
                       class="compound-item"
                       label="勤務終了(分)"
@@ -143,31 +151,36 @@
                       data-field="EndTime__c"
                       onchange={handleChange}
                     ></lightning-combobox>
+                    <span class="slds-p-left_xx-small">分</span>
                   </div>
                 </div>
               </fieldset>
             </lightning-layout-item>
 
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
-              <lightning-input
-                class="slds-form-element_horizontal"
-                type="number"
-                label="休憩(分)"
-                variant="label-inline"
-                required
-                min="0"
-                max="999"
-                step="15"
-                message-when-step-mismatch="15分単位で入力してください。"
-                value={report.RestTime__c}
-                data-field="RestTime__c"
-                onchange={handleChange}
-              ></lightning-input>
+              <div class="slds-form-element slds-form-element_horizontal">
+                <span class="slds-form-element__label">休憩(分)<abbr class="slds-required" title="必須">*</abbr></span>
+                <div class="slds-form-element__control">
+                  <lightning-input
+                    type="number"
+                    label="休憩(分)"
+                    variant="label-hidden"
+                    required
+                    min="0"
+                    max="999"
+                    step="15"
+                    message-when-step-mismatch="15分単位で入力してください。"
+                    value={report.RestTime__c}
+                    data-field="RestTime__c"
+                    onchange={handleChange}
+                  ></lightning-input>
+                </div>
+              </div>
             </lightning-layout-item>
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
               <fieldset class="slds-form-element slds-form-element_horizontal">
                 <legend class="slds-form-element__legend slds-form-element__label">
-                  <abbr class="slds-required" title="必須">*</abbr>本月標準時間
+                  本月標準時間<abbr class="slds-required" title="必須">*</abbr>
                 </legend>
                 <div class="slds-form-element__control">
                   <div class="slds-grid slds-grid_vertical-align-center">
@@ -196,7 +209,6 @@
                       data-field="OvertimeWork__c"
                       onchange={handleChange}
                     ></lightning-input>
-                    <span class="slds-p-left_xx-small">時間</span>
                   </div>
                 </div>
               </fieldset>
@@ -222,9 +234,9 @@
           <h2 class="slds-section__title slds-theme_shade">
             <span class="slds-truncate slds-p-horizontal_small">送付先・承認者</span>
           </h2>
-          <lightning-layout multiple-rows>
+          <lightning-layout multiple-rows class="section-body">
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly">
+              <div class="slds-form-element slds-form-element_horizontal">
                 <span class="slds-form-element__label">勤務表自社送付先</span>
                 <div class="slds-form-element__control">
                   <div class="slds-form-element__static" title={reportToMail}>{reportTo}</div>
@@ -232,7 +244,7 @@
               </div>
             </lightning-layout-item>
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
-              <div class="slds-form-element slds-form-element_horizontal slds-form-element_readonly">
+              <div class="slds-form-element slds-form-element_horizontal">
                 <span class="slds-form-element__label">上長</span>
                 <div class="slds-form-element__control">
                   <div class="slds-form-element__static">{superiorName}</div>
@@ -281,7 +293,7 @@
           <h2 class="slds-section__title slds-theme_shade">
             <span class="slds-truncate slds-p-horizontal_small">プロジェクト</span>
           </h2>
-          <lightning-layout multiple-rows>
+          <lightning-layout multiple-rows class="section-body">
             <template for:each={projects} for:item="project">
               <lightning-layout-item
                 key={project.nameField}
@@ -320,5 +332,46 @@
         </div>
       </div>
     </lightning-card>
+    <!-- キャンセル確認ダイアログ -->
+    <template lwc:if={showCancelConfirm}>
+      <section
+        role="alertdialog"
+        tabindex="-1"
+        aria-modal="true"
+        aria-labelledby="cancel-confirm-heading"
+        aria-describedby="cancel-confirm-message"
+        class="slds-modal slds-fade-in-open"
+        onkeydown={handleCancelConfirmKeyDown}
+      >
+        <div class="slds-modal__container cancel-confirm">
+          <div class="slds-modal__header cancel-confirm-header">
+            <lightning-button-icon
+              class="cancel-confirm-close"
+              icon-name="utility:close"
+              variant="bare"
+              size="large"
+              alternative-text="閉じる"
+              title="閉じる"
+              onclick={handleCancelConfirmClose}
+            ></lightning-button-icon>
+            <h1 id="cancel-confirm-heading" class="slds-modal__title">入力内容の破棄</h1>
+          </div>
+          <div
+            id="cancel-confirm-message"
+            class="slds-modal__content slds-p-horizontal_medium slds-p-vertical_xx-large"
+          >
+            <p>入力内容を破棄して勤務表一覧に戻りますか？</p>
+            <p>保存されていない内容は失われます。</p>
+          </div>
+          <div class="slds-modal__footer confirm-footer">
+            <button class="slds-button slds-button_neutral" onclick={handleCancelConfirmClose}>いいえ</button>
+            <button class="slds-button slds-button_brand cancel-confirm-button" onclick={handleCancelConfirm}>
+              はい
+            </button>
+          </div>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
   </main>
 </template>

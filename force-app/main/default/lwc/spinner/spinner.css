@@ -1,0 +1,7 @@
+/* ページ全体を覆う(背景色は親から --spinner-background で指定できる) */
+.full-page {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: var(--spinner-background, transparent);
+}

@@ -1,0 +1,4 @@
+/* ログイン確認中はページの内容を見せないよう白で覆う */
+.guard-spinner {
+  --spinner-background: #fff;
+}

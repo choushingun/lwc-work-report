@@ -5,6 +5,8 @@
         <members>CreateWorkControllerTest</members>
         <members>LoginController</members>
         <members>LoginControllerTest</members>
+        <members>MonthReportController</members>
+        <members>MonthReportControllerTest</members>
         <members>WorkListController</members>
         <members>WorkListControllerTest</members>
         <members>WorkReportSession</members>
@@ -41,12 +43,13 @@
         <name>GlobalValueSet</name>
     </types>
     <types>
-        <members>*</members>
         <members>workReportAuth</members>
         <members>workReportAuthGuard</members>
         <members>workReportCreateWork</members>
         <members>workReportLogin</members>
         <members>workReportLogout</members>
+        <members>workReportMonthReport</members>
+        <members>spinner</members>
         <members>workReportList</members>
         <name>LightningComponentBundle</name>
     </types>

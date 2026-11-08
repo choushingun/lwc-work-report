@@ -1,7 +1,7 @@
 import { LightningElement } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import logout from '@salesforce/apex/LoginController.logout';
-import { clearSessionKey, getSessionKey } from 'c/workReportAuth';
+import { LOGIN_PAGE, clearSessionKey, getSessionKey } from 'c/workReportAuth';
 
 const SYSTEM_ERROR_MESSAGE = 'ログアウトに失敗しました。時間をおいて再度お試しください。';
 
@@ -20,6 +20,7 @@ export default class WorkReportLogout extends NavigationMixin(LightningElement) 
   async handleLogout() {
     this.errorMessage = '';
     this.isLoading = true;
+    this.showSpinner();
     try {
       await logout({
         sessionKey: getSessionKey()
@@ -30,12 +31,24 @@ export default class WorkReportLogout extends NavigationMixin(LightningElement) 
       this.errorMessage = SYSTEM_ERROR_MESSAGE;
     }
     this.isLoading = false;
+    this.hideSpinner();
   }
 
   handleGoToLogin() {
     this[NavigationMixin.Navigate]({
       type: 'comm__namedPage',
-      attributes: { name: 'custom_employee_login__c' }
+      attributes: { name: LOGIN_PAGE }
     });
+  }
+
+  // スピナーは描画後でないと取得できないため、描画を待ってから操作する
+  async showSpinner() {
+    await Promise.resolve();
+    this.template.querySelector('c-spinner')?.showSpinner();
+  }
+
+  async hideSpinner() {
+    await Promise.resolve();
+    this.template.querySelector('c-spinner')?.hideSpinner();
   }
 }

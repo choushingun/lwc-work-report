@@ -4,12 +4,52 @@
   padding: var(--lwc-spacingMedium, 1rem);
 }
 
+/* セクション見出しと一行目の間の余白 */
+.section-body {
+  padding-top: 0.75rem;
+}
+
 /* 年月・時分・標準時間など横並びの入力欄 */
 .compound-item {
   width: 6rem;
 }
 
+/* キャンセル確認ダイアログ(勤務表一覧の削除確認と同じサイズ) */
+.cancel-confirm {
+  width: 90%;
+  max-width: 46rem;
+  min-width: auto;
+}
+
+.cancel-confirm-header {
+  position: relative;
+}
+
+.cancel-confirm-close {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+}
+
 /* fieldsetの見出しはSLDS既定で太字になるため、他の項目ラベルに合わせる */
 .slds-form-element__legend {
   font-weight: normal;
+}
+
+/* 横並びフォームではSLDS既定で必須マーク(*)がラベル左側に絶対配置されるため、ラベルの後ろに表示する */
+.slds-form-element_horizontal .slds-form-element__label .slds-required {
+  position: static;
+  margin: 0 0 0 0.125rem;
+}
+
+/* 確認ダイアログのボタン上下余白 */
+.confirm-footer {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+/* 画面タイトルは太字にする */
+.page-title {
+  font-weight: 700;
 }

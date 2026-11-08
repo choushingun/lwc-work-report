@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>68.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>勤務報告スピナー</masterLabel>
+    <description>勤務報告の各画面で使う共通スピナー</description>
+</LightningComponentBundle>

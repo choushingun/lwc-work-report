@@ -33,6 +33,7 @@ export default class WorkReportLogin extends NavigationMixin(LightningElement) {
 
     this.errorMessage = '';
     this.isLoading = true;
+    this.showSpinner();
     try {
       const sessionKey = await login({
         email: this.email,
@@ -54,6 +55,7 @@ export default class WorkReportLogin extends NavigationMixin(LightningElement) {
     this.errorMessage = message;
     this.password = '';
     this.isLoading = false;
+    this.hideSpinner();
   }
 
   validate() {
@@ -61,5 +63,16 @@ export default class WorkReportLogin extends NavigationMixin(LightningElement) {
       (isValid, input) => input.reportValidity() && isValid,
       true
     );
+  }
+
+  // スピナーは描画後でないと取得できないため、描画を待ってから操作する
+  async showSpinner() {
+    await Promise.resolve();
+    this.template.querySelector('c-spinner')?.showSpinner();
+  }
+
+  async hideSpinner() {
+    await Promise.resolve();
+    this.template.querySelector('c-spinner')?.hideSpinner();
   }
 }

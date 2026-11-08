@@ -1,6 +1,5 @@
 import { LightningElement } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
-import LightningConfirm from 'lightning/confirm';
 import getReports from '@salesforce/apex/WorkListController.getReports';
 import clockInOut from '@salesforce/apex/WorkListController.clockInOut';
 import deleteReport from '@salesforce/apex/WorkListController.deleteReport';
@@ -18,6 +17,12 @@ const STATUS_ICONS = {
   却下: 'utility:error',
   申請取消: 'utility:undo'
 };
+// 状況アイコンの色(CSSのクラス名)
+const STATUS_CLASSES = {
+  申請中: 'status-success',
+  承認済: 'status-success',
+  却下: 'status-error'
+};
 
 export default class WorkReportList extends NavigationMixin(LightningElement) {
   reports = [];
@@ -29,6 +34,9 @@ export default class WorkReportList extends NavigationMixin(LightningElement) {
   errorMessage = '';
   infoMessage = '';
   pageSizeOptions = PAGE_SIZE_OPTIONS;
+  // 削除確認中の勤務表Id(設定中は確認ダイアログを表示する)
+  deleteTargetId = null;
+  focusDeleteConfirm = false;
 
   connectedCallback() {
     if (!getSessionKey()) {
@@ -77,6 +85,10 @@ export default class WorkReportList extends NavigationMixin(LightningElement) {
     return `${this.pageSize}`;
   }
 
+  get showDeleteConfirm() {
+    return !!this.deleteTargetId;
+  }
+
   get hasPaging() {
     return this.totalPages > 1;
   }
@@ -99,6 +111,7 @@ export default class WorkReportList extends NavigationMixin(LightningElement) {
       ...r,
       workDaysLabel: `${r.WorkDays__c ?? 0}/${r.StandardWorkDays__c ?? 0}`,
       statusIcon: STATUS_ICONS[r.Status__c] || 'utility:edit',
+      statusClass: STATUS_CLASSES[r.Status__c] || 'status-default',
       deleteDisabled: READONLY_STATUSES.includes(r.Status__c)
     }));
     this.pageNumber = Math.min(this.pageNumber, this.totalPages);
@@ -126,16 +139,32 @@ export default class WorkReportList extends NavigationMixin(LightningElement) {
     this.navigateTo(CREATE_WORK_PAGE, { id: event.currentTarget.dataset.id });
   }
 
-  async handleDeleteReport(event) {
-    const reportId = event.currentTarget.dataset.id;
-    const confirmed = await LightningConfirm.open({
-      message: '勤務表を削除しますか？',
-      label: '確認',
-      theme: 'warning'
-    });
-    if (!confirmed) {
-      return;
+  // 削除確認ダイアログを開く(削除ボタンにフォーカスする)
+  handleDeleteReport(event) {
+    this.deleteTargetId = event.currentTarget.dataset.id;
+    this.focusDeleteConfirm = true;
+  }
+
+  renderedCallback() {
+    if (this.focusDeleteConfirm) {
+      this.focusDeleteConfirm = false;
+      this.template.querySelector('.delete-confirm-button')?.focus();
     }
+  }
+
+  handleDeleteCancel() {
+    this.deleteTargetId = null;
+  }
+
+  handleDeleteKeyDown(event) {
+    if (event.key === 'Escape') {
+      this.handleDeleteCancel();
+    }
+  }
+
+  handleDeleteConfirm() {
+    const reportId = this.deleteTargetId;
+    this.deleteTargetId = null;
     this.infoMessage = '';
     this.callApex(async () => {
       await deleteReport({ sessionKey: this.sessionKey, reportId });
@@ -160,6 +189,7 @@ export default class WorkReportList extends NavigationMixin(LightningElement) {
   async callApex(action) {
     this.errorMessage = '';
     this.isLoading = true;
+    this.showSpinner();
     try {
       await action();
     } catch (error) {
@@ -170,6 +200,7 @@ export default class WorkReportList extends NavigationMixin(LightningElement) {
       this.errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
     } finally {
       this.isLoading = false;
+      this.hideSpinner();
     }
   }
 
@@ -179,5 +210,16 @@ export default class WorkReportList extends NavigationMixin(LightningElement) {
       attributes: { name },
       state
     });
+  }
+
+  // スピナーは描画後でないと取得できないため、描画を待ってから操作する
+  async showSpinner() {
+    await Promise.resolve();
+    this.template.querySelector('c-spinner')?.showSpinner();
+  }
+
+  async hideSpinner() {
+    await Promise.resolve();
+    this.template.querySelector('c-spinner')?.hideSpinner();
   }
 }
