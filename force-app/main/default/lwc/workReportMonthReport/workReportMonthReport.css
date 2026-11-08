@@ -15,10 +15,29 @@
   margin-bottom: 1rem;
 }
 
-/* セクション見出し(高さと文字を本文より少し大きくする) */
+/* セクション見出し(高さと文字を本文より少し大きくする。ボタンの上下にも余白を持たせる) */
 .slds-section__title {
-  min-height: 2.5rem;
+  min-height: 3.25rem;
   font-size: 1.125rem;
+  /* 普通(400)と太字(700)の中間 */
+  font-weight: 600;
+}
+
+/* 見出しの文字の左位置を本文(表の1列目)と揃える */
+.slds-section__title {
+  padding-left: 0;
+}
+
+.section-title-text {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.info-table th:first-child,
+.info-table td:first-child,
+.worktime-table th:first-child,
+.worktime-table td:first-child {
+  padding-left: 0.75rem;
 }
 
 /* セクション見出しと一行目の間の余白 */
@@ -56,7 +75,7 @@
   background-color: #d8edff;
 }
 
-/* 土曜は青、日祝・有給休暇・会社提出の時間は赤 */
+/* 土曜は青、日祝・会社提出の時間は赤 */
 .text-blue {
   color: #0176d3;
 }
@@ -81,4 +100,12 @@
 
 .status-default {
   --slds-c-icon-color-foreground-default: #747474;
+}
+
+/* 注意事項(警告)は左寄せ・太字・斜線模様なしで表示する */
+.warning-message {
+  background-image: none;
+  justify-content: flex-start;
+  text-align: left;
+  font-weight: 700;
 }

@@ -2,9 +2,9 @@
  * 機能名 : 勤務表作成画面(workReportCreateWork)のコントローラー
  *
  * 新規作成または既存勤務表の複製で勤務表を作成し、当月分の勤務実績を一括作成する。
- * ゲストユーザーから呼ばれるため without sharing かつシステムモードで実行する。
+ * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
-public without sharing class CreateWorkController {
+public class CreateWorkController {
   private static final String STATUS_DRAFT = 'ドラフト';
   // 曜日判定の基準日(日曜日)
   private static final Date BASE_SUNDAY = Date.newInstance(1900, 1, 7);
@@ -64,7 +64,7 @@ public without sharing class CreateWorkController {
   @AuraEnabled
   public static InitData getInitData(String sessionKey, Id sourceId) {
     Id contactId = WorkReportSession.getContactId(sessionKey);
-    Contact con = getContact(contactId);
+    Contact con = ContactDao.getWithAccountById(contactId);
 
     MonthlyReport__c report;
     if (sourceId != null) {
@@ -115,17 +115,12 @@ public without sharing class CreateWorkController {
     List<Holiday__c> newHolidays = fetchHolidaysIfMissing(Integer.valueOf(input.Year__c));
 
     Id contactId = WorkReportSession.getContactId(sessionKey);
-    Integer duplicates = [
-      SELECT COUNT()
-      FROM MonthlyReport__c
-      WHERE Contact__c = :contactId AND Year__c = :input.Year__c AND Month__c = :input.Month__c
-      WITH SYSTEM_MODE
-    ];
+    Integer duplicates = MonthlyReportDao.countByYearMonth(contactId, input.Year__c, input.Month__c);
     if (duplicates > 0) {
       throw createException('勤務表がすでに存在しています。');
     }
 
-    Contact con = getContact(contactId);
+    Contact con = ContactDao.getWithAccountById(contactId);
     // 画面から受け取るのは入力項目のみとし、それ以外はサーバー側で設定する
     MonthlyReport__c report = copyInputFields(input);
     report.Year__c = input.Year__c;
@@ -157,11 +152,9 @@ public without sharing class CreateWorkController {
 
     Savepoint sp = Database.setSavepoint();
     try {
-      if (!newHolidays.isEmpty()) {
-        insert as system newHolidays;
-      }
-      insert as system report;
-      insert as system createWorkTimes(report);
+      HolidayDao.insertHolidays(newHolidays);
+      MonthlyReportDao.insertReport(report);
+      WorkTimeDao.insertWorkTimes(createWorkTimes(report));
     } catch (DmlException e) {
       Database.rollback(sp);
       throw createException(e.getDmlMessage(0));
@@ -169,31 +162,9 @@ public without sharing class CreateWorkController {
     return report.Id;
   }
 
-  private static Contact getContact(Id contactId) {
-    return [
-      SELECT
-        Name,
-        ReportsToId,
-        ReportsTo.Name,
-        Account.Name,
-        Account.Abbreviation__c,
-        Account.ReportTo__c,
-        Account.ReportToMail__c
-      FROM Contact
-      WHERE Id = :contactId
-      WITH SYSTEM_MODE
-    ];
-  }
-
   // 複製元の勤務表取得(本人の勤務表のみ)
   private static MonthlyReport__c getSourceReport(Id sourceId, Id contactId) {
-    List<MonthlyReport__c> reports = Database.queryWithBinds(
-      'SELECT ' +
-        String.join(INPUT_FIELDS, ', ') +
-        ' FROM MonthlyReport__c WHERE Id = :sourceId AND Contact__c = :contactId',
-      new Map<String, Object>{ 'sourceId' => sourceId, 'contactId' => contactId },
-      AccessLevel.SYSTEM_MODE
-    );
+    List<MonthlyReport__c> reports = MonthlyReportDao.getFieldListById(sourceId, contactId, INPUT_FIELDS);
     if (reports.isEmpty()) {
       throw createException('複製元の勤務表が見つかりません。');
     }
@@ -247,7 +218,7 @@ public without sharing class CreateWorkController {
   // 祝日未登録の年はGoogle Calendar API v3から日本の祝日を取得する(取得失敗時は祝日なしで続行する)
   private static List<Holiday__c> fetchHolidaysIfMissing(Integer year) {
     List<Holiday__c> holidays = new List<Holiday__c>();
-    Integer registered = [SELECT COUNT() FROM Holiday__c WHERE CALENDAR_YEAR(Date__c) = :year WITH SYSTEM_MODE];
+    Integer registered = HolidayDao.countByYear(year);
     if (registered > 0) {
       return holidays;
     }
@@ -292,12 +263,7 @@ public without sharing class CreateWorkController {
     Date lastDay = firstDay.addMonths(1).addDays(-1);
 
     Map<Date, String> holidays = new Map<Date, String>();
-    for (Holiday__c h : [
-      SELECT Date__c, Description__c
-      FROM Holiday__c
-      WHERE Date__c >= :firstDay AND Date__c <= :lastDay
-      WITH SYSTEM_MODE
-    ]) {
+    for (Holiday__c h : HolidayDao.getListByPeriod(firstDay, lastDay)) {
       holidays.put(h.Date__c, h.Description__c);
     }
 

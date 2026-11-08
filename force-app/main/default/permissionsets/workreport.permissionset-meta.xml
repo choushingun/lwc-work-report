@@ -20,6 +20,10 @@
         <apexClass>WorkReportSession</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>WorktimeInputController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <description>勤務報告アプリ用権限セット（ゲストユーザー向け）</description>
     <fieldPermissions>
         <editable>false</editable>

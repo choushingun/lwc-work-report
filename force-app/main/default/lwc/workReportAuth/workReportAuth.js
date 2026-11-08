@@ -30,8 +30,23 @@ export function isSessionInvalidError(error) {
   return error?.body?.message === SESSION_INVALID;
 }
 
+// Experience Builder(編集キャンバス・プレビュー)で表示中か判定する
+// ビルダーではログインできないため、ログイン画面への遷移を行わない
+export function isInBuilder() {
+  const hostname = window.location.hostname;
+  return (
+    hostname.includes('sitepreview') ||
+    hostname.includes('livepreview') ||
+    hostname.includes('live-preview') ||
+    hostname.includes('builder.salesforce-experience.com')
+  );
+}
+
 // 表示中のURLを保存してログイン画面へ遷移する
 export function redirectToLogin(component) {
+  if (isInBuilder()) {
+    return;
+  }
   clearSessionKey();
   sessionStorage.setItem(RETURN_URL_STORAGE_KEY, window.location.pathname + window.location.search);
   component[NavigationMixin.Navigate]({
@@ -42,6 +57,9 @@ export function redirectToLogin(component) {
 
 // ログインチェック(未ログインの場合はログイン画面へ遷移し、falseを返す)
 export async function requireLogin(component) {
+  if (isInBuilder()) {
+    return true;
+  }
   const sessionKey = getSessionKey();
   let isValid = false;
   if (sessionKey) {

@@ -1,4 +1,4 @@
-public without sharing class ReportUtility {
+public class ReportUtility {
   private static String kHexChars = '0123456789abcdef';
   // セッションキー
   public static String SESSION_KEY = 'SESSION_KEY';
@@ -891,7 +891,7 @@ public without sharing class ReportUtility {
 
   // 勤務時間計算
   public static WorkTime__c calcWorkTime(WorkTime__c w) {
-    if (!w.isVacation__c || w.IsPaidHoliday__c) {
+    if (!w.IsVacation__c) {
       if (w.RestTime__c == null)
         w.RestTime__c = 0;
       Time startTime = Time.newInstance(Integer.valueOf(w.StartHour__c), Integer.valueOf(w.startTime__c), 0, 0);

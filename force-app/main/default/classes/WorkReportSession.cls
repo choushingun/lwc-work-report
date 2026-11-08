@@ -2,9 +2,9 @@
  * 機能名 : セッション認証の共通処理
  *
  * 各画面のコントローラーから呼び、セッションキーからログイン社員(Contact)を特定する。
- * ゲストユーザーから呼ばれるため without sharing かつシステムモードで実行する。
+ * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
-public without sharing class WorkReportSession {
+public class WorkReportSession {
   // セッションが無効な場合のエラーメッセージ(画面側でログイン画面へ遷移する判定に使う)
   public static final String SESSION_INVALID = 'SESSION_INVALID';
   private static final Integer SESSION_TIMEOUT_MINUTES = 30;
@@ -30,14 +30,9 @@ public without sharing class WorkReportSession {
     if (String.isBlank(sessionKey)) {
       return null;
     }
-    List<SessionManagement__c> sessions = [
-      SELECT Id, LoginUser__c, LastAccessDatetime__c
-      FROM SessionManagement__c
-      WHERE Key__c = :LoginController.hashSessionKey(sessionKey) AND LogoutDatetime__c = NULL
-      WITH SYSTEM_MODE
-      ORDER BY LoginDatetime__c DESC
-      LIMIT 1
-    ];
+    List<SessionManagement__c> sessions = SessionManagementDao.getLatestActiveListByKey(
+      LoginController.hashSessionKey(sessionKey)
+    );
     Datetime now = System.now();
     if (
       sessions.isEmpty() ||
@@ -48,7 +43,7 @@ public without sharing class WorkReportSession {
     }
     SessionManagement__c session = sessions[0];
     session.LastAccessDatetime__c = now;
-    update as system session;
+    SessionManagementDao.updateSessions(new List<SessionManagement__c>{ session });
     return session;
   }
 }

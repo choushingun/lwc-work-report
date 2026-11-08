@@ -2,31 +2,16 @@
  * 機能名 : 勤務表一覧画面(workReportWorkList)のコントローラー
  *
  * WorkReportSessionでセッションキーから社員(Contact)を特定し、勤務表の一覧取得・打刻・削除を行う。
- * ゲストユーザーから呼ばれるため without sharing かつシステムモードで実行する。
+ * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
-public without sharing class WorkListController {
+public class WorkListController {
   private static final Set<String> READONLY_STATUSES = new Set<String>{ '申請中', '承認済' };
 
   // 勤務表一覧取得
   @AuraEnabled
   public static List<MonthlyReport__c> getReports(String sessionKey) {
     Id contactId = WorkReportSession.getContactId(sessionKey);
-    return [
-      SELECT
-        Id,
-        ReportName__c,
-        Status__c,
-        WorkDays__c,
-        StandardWorkDays__c,
-        StandardWorktime__c,
-        TotalWorkTime__c,
-        Overtime__c,
-        ApplicationApprovalDT__c
-      FROM MonthlyReport__c
-      WHERE Contact__c = :contactId
-      WITH SYSTEM_MODE
-      ORDER BY Year__c DESC, Month__c DESC
-    ];
+    return MonthlyReportDao.getListByContact(contactId);
   }
 
   // 打刻処理(成功時は画面に表示するメッセージを返す)
@@ -37,13 +22,7 @@ public without sharing class WorkListController {
     String yyyy = String.valueOf(today.year());
     String mm = String.valueOf(today.month()).leftPad(2, '0');
 
-    List<MonthlyReport__c> reports = [
-      SELECT Id, Status__c, StartHour__c, StartTime__c, EndHour__c, EndTime__c, RestTime__c, ProjectName__c
-      FROM MonthlyReport__c
-      WHERE Year__c = :yyyy AND Month__c = :mm AND Contact__c = :contactId
-      WITH SYSTEM_MODE
-      LIMIT 1
-    ];
+    List<MonthlyReport__c> reports = MonthlyReportDao.getListByYearMonth(contactId, yyyy, mm);
     if (reports.isEmpty()) {
       throw createException('当月の勤務表がありません。当月の勤務表を作成してください。');
     }
@@ -59,21 +38,11 @@ public without sharing class WorkListController {
     }
 
     // 当日の会社提出実績
-    List<WorkTime__c> worktimes = [
-      SELECT Id, IsPaidHoliday__c, IsVacation__c, Memo__c
-      FROM WorkTime__c
-      WHERE MonthlyReport__c = :report.Id AND WorkDay__c = :today AND IsSubmit__c = FALSE
-      WITH SYSTEM_MODE
-      LIMIT 1
-    ];
+    List<WorkTime__c> worktimes = WorkTimeDao.getCompanyListByDay(report.Id, today);
     if (worktimes.isEmpty()) {
       throw createException('今日の実績がありません。勤務実績を作成してください。');
     }
     WorkTime__c current = worktimes[0];
-    if (current.IsPaidHoliday__c) {
-      throw createException('今日は有給休暇なので、打刻することができません。');
-    }
-
     WorkTime__c wt = new WorkTime__c(Id = current.Id);
     // 休みの場合、チェックを外して勤務表の標準時間を設定する
     if (current.IsVacation__c) {
@@ -111,7 +80,7 @@ public without sharing class WorkListController {
       wt.ClockOutDatetime__c = now;
       message = '現在の時刻で打刻しました。お疲れ様でした！';
     }
-    update as system wt;
+    WorkTimeDao.updateWorkTimes(new List<WorkTime__c>{ wt });
     return message;
   }
 
@@ -119,12 +88,7 @@ public without sharing class WorkListController {
   @AuraEnabled
   public static void deleteReport(String sessionKey, Id reportId) {
     Id contactId = WorkReportSession.getContactId(sessionKey);
-    List<MonthlyReport__c> reports = [
-      SELECT Id, Status__c
-      FROM MonthlyReport__c
-      WHERE Id = :reportId AND Contact__c = :contactId
-      WITH SYSTEM_MODE
-    ];
+    List<MonthlyReport__c> reports = MonthlyReportDao.getStatusListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
     }
@@ -132,7 +96,7 @@ public without sharing class WorkListController {
       throw createException('申請中または承認済の勤務表は削除できません。');
     }
     try {
-      delete as system reports;
+      MonthlyReportDao.deleteReports(reports);
     } catch (DmlException e) {
       throw createException('勤務表削除処理失敗しました。');
     }

@@ -1,0 +1,160 @@
+.worktime-input-page {
+  position: relative;
+  min-height: 10rem;
+  padding: var(--lwc-spacingMedium, 1rem);
+}
+
+/* 画面タイトルは太字にする(他の画面と同じ) */
+.page-title {
+  font-weight: 700;
+}
+
+/* 列が多いため、画面幅が狭い場合は横スクロールする */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.worktime-table th,
+.worktime-table td {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  white-space: nowrap;
+}
+
+/* ヘッダー行は高さを持たせる */
+.worktime-table th {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* 選択リスト・入力欄を行の縦中央に揃える。行を低くするため上下の余白は小さくする */
+.worktime-table td {
+  vertical-align: middle;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+}
+
+/* 行を低くするため、選択リスト・入力欄の高さを標準より少し小さくする */
+.worktime-table select.slds-select,
+.worktime-table input.slds-input {
+  height: 1.75rem;
+  min-height: 1.75rem;
+  line-height: 1.75rem;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.col-vacation {
+  width: 3.5rem;
+}
+
+.col-day,
+.col-week {
+  white-space: nowrap;
+}
+
+.col-select {
+  min-width: 10rem;
+}
+
+.col-memo {
+  min-width: 12rem;
+}
+
+/* 時・分の選択欄 */
+.time-select {
+  width: 4.75rem;
+}
+
+/* 時・分の数字は右寄せにする(selectはtext-align-lastで選択中の値の位置が決まる) */
+.worktime-table .time-select select.slds-select {
+  text-align: right;
+  text-align-last: right;
+}
+
+/* 開いたときの選択肢一覧は中央寄せにする */
+.worktime-table .time-select select.slds-select option {
+  text-align: center;
+}
+
+.item-select {
+  min-width: 10rem;
+}
+
+/* サイトのテーマで数値入力が中央寄せにされるため、詳細度を上げて右寄せにする */
+.worktime-table input.rest-item {
+  width: 5rem;
+  text-align: right;
+}
+
+/* 数値入力の増減ボタン(スピナー)は表示しない */
+.worktime-table input.rest-item {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.worktime-table input.rest-item::-webkit-inner-spin-button,
+.worktime-table input.rest-item::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 休み・一括設定のチェックボックスはクリックしやすいよう大きくする */
+.large-checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.large-checkbox:disabled {
+  cursor: default;
+}
+
+/* ヘッダーの一括設定チェックボックスは見出しの文字に合わせて少し小さくする */
+.large-checkbox.bulk-checkbox {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* −/＋ボタン(15分調整)は選択リストと同じ高さの行に収める */
+.adjust-button {
+  line-height: 0;
+}
+
+/* 当日の実績行 */
+.row-today td {
+  background-color: #d8edff;
+}
+
+/* 土曜は青、日祝は赤 */
+.text-blue {
+  color: #0176d3;
+}
+
+.text-red {
+  color: #ea001e;
+}
+
+/* キャンセル確認ダイアログ(勤務表作成画面と同じ) */
+.cancel-confirm {
+  width: 90%;
+  max-width: 46rem;
+  min-width: auto;
+}
+
+.cancel-confirm-header {
+  position: relative;
+}
+
+.cancel-confirm-close {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+}
+
+.confirm-footer {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}

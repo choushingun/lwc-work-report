@@ -1,0 +1,330 @@
+<template>
+  <main class="worktime-input-page">
+    <c-spinner></c-spinner>
+    <!-- 初期表示失敗時(画面を表示できない場合)もエラーが見えるよう、カードの外に出す -->
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
+    <lightning-card lwc:if={isAuthenticated} icon-name="standard:timesheet_entry">
+      <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">{pageTitle}</span>
+      <lightning-button
+        slot="actions"
+        label="キャンセル"
+        disabled={isLoading}
+        onclick={handleCancel}
+      ></lightning-button>
+      <lightning-button
+        slot="actions"
+        class="slds-m-left_x-small"
+        variant="brand"
+        label="保存"
+        disabled={saveDisabled}
+        onclick={handleSave}
+      ></lightning-button>
+
+      <div class="slds-p-horizontal_medium">
+        <div lwc:if={errorMessage} class="slds-scoped-notification slds-theme_error slds-m-bottom_small" role="alert">
+          <lightning-icon
+            icon-name="utility:error"
+            alternative-text="エラー"
+            size="x-small"
+            variant="inverse"
+            class="slds-m-right_x-small"
+          ></lightning-icon>
+          {errorMessage}
+        </div>
+        <div lwc:if={isReadonly} class="slds-scoped-notification slds-scoped-notification_light slds-m-bottom_small">
+          この勤務表は編集できません。
+        </div>
+
+        <div class="table-wrapper">
+          <table class="slds-table slds-table_bordered slds-table_striped worktime-table">
+            <thead>
+              <tr>
+                <th scope="col" class="slds-text-align_center col-vacation">休み</th>
+                <th scope="col" class="col-day">実績日</th>
+                <th scope="col" class="slds-text-align_center col-week">曜日</th>
+                <th scope="col" class="col-time">開始時間</th>
+                <th scope="col" class="col-time">終了時間</th>
+                <th scope="col" class="col-rest">休憩(分)</th>
+                <th scope="col" class="slds-text-align_right col-worktime">作業時間</th>
+                <th scope="col" class="col-select">
+                  <div class="slds-grid slds-grid_vertical-align-center">
+                    <span>プロジェクト</span>
+                    <input
+                      lwc:if={showBulkProject}
+                      type="checkbox"
+                      class="large-checkbox bulk-checkbox slds-m-left_x-small"
+                      title="クリックするとプロジェクトが一括設定されます。"
+                      data-field="projectName"
+                      disabled={isReadonly}
+                      onclick={handleBulkSet}
+                    />
+                  </div>
+                </th>
+                <th scope="col" class="col-select">
+                  <div class="slds-grid slds-grid_vertical-align-center">
+                    <span>作業場所</span>
+                    <input
+                      lwc:if={showBulkWorkplace}
+                      type="checkbox"
+                      class="large-checkbox bulk-checkbox slds-m-left_x-small"
+                      title="クリックすると作業場所が一括設定されます。"
+                      data-field="workplace"
+                      disabled={isReadonly}
+                      onclick={handleBulkSet}
+                    />
+                  </div>
+                </th>
+                <th scope="col" class="col-memo">備考</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template for:each={rows} for:item="row">
+                <tr key={row.id} class={row.rowClass}>
+                  <td class="slds-text-align_center">
+                    <input
+                      type="checkbox"
+                      class="large-checkbox"
+                      aria-label="休み"
+                      checked={row.isVacation}
+                      disabled={row.vacationDisabled}
+                      data-id={row.id}
+                      onchange={handleVacationChange}
+                    />
+                  </td>
+                  <td class="col-day">{row.dayLabel}</td>
+                  <td class="slds-text-align_center"><span class={row.weekClass}>{row.week}</span></td>
+                  <!-- 開始時間(−/＋で15分ずつ調整する) -->
+                  <td>
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                      <lightning-button-icon
+                        class="adjust-button slds-m-right_xx-small"
+                        icon-name="utility:dash"
+                        variant="border-filled"
+                        size="small"
+                        alternative-text="開始時間を15分早くする"
+                        title="開始時間を15分早くする"
+                        disabled={row.timeDisabled}
+                        data-id={row.id}
+                        data-target="start"
+                        data-step="-1"
+                        onclick={handleAdjust}
+                      ></lightning-button-icon>
+                      <div class="slds-select_container time-select">
+                        <select
+                          class="slds-select"
+                          aria-label="開始(時)"
+                          disabled={row.timeDisabled}
+                          data-id={row.id}
+                          data-field="startHour"
+                          onchange={handleFieldChange}
+                        >
+                          <template for:each={row.startHourOptions} for:item="opt">
+                            <option key={opt.key} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                          </template>
+                        </select>
+                      </div>
+                      <span class="slds-p-horizontal_xx-small">:</span>
+                      <div class="slds-select_container time-select">
+                        <select
+                          class="slds-select"
+                          aria-label="開始(分)"
+                          disabled={row.timeDisabled}
+                          data-id={row.id}
+                          data-field="startTime"
+                          onchange={handleFieldChange}
+                        >
+                          <template for:each={row.startTimeOptions} for:item="opt">
+                            <option key={opt.key} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                          </template>
+                        </select>
+                      </div>
+                      <lightning-button-icon
+                        class="adjust-button slds-m-left_xx-small"
+                        icon-name="utility:add"
+                        variant="border-filled"
+                        size="small"
+                        alternative-text="開始時間を15分遅くする"
+                        title="開始時間を15分遅くする"
+                        disabled={row.timeDisabled}
+                        data-id={row.id}
+                        data-target="start"
+                        data-step="1"
+                        onclick={handleAdjust}
+                      ></lightning-button-icon>
+                    </div>
+                  </td>
+                  <!-- 終了時間(−/＋で15分ずつ調整する) -->
+                  <td>
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                      <lightning-button-icon
+                        class="adjust-button slds-m-right_xx-small"
+                        icon-name="utility:dash"
+                        variant="border-filled"
+                        size="small"
+                        alternative-text="終了時間を15分早くする"
+                        title="終了時間を15分早くする"
+                        disabled={row.timeDisabled}
+                        data-id={row.id}
+                        data-target="end"
+                        data-step="-1"
+                        onclick={handleAdjust}
+                      ></lightning-button-icon>
+                      <div class="slds-select_container time-select">
+                        <select
+                          class="slds-select"
+                          aria-label="終了(時)"
+                          disabled={row.timeDisabled}
+                          data-id={row.id}
+                          data-field="endHour"
+                          onchange={handleFieldChange}
+                        >
+                          <template for:each={row.endHourOptions} for:item="opt">
+                            <option key={opt.key} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                          </template>
+                        </select>
+                      </div>
+                      <span class="slds-p-horizontal_xx-small">:</span>
+                      <div class="slds-select_container time-select">
+                        <select
+                          class="slds-select"
+                          aria-label="終了(分)"
+                          disabled={row.timeDisabled}
+                          data-id={row.id}
+                          data-field="endTime"
+                          onchange={handleFieldChange}
+                        >
+                          <template for:each={row.endTimeOptions} for:item="opt">
+                            <option key={opt.key} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                          </template>
+                        </select>
+                      </div>
+                      <lightning-button-icon
+                        class="adjust-button slds-m-left_xx-small"
+                        icon-name="utility:add"
+                        variant="border-filled"
+                        size="small"
+                        alternative-text="終了時間を15分遅くする"
+                        title="終了時間を15分遅くする"
+                        disabled={row.timeDisabled}
+                        data-id={row.id}
+                        data-target="end"
+                        data-step="1"
+                        onclick={handleAdjust}
+                      ></lightning-button-icon>
+                    </div>
+                  </td>
+                  <!-- 休憩(分) -->
+                  <!-- サイトのテーマで位置がずれないよう、入力欄・選択リストはlightning-xxxではなくSLDSのスタイルで作る -->
+                  <td>
+                    <input
+                      class="slds-input rest-item"
+                      type="number"
+                      aria-label="休憩(分)"
+                      min="0"
+                      step="1"
+                      value={row.restTimeLabel}
+                      disabled={row.timeDisabled}
+                      data-id={row.id}
+                      data-field="restTime"
+                      onchange={handleFieldChange}
+                    />
+                  </td>
+                  <td class="slds-text-align_right">{row.workTimeLabel}</td>
+                  <!-- プロジェクト -->
+                  <td>
+                    <div class="slds-select_container item-select">
+                      <select
+                        class="slds-select"
+                        aria-label="プロジェクト"
+                        disabled={row.timeDisabled}
+                        data-id={row.id}
+                        data-field="projectName"
+                        onchange={handleFieldChange}
+                      >
+                        <template for:each={row.projectNameOptions} for:item="opt">
+                          <option key={opt.key} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                        </template>
+                      </select>
+                    </div>
+                  </td>
+                  <!-- 作業場所 -->
+                  <td>
+                    <div class="slds-select_container item-select">
+                      <select
+                        class="slds-select"
+                        aria-label="作業場所"
+                        disabled={row.timeDisabled}
+                        data-id={row.id}
+                        data-field="workplace"
+                        onchange={handleFieldChange}
+                      >
+                        <template for:each={row.workplaceOptions} for:item="opt">
+                          <option key={opt.key} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                        </template>
+                      </select>
+                    </div>
+                  </td>
+                  <!-- 備考 -->
+                  <td>
+                    <input
+                      class="slds-input"
+                      type="text"
+                      aria-label="備考"
+                      maxlength="255"
+                      value={row.memo}
+                      disabled={row.memoDisabled}
+                      data-id={row.id}
+                      data-field="memo"
+                      onchange={handleFieldChange}
+                    />
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </lightning-card>
+    <!-- キャンセル確認ダイアログ -->
+    <template lwc:if={showCancelConfirm}>
+      <section
+        role="alertdialog"
+        tabindex="-1"
+        aria-modal="true"
+        aria-labelledby="cancel-confirm-heading"
+        aria-describedby="cancel-confirm-message"
+        class="slds-modal slds-fade-in-open"
+        onkeydown={handleCancelConfirmKeyDown}
+      >
+        <div class="slds-modal__container cancel-confirm">
+          <div class="slds-modal__header cancel-confirm-header">
+            <lightning-button-icon
+              class="cancel-confirm-close"
+              icon-name="utility:close"
+              variant="bare"
+              size="large"
+              alternative-text="閉じる"
+              title="閉じる"
+              onclick={handleCancelConfirmClose}
+            ></lightning-button-icon>
+            <h1 id="cancel-confirm-heading" class="slds-modal__title">入力内容の破棄</h1>
+          </div>
+          <div
+            id="cancel-confirm-message"
+            class="slds-modal__content slds-p-horizontal_medium slds-p-top_medium slds-p-bottom_xx-large"
+          >
+            <p>入力内容を破棄して勤務表に戻りますか？</p>
+            <p>保存されていない内容は失われます。</p>
+          </div>
+          <div class="slds-modal__footer confirm-footer">
+            <button class="slds-button slds-button_neutral" onclick={handleCancelConfirmClose}>いいえ</button>
+            <button class="slds-button slds-button_brand cancel-confirm-button" onclick={handleCancelConfirm}>
+              はい
+            </button>
+          </div>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+  </main>
+</template>

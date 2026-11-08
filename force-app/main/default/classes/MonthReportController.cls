@@ -2,9 +2,9 @@
  * 機能名 : 勤務表参照画面(workReportMonthReport)のコントローラー
  *
  * 勤務表の情報と勤務実績(会社提出分)を取得する。打刻は WorkListController.clockInOut を使う。
- * ゲストユーザーから呼ばれるため without sharing かつシステムモードで実行する。
+ * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
-public without sharing class MonthReportController {
+public class MonthReportController {
   // 編集できない状況
   private static final Set<String> READONLY_STATUSES = new Set<String>{ '作成完了', '申請中', '承認済', 'クローズ' };
   private static final String STATUS_REJECTED = '却下';
@@ -47,8 +47,6 @@ public without sharing class MonthReportController {
     @AuraEnabled
     public Boolean isHoliday;
     @AuraEnabled
-    public Boolean isPaidHoliday;
-    @AuraEnabled
     public Boolean isSubmitCompany;
   }
 
@@ -56,57 +54,7 @@ public without sharing class MonthReportController {
   @AuraEnabled
   public static ReportData getReport(String sessionKey, Id reportId) {
     Id contactId = WorkReportSession.getContactId(sessionKey);
-    List<MonthlyReport__c> reports = [
-      SELECT
-        Id,
-        ReportName__c,
-        UserName__c,
-        Year__c,
-        Month__c,
-        Status__c,
-        StartHour__c,
-        StartTime__c,
-        EndHour__c,
-        EndTime__c,
-        UndertimeWork__c,
-        OvertimeWork__c,
-        WorkDays__c,
-        TotalWorkTime__c,
-        Approver__c,
-        ApproverMail__c,
-        ProjectName__c,
-        ProjectCode__c,
-        ProjectName2__c,
-        ProjectCode2__c,
-        ProjectName3__c,
-        ProjectCode3__c,
-        RejectComment__c,
-        ApplicationDateTime__c,
-        ApproveDateTime__c,
-        Superior__r.Name,
-        Contact__r.Account.ReportTo__c,
-        Contact__r.Account.ReportToMail__c,
-        (
-          SELECT
-            Id,
-            WorkDay__c,
-            Week__c,
-            Start__c,
-            End__c,
-            RestTime__c,
-            WorkTime__c,
-            Memo__c,
-            IsHoliday__c,
-            IsPaidHoliday__c,
-            IsSubmit__c,
-            IsSubmitCompany__c
-          FROM MonthlyReportRelation__r
-          ORDER BY WorkDay__c
-        )
-      FROM MonthlyReport__c
-      WHERE Id = :reportId AND Contact__c = :contactId
-      WITH SYSTEM_MODE
-    ];
+    List<MonthlyReport__c> reports = MonthlyReportDao.getDetailListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
     }
@@ -116,7 +64,7 @@ public without sharing class MonthReportController {
     data.report = report;
     data.worktimes = toRows(report.MonthlyReportRelation__r);
     data.isCurrentMonth = isCurrentMonth(report.Year__c, report.Month__c);
-    data.isReadonly = READONLY_STATUSES.contains(report.Status__c) || isReadonlyMonth(report.Year__c, report.Month__c);
+    data.isReadonly = isReadonly(report);
     data.messages = getMessages(report);
     return data;
   }
@@ -144,7 +92,6 @@ public without sharing class MonthReportController {
       row.restTime = wt.RestTime__c;
       row.workTime = wt.WorkTime__c;
       row.isHoliday = wt.IsHoliday__c == true;
-      row.isPaidHoliday = wt.IsPaidHoliday__c == true;
       row.isSubmitCompany = wt.IsSubmitCompany__c == true;
       row.memo = mergeMemo(wt.Memo__c, customerWorktimes.get(wt.WorkDay__c));
       rows.add(row);
@@ -161,10 +108,7 @@ public without sharing class MonthReportController {
       if (String.isNotBlank(customer.Memo__c) && customer.Memo__c != memo) {
         lines.add(customer.Memo__c);
       }
-      // 有給休暇の場合、時間の表示は不要
-      if (customer.IsPaidHoliday__c != true) {
-        lines.add('客先提出：' + customer.Start__c + '～' + customer.End__c);
-      }
+      lines.add('客先提出：' + customer.Start__c + '～' + customer.End__c);
     }
     return String.join(lines, '\n');
   }
@@ -189,6 +133,11 @@ public without sharing class MonthReportController {
   private static Boolean isCurrentMonth(String yyyy, String mm) {
     Date today = Date.today();
     return yyyy == String.valueOf(today.year()) && mm == String.valueOf(today.month()).leftPad(2, '0');
+  }
+
+  // 編集不可(状況または年月による)の判定。実績入力画面(WorktimeInputController)からも使う
+  public static Boolean isReadonly(MonthlyReport__c report) {
+    return READONLY_STATUSES.contains(report.Status__c) || isReadonlyMonth(report.Year__c, report.Month__c);
   }
 
   // 先々月～再来月以外の勤務表は編集不可とする

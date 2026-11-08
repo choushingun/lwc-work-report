@@ -20,18 +20,19 @@
         <div lwc:if={infoMessage} class="slds-text-color_success slds-m-bottom_small" role="status">{infoMessage}</div>
         <template lwc:if={hasMessages}>
           <template for:each={messages} for:item="item">
+            <!-- 注意事項は目立つよう警告(黄色)で表示する -->
             <div
               key={item.key}
-              class="slds-scoped-notification slds-scoped-notification_light slds-m-bottom_small"
-              role="status"
+              class="slds-notify slds-notify_alert slds-alert_warning slds-m-bottom_small warning-message"
+              role="alert"
             >
               <lightning-icon
-                icon-name="utility:info"
-                alternative-text="お知らせ"
+                icon-name="utility:warning"
+                alternative-text="警告"
                 size="x-small"
                 class="slds-m-right_x-small"
               ></lightning-icon>
-              {item.message}
+              <h2>{item.message}</h2>
             </div>
           </template>
         </template>
@@ -39,7 +40,7 @@
         <!-- 勤務表の情報 -->
         <div class="slds-section slds-is-open">
           <h2 class="slds-section__title slds-theme_shade">
-            <span class="slds-truncate slds-p-horizontal_small">勤務表の情報</span>
+            <span class="slds-truncate section-title-text">勤務表の情報</span>
           </h2>
           <div class="slds-grid slds-wrap section-body">
             <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
@@ -136,7 +137,14 @@
         <!-- 勤務実績 -->
         <div class="slds-section slds-is-open">
           <h2 class="slds-section__title slds-theme_shade section-title-with-action">
-            <span class="slds-truncate slds-p-horizontal_small slds-col">勤務実績</span>
+            <span class="slds-truncate section-title-text slds-col">勤務実績</span>
+            <lightning-button
+              class="slds-m-right_x-small"
+              label="実績入力"
+              title="勤務実績(会社提出分)を入力します。"
+              disabled={worktimeInputDisabled}
+              onclick={handleWorktimeInput}
+            ></lightning-button>
             <lightning-button
               class="slds-m-right_x-small"
               variant="brand"

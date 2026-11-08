@@ -5,6 +5,8 @@ import clockInOut from '@salesforce/apex/WorkListController.clockInOut';
 import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/workReportAuth';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
+// 勤務実績入力画面(Experience Builderのページ名)
+const WORKTIME_INPUT_PAGE = 'worktime_input__c';
 // プロジェクト・プロジェクトコードの表示文字数(超える分はマウスを乗せると表示する)
 const PROJECT_DISPLAY_LENGTH = 20;
 const STATUS_ICONS = {
@@ -144,6 +146,19 @@ export default class WorkReportMonthReport extends NavigationMixin(LightningElem
       .join(';');
   }
 
+  // 編集不可の勤務表、勤務実績がない場合は実績入力できない
+  get worktimeInputDisabled() {
+    return this.isLoading || this.isReadonly || !this.hasWorktimes;
+  }
+
+  handleWorktimeInput() {
+    this[NavigationMixin.Navigate]({
+      type: 'comm__namedPage',
+      attributes: { name: WORKTIME_INPUT_PAGE },
+      state: { id: this.reportId }
+    });
+  }
+
   get clockDisabled() {
     return this.isLoading || !this.isCurrentMonth || this.isReadonly;
   }
@@ -157,7 +172,7 @@ export default class WorkReportMonthReport extends NavigationMixin(LightningElem
       hasMemo: !!wt.memo,
       rowClass: wt.workDay === today ? 'row-today' : '',
       weekClass: this.weekClass(wt),
-      timeClass: wt.isSubmitCompany && !wt.isPaidHoliday ? 'text-red' : ''
+      timeClass: wt.isSubmitCompany ? 'text-red' : ''
     }));
   }
 
@@ -177,12 +192,12 @@ export default class WorkReportMonthReport extends NavigationMixin(LightningElem
     return this.worktimes.length > 0;
   }
 
-  // 土曜は青、日祝・有給休暇は赤
+  // 土曜は青、日祝は赤
   weekClass(wt) {
-    if (wt.isHoliday) {
-      return wt.week === '土' ? 'text-blue' : 'text-red';
+    if (!wt.isHoliday) {
+      return '';
     }
-    return wt.isPaidHoliday ? 'text-red' : '';
+    return wt.week === '土' ? 'text-blue' : 'text-red';
   }
 
   todayString() {

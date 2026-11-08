@@ -7,9 +7,8 @@ trigger TRG_WorkTime_B on WorkTime__c(before insert, before update) {
       reportIdSet.add(w.MonthlyReport__c);
     }
     // 勤務表情報取得
-    Map<Id, MonthlyReport__c> reportMap = new Map<Id, MonthlyReport__c>(
-      [SELECT Year__c, Month__c FROM MonthlyReport__c WHERE Id IN :reportIdSet]
-    );
+    Map<Id, MonthlyReport__c> reportMap = MonthlyReportDao.getMapByIds(reportIdSet);
+    system.debug('reportIdSet=' + reportIdSet);
 
     for (Integer i = 0; i < Trigger.new.size(); i++) {
       WorkTime__c w = Trigger.new[i];
@@ -24,6 +23,7 @@ trigger TRG_WorkTime_B on WorkTime__c(before insert, before update) {
 
       // 年月チェック
       if (
+        report == null ||
         Integer.valueOf(report.Year__c) != w.WorkDay__c.year() ||
         Integer.valueOf(report.Month__c) != w.WorkDay__c.month()
       ) {

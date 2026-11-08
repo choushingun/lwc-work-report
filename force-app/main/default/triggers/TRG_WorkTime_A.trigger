@@ -5,18 +5,9 @@ trigger TRG_WorkTime_A on WorkTime__c(after insert, after update, after delete) 
     reportIds.add(worktime.MonthlyReport__c);
   }
 
-  List<MonthlyReport__c> lstReport = [
-    SELECT Id, LastModified__c
-    FROM MonthlyReport__c
-    WHERE Id = :reportIds
-  ];
-
-  for (MonthlyReport__c report : lstReport) {
+  List<MonthlyReport__c> reports = MonthlyReportDao.getMapByIds(reportIds).values();
+  for (MonthlyReport__c report : reports) {
     report.LastModified__c = System.now();
   }
-
-  if (lstReport.size() > 0) {
-    update lstReport;
-  }
-
+  MonthlyReportDao.updateReports(reports);
 }

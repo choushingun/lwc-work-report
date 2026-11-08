@@ -2,9 +2,9 @@
  * 機能名 : ログイン画面(workReportLogin)のコントローラー
  *
  * 社員(Contact)のメールアドレス・パスワードで認証し、SessionManagement__cにセッションを登録する。
- * ゲストユーザーから呼ばれ、Contactの参照・更新が必要なため without sharing かつシステムモードで実行する。
+ * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
-public without sharing class LoginController {
+public class LoginController {
   private static final Integer MAX_FAILED_COUNT = 5;
   private static final Integer LOCKOUT_MINUTES = 15;
   private static final Integer HASH_ITERATIONS = 2000;
@@ -17,13 +17,7 @@ public without sharing class LoginController {
     if (String.isBlank(email) || String.isBlank(password)) {
       return null;
     }
-    List<Contact> contacts = [
-      SELECT Id, PasswordHash__c, PasswordSalt__c, FailedLoginCount__c, LockoutUntil__c
-      FROM Contact
-      WHERE Email = :email.trim()
-      WITH SYSTEM_MODE
-      LIMIT 2
-    ];
+    List<Contact> contacts = ContactDao.getLoginListByEmail(email.trim());
     // Emailは標準項目で一意制約を付けられないため、重複時はログイン不可とする
     if (contacts.size() != 1 || contacts[0].PasswordHash__c == null) {
       // 応答時間からメールアドレスの登録有無を判別されないよう、同じ計算を行う
@@ -45,7 +39,7 @@ public without sharing class LoginController {
 
     con.FailedLoginCount__c = 0;
     con.LockoutUntil__c = null;
-    update as system con;
+    ContactDao.updateContact(con);
     return createSession(con.Id);
   }
 
@@ -55,17 +49,12 @@ public without sharing class LoginController {
     if (String.isBlank(sessionKey)) {
       return;
     }
-    List<SessionManagement__c> sessions = [
-      SELECT Id
-      FROM SessionManagement__c
-      WHERE Key__c = :hashSessionKey(sessionKey) AND LogoutDatetime__c = NULL
-      WITH SYSTEM_MODE
-    ];
+    List<SessionManagement__c> sessions = SessionManagementDao.getActiveListByKey(hashSessionKey(sessionKey));
     Datetime now = System.now();
     for (SessionManagement__c session : sessions) {
       session.LogoutDatetime__c = now;
     }
-    update as system sessions;
+    SessionManagementDao.updateSessions(sessions);
   }
 
   // パスワード設定(管理者が匿名Apexから実行する)
@@ -74,12 +63,14 @@ public without sharing class LoginController {
       throw new IllegalArgumentException('パスワードが空です');
     }
     String salt = EncodingUtil.convertToHex(Crypto.generateAesKey(128));
-    update as system new Contact(
-      Id = contactId,
-      PasswordSalt__c = salt,
-      PasswordHash__c = hashPassword(password, salt),
-      FailedLoginCount__c = 0,
-      LockoutUntil__c = null
+    ContactDao.updateContact(
+      new Contact(
+        Id = contactId,
+        PasswordSalt__c = salt,
+        PasswordHash__c = hashPassword(password, salt),
+        FailedLoginCount__c = 0,
+        LockoutUntil__c = null
+      )
     );
   }
 
@@ -90,18 +81,20 @@ public without sharing class LoginController {
       failedCount = 0;
     }
     con.FailedLoginCount__c = failedCount;
-    update as system con;
+    ContactDao.updateContact(con);
   }
 
   // セッション登録(DBにはキーのハッシュ値のみ保存する)
   private static String createSession(Id contactId) {
     String sessionKey = EncodingUtil.convertToHex(Crypto.generateAesKey(256));
     Datetime now = System.now();
-    insert as system new SessionManagement__c(
-      Key__c = hashSessionKey(sessionKey),
-      LoginUser__c = contactId,
-      LoginDatetime__c = now,
-      LastAccessDatetime__c = now
+    SessionManagementDao.insertSession(
+      new SessionManagement__c(
+        Key__c = hashSessionKey(sessionKey),
+        LoginUser__c = contactId,
+        LoginDatetime__c = now,
+        LastAccessDatetime__c = now
+      )
     );
     return sessionKey;
   }

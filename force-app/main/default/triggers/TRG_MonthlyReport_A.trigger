@@ -21,11 +21,7 @@ trigger TRG_MonthlyReport_A on MonthlyReport__c(after update) {
       }
 
       // 実績検索
-      List<WorkTime__c> workTimes = [
-        SELECT Id, ProjectName__c
-        FROM WorkTime__c
-        WHERE MonthlyReport__c = :report.Id AND ProjectName__c = :lstPrjForDelete
-      ];
+      List<WorkTime__c> workTimes = WorkTimeDao.getListByProject(report.Id, lstPrjForDelete);
 
       for (WorkTime__c wt : workTimes) {
         wt.ProjectName__c = '';
@@ -33,8 +29,6 @@ trigger TRG_MonthlyReport_A on MonthlyReport__c(after update) {
       }
     }
   }
-  if (worktimesForUpdate.size() > 0) {
-    update worktimesForUpdate;
-  }
+  WorkTimeDao.updateWorkTimes(worktimesForUpdate);
 
 }
