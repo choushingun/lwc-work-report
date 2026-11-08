@@ -1,5 +1,6 @@
-trigger TRG_WorkTime_B on WorkTime__c(before insert, before update) {
-  if (Trigger.IsInsert || Trigger.IsUpdate) {
+trigger WorkTime on WorkTime__c(before insert, before update, after insert, after update, after delete) {
+  // 登録・更新前：勤務実績名・勤務時間を設定し、勤務表と同じ年月かチェックする
+  if (Trigger.isBefore && (Trigger.isInsert || Trigger.isUpdate)) {
     // 勤務表ID
     Set<Id> reportIdSet = new Set<Id>();
 
@@ -31,5 +32,20 @@ trigger TRG_WorkTime_B on WorkTime__c(before insert, before update) {
         continue;
       }
     }
+  }
+
+  // 登録・更新・削除後：勤務表の最終更新日時を更新する
+  if (Trigger.isAfter) {
+    Set<Id> reportIds = new Set<Id>();
+    list<WorkTime__c> lstWorktime = Trigger.isDelete ? Trigger.old : Trigger.new;
+    for (WorkTime__c worktime : lstWorktime) {
+      reportIds.add(worktime.MonthlyReport__c);
+    }
+
+    List<MonthlyReport__c> reports = MonthlyReportDao.getMapByIds(reportIds).values();
+    for (MonthlyReport__c report : reports) {
+      report.LastModified__c = System.now();
+    }
+    MonthlyReportDao.updateReports(reports);
   }
 }

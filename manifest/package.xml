@@ -16,10 +16,8 @@
         <name>ApexClass</name>
     </types>
     <types>
-        <members>TRG_MonthlyReport_A</members>
-        <members>TRG_MonthlyReport_B</members>
-        <members>TRG_WorkTime_A</members>
-        <members>TRG_WorkTime_B</members>
+        <members>MonthlyReport</members>
+        <members>WorkTime</members>
         <name>ApexTrigger</name>
     </types>
     <types>
