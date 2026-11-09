@@ -2,9 +2,11 @@ import { LightningElement, wire } from 'lwc';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import getReport from '@salesforce/apex/WorkreportController.getReport';
 import clockInOut from '@salesforce/apex/WorkreportListController.clockInOut';
+import getCompleteData from '@salesforce/apex/WorkreportController.getCompleteData';
 import completeReport from '@salesforce/apex/WorkreportController.completeReport';
 import cancelCompleteReport from '@salesforce/apex/WorkreportController.cancelCompleteReport';
 import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/auth';
+import { createWorkreportFile } from './workreportFile';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
 // 勤務実績入力画面(Experience Builderのページ名)
@@ -278,12 +280,15 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     });
   }
 
-  // 月末締め(成功後は勤務表を再取得し、編集不可の状態で表示する)
+  // 月末締め(入力内容のチェック後、勤務表ファイルを作成して添付する。成功後は勤務表を再取得し、編集不可の状態で表示する)
   handleCompleteConfirm() {
     this.showCompleteConfirm = false;
     this.infoMessage = '';
     this.callApex(async () => {
-      const message = await completeReport({ sessionKey: getSessionKey(), reportId: this.reportId });
+      const sessionKey = getSessionKey();
+      const data = await getCompleteData({ sessionKey, reportId: this.reportId });
+      const fileContent = await createWorkreportFile(this, data);
+      const message = await completeReport({ sessionKey, reportId: this.reportId, fileContent });
       await this.fetchReport();
       this.infoMessage = message;
     });
