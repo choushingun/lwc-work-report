@@ -1,13 +1,13 @@
 import { LightningElement, wire } from 'lwc';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
-import getInitData from '@salesforce/apex/CreateWorkController.getInitData';
-import saveReport from '@salesforce/apex/CreateWorkController.saveReport';
-import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/workReportAuth';
+import getInitData from '@salesforce/apex/WorkreportInputController.getInitData';
+import saveReport from '@salesforce/apex/WorkreportInputController.saveReport';
+import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/auth';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
-const WORK_LIST_PAGE = 'work_report_list__c';
+const WORK_LIST_PAGE = 'workreport_list__c';
 // 編集モードの戻り先(勤務表画面)
-const MONTH_REPORT_PAGE = 'month_report__c';
+const MONTH_REPORT_PAGE = 'workreport_view__c';
 const NUMBER_FIELDS = ['RestTime__c', 'UndertimeWork__c', 'OvertimeWork__c'];
 const INPUT_FIELDS = [
   'Year__c',
@@ -35,7 +35,7 @@ const PROJECTS = [
   { key: '3', nameField: 'ProjectName3__c', codeField: 'ProjectCode3__c' }
 ];
 
-export default class WorkReportCreateWork extends NavigationMixin(LightningElement) {
+export default class WorkreportInput extends NavigationMixin(LightningElement) {
   report = {};
   yearOptions = [];
   picklistOptions = {};

@@ -1,23 +1,23 @@
 /**
- * 機能名 : 勤務表一覧画面(workReportWorkList)のコントローラー
+ * 機能名 : 勤務表一覧画面(workreportList)のコントローラー
  *
- * WorkReportSessionでセッションキーから社員(Contact)を特定し、勤務表の一覧取得・打刻・削除を行う。
+ * WorkreportSessionでセッションキーから社員(Contact)を特定し、勤務表の一覧取得・打刻・削除を行う。
  * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
-public class WorkListController {
+public class WorkreportListController {
   private static final Set<String> READONLY_STATUSES = new Set<String>{ '申請中', '承認済' };
 
   // 勤務表一覧取得
   @AuraEnabled
   public static List<MonthlyReport__c> getReports(String sessionKey) {
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+    Id contactId = WorkreportSession.getContactId(sessionKey);
     return MonthlyReportDao.getListByContact(contactId);
   }
 
   // 打刻処理(成功時は画面に表示するメッセージを返す)
   @AuraEnabled
   public static String clockInOut(String sessionKey) {
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+    Id contactId = WorkreportSession.getContactId(sessionKey);
     Date today = Date.today();
     String yyyy = String.valueOf(today.year());
     String mm = String.valueOf(today.month()).leftPad(2, '0');
@@ -38,7 +38,7 @@ public class WorkListController {
     }
 
     // 当日の会社提出実績
-    List<WorkTime__c> worktimes = WorkTimeDao.getCompanyListByDay(report.Id, today);
+    List<WorkTime__c> worktimes = WorktimeDao.getCompanyListByDay(report.Id, today);
     if (worktimes.isEmpty()) {
       throw createException('今日の実績がありません。勤務実績を作成してください。');
     }
@@ -80,14 +80,14 @@ public class WorkListController {
       wt.ClockOutDatetime__c = now;
       message = '現在の時刻で打刻しました。お疲れ様でした！';
     }
-    WorkTimeDao.updateWorkTimes(new List<WorkTime__c>{ wt });
+    WorktimeDao.updateWorkTimes(new List<WorkTime__c>{ wt });
     return message;
   }
 
   // 勤務表削除(勤務実績は主従関係で連動削除される)
   @AuraEnabled
   public static void deleteReport(String sessionKey, Id reportId) {
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+    Id contactId = WorkreportSession.getContactId(sessionKey);
     List<MonthlyReport__c> reports = MonthlyReportDao.getStatusListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');

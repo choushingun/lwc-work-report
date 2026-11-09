@@ -4,7 +4,7 @@
  * 各画面のコントローラーから呼び、セッションキーからログイン社員(Contact)を特定する。
  * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
-public class WorkReportSession {
+public class WorkreportSession {
   // セッションが無効な場合のエラーメッセージ(画面側でログイン画面へ遷移する判定に使う)
   public static final String SESSION_INVALID = 'SESSION_INVALID';
   private static final Integer SESSION_TIMEOUT_MINUTES = 30;

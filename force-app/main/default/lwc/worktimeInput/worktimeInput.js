@@ -2,16 +2,16 @@ import { LightningElement, wire } from 'lwc';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import getInitData from '@salesforce/apex/WorktimeInputController.getInitData';
 import saveWorktimes from '@salesforce/apex/WorktimeInputController.saveWorktimes';
-import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/workReportAuth';
+import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/auth';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
-const MONTH_REPORT_PAGE = 'month_report__c';
+const MONTH_REPORT_PAGE = 'workreport_view__c';
 // 休みにした場合の備考(祝日以外)
 const VACATION_MEMO = '全休';
 // ▲▼で調整する分
 const ADJUST_MINUTES = 15;
 
-export default class WorkReportWorktimeInput extends NavigationMixin(LightningElement) {
+export default class WorktimeInput extends NavigationMixin(LightningElement) {
   reportId;
   report = {};
   rows = [];

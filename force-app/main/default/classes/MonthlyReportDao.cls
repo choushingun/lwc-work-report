@@ -130,7 +130,10 @@ public without sharing class MonthlyReportDao {
         RejectComment__c,
         ApplicationDateTime__c,
         ApproveDateTime__c,
+        ReportFileName__c,
         Superior__r.Name,
+        Contact__r.Name,
+        Contact__r.Account.Name,
         Contact__r.Account.ReportTo__c,
         Contact__r.Account.ReportToMail__c,
         (
@@ -142,7 +145,10 @@ public without sharing class MonthlyReportDao {
             End__c,
             RestTime__c,
             WorkTime__c,
+            ProjectName__c,
+            Workplace__c,
             Memo__c,
+            IsVacation__c,
             IsHoliday__c,
             IsSubmit__c,
             IsSubmitCompany__c

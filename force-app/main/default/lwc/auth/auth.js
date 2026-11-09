@@ -5,12 +5,12 @@
  * ログイン後は保存したURLへ戻る。
  */
 import { NavigationMixin } from 'lightning/navigation';
-import validateSession from '@salesforce/apex/WorkReportSession.validateSession';
+import validateSession from '@salesforce/apex/WorkreportSession.validateSession';
 
 const SESSION_STORAGE_KEY = 'workReportSessionKey';
 const RETURN_URL_STORAGE_KEY = 'workReportReturnUrl';
 const SESSION_INVALID = 'SESSION_INVALID';
-export const LOGIN_PAGE = 'employee_login__c';
+export const LOGIN_PAGE = 'workreport_login__c';
 const HOME_PAGE = 'Home';
 
 export function getSessionKey() {

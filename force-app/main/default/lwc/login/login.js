@@ -1,12 +1,12 @@
 import { LightningElement } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import login from '@salesforce/apex/LoginController.login';
-import { navigateAfterLogin, setSessionKey } from 'c/workReportAuth';
+import { navigateAfterLogin, setSessionKey } from 'c/auth';
 
 const LOGIN_FAILED_MESSAGE = 'メールアドレスまたはパスワードが正しくありません。';
 const SYSTEM_ERROR_MESSAGE = 'ログインに失敗しました。時間をおいて再度お試しください。';
 
-export default class WorkReportLogin extends NavigationMixin(LightningElement) {
+export default class Login extends NavigationMixin(LightningElement) {
   email = '';
   password = '';
   errorMessage = '';

@@ -2,8 +2,8 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>68.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>勤務報告ログインチェック</masterLabel>
-    <description>配置したページを未ログインで表示した場合、ログイン画面へ遷移させる</description>
+    <masterLabel>勤務実績編集</masterLabel>
+    <description>勤務実績編集画面</description>
     <targets>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>

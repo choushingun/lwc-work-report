@@ -1,13 +1,13 @@
 import { LightningElement } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
-import getReports from '@salesforce/apex/WorkListController.getReports';
-import clockInOut from '@salesforce/apex/WorkListController.clockInOut';
-import deleteReport from '@salesforce/apex/WorkListController.deleteReport';
-import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/workReportAuth';
+import getReports from '@salesforce/apex/WorkreportListController.getReports';
+import clockInOut from '@salesforce/apex/WorkreportListController.clockInOut';
+import deleteReport from '@salesforce/apex/WorkreportListController.deleteReport';
+import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/auth';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
-const MONTH_REPORT_PAGE = 'month_report__c';
-const CREATE_WORK_PAGE = 'create_work__c';
+const MONTH_REPORT_PAGE = 'workreport_view__c';
+const CREATE_WORK_PAGE = 'workreport_input__c';
 const READONLY_STATUSES = ['申請中', '承認済'];
 const MIN_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [MIN_PAGE_SIZE, 20, 50].map((size) => ({ label: `${size}`, value: `${size}` }));
@@ -27,7 +27,7 @@ const STATUS_CLASSES = {
   申請取消: 'status-canceled'
 };
 
-export default class WorkReportList extends NavigationMixin(LightningElement) {
+export default class WorkreportList extends NavigationMixin(LightningElement) {
   reports = [];
   pageNumber = 1;
   pageSize = MIN_PAGE_SIZE;

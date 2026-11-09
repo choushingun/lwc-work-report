@@ -1,15 +1,16 @@
 /**
- * 機能名 : 勤務表参照画面(workReportMonthReport)のコントローラー
+ * 機能名 : 勤務表参照画面(workreport)のコントローラー
  *
- * 勤務表の情報と勤務実績(会社提出分)を取得する。月末締めを行う。打刻は WorkListController.clockInOut を使う。
+ * 勤務表の情報と勤務実績(会社提出分)を取得する。月末締め(勤務表ファイルの添付)を行う。打刻は WorkreportListController.clockInOut を使う。
  * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
-public class MonthReportController {
+public class WorkreportController {
   // 編集できない状況
   private static final Set<String> READONLY_STATUSES = new Set<String>{ '作成完了', '申請中', '承認済', 'クローズ' };
   private static final String STATUS_REJECTED = '却下';
   private static final String STATUS_COMPLETED = '作成完了';
   private static final String STATUS_DRAFT = 'ドラフト';
+  private static final String XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
   public class ReportData {
     @AuraEnabled
@@ -58,7 +59,7 @@ public class MonthReportController {
   // 勤務表参照データ取得
   @AuraEnabled
   public static ReportData getReport(String sessionKey, Id reportId) {
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+    Id contactId = WorkreportSession.getContactId(sessionKey);
     List<MonthlyReport__c> reports = MonthlyReportDao.getDetailListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
@@ -75,10 +76,80 @@ public class MonthReportController {
     return data;
   }
 
-  // 月末締め(入力内容をチェックし、状況を作成完了にする。以降は編集不可)
+  // 月末締め前のチェックを行い、勤務表ファイル(Excel)の作成に使うデータを返す。
+  // ファイルは画面側でテンプレート(静的リソース Workreport)に書き込んで作成し、completeReport で登録する
   @AuraEnabled
-  public static String completeReport(String sessionKey, Id reportId) {
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+  public static CompleteData getCompleteData(String sessionKey, Id reportId) {
+    Id contactId = WorkreportSession.getContactId(sessionKey);
+    MonthlyReport__c report = getCompletableReport(reportId, contactId);
+    CompleteData data = new CompleteData();
+    data.report = report;
+    data.worktimes = getCompanyWorktimes(report.MonthlyReportRelation__r);
+    return data;
+  }
+
+  public class CompleteData {
+    @AuraEnabled
+    public MonthlyReport__c report;
+    // 勤務実績(会社提出分、実績日順)
+    @AuraEnabled
+    public List<WorkTime__c> worktimes;
+  }
+
+  // 月末締め(勤務表ファイルを添付し、状況を作成完了にする。以降は編集不可)
+  // fileContent : 画面で作成した勤務表ファイル(Excel)のBase64文字列
+  @AuraEnabled
+  public static String completeReport(String sessionKey, Id reportId, String fileContent) {
+    Id contactId = WorkreportSession.getContactId(sessionKey);
+    MonthlyReport__c report = getCompletableReport(reportId, contactId);
+    if (String.isBlank(fileContent)) {
+      throw createException('勤務表ファイルを作成できませんでした。');
+    }
+
+    Datetime now = System.now();
+    MonthlyReport__c updated = new MonthlyReport__c(
+      Id = report.Id,
+      Status__c = STATUS_COMPLETED,
+      ApplicationDateTime__c = now,
+      LastModifiedBy__c = contactId,
+      LastModified__c = now
+    );
+    // 例外時はファイルの添付も取り消されるよう、同じトランザクションで行う
+    try {
+      saveReportFile(report, EncodingUtil.base64Decode(fileContent));
+      MonthlyReportDao.updateReports(new List<MonthlyReport__c>{ updated });
+    } catch (DmlException e) {
+      throw createException(e.getDmlMessage(0));
+    }
+    return '勤務表を作成完了にしました。';
+  }
+
+  // 勤務表ファイルを添付する(同名のファイルがあれば置き換える)
+  private static void saveReportFile(MonthlyReport__c report, Blob body) {
+    String fileName = getReportFileName(report);
+    AttachmentDao.deleteAttachments(AttachmentDao.getListByName(report.Id, fileName));
+    AttachmentDao.insertAttachment(
+      new Attachment(ParentId = report.Id, Name = fileName, ContentType = XLSX_CONTENT_TYPE, Body = body)
+    );
+  }
+
+  private static String getReportFileName(MonthlyReport__c report) {
+    return String.isNotBlank(report.ReportFileName__c) ? report.ReportFileName__c : report.ReportName__c + '.xlsx';
+  }
+
+  // 会社提出分の勤務実績
+  private static List<WorkTime__c> getCompanyWorktimes(List<WorkTime__c> worktimes) {
+    List<WorkTime__c> companyWorktimes = new List<WorkTime__c>();
+    for (WorkTime__c wt : worktimes) {
+      if (wt.IsSubmit__c != true) {
+        companyWorktimes.add(wt);
+      }
+    }
+    return companyWorktimes;
+  }
+
+  // 月末締めできる勤務表を取得する(入力内容に不備があれば例外)
+  private static MonthlyReport__c getCompletableReport(Id reportId, Id contactId) {
     List<MonthlyReport__c> reports = MonthlyReportDao.getDetailListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
@@ -100,7 +171,7 @@ public class MonthReportController {
       throw createException('勤務実績を作成してください。');
     }
     // 勤務のある日(有給休暇を除く)は、プロジェクト・作業場所・備考が必須
-    for (WorkTime__c wt : WorkTimeDao.getCompanyListByReport(report.Id)) {
+    for (WorkTime__c wt : WorktimeDao.getCompanyListByReport(report.Id)) {
       if (wt.WorkTime__c == null || wt.WorkTime__c <= 0 || wt.IsPaidHoliday__c) {
         continue;
       }
@@ -115,27 +186,13 @@ public class MonthReportController {
         throw createException(day + '日の実績に備考を入力してください。');
       }
     }
-
-    Datetime now = System.now();
-    MonthlyReport__c updated = new MonthlyReport__c(
-      Id = report.Id,
-      Status__c = STATUS_COMPLETED,
-      ApplicationDateTime__c = now,
-      LastModifiedBy__c = contactId,
-      LastModified__c = now
-    );
-    try {
-      MonthlyReportDao.updateReports(new List<MonthlyReport__c>{ updated });
-    } catch (DmlException e) {
-      throw createException(e.getDmlMessage(0));
-    }
-    return '勤務表を作成完了にしました。';
+    return report;
   }
 
-  // 締め取消(作成完了をドラフトに戻す。申請日時などはトリガーでクリアされる)
+  // 締め取消(作成完了をドラフトに戻し、月末締めで添付した勤務表ファイルを削除する。申請日時などはトリガーでクリアされる)
   @AuraEnabled
   public static String cancelCompleteReport(String sessionKey, Id reportId) {
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+    Id contactId = WorkreportSession.getContactId(sessionKey);
     List<MonthlyReport__c> reports = MonthlyReportDao.getDetailListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
@@ -150,6 +207,7 @@ public class MonthReportController {
       LastModified__c = System.now()
     );
     try {
+      AttachmentDao.deleteAttachments(AttachmentDao.getListByName(reportId, getReportFileName(reports[0])));
       MonthlyReportDao.updateReports(new List<MonthlyReport__c>{ updated });
     } catch (DmlException e) {
       throw createException(e.getDmlMessage(0));

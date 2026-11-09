@@ -1,16 +1,16 @@
 import { LightningElement, wire } from 'lwc';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
-import getReport from '@salesforce/apex/MonthReportController.getReport';
-import clockInOut from '@salesforce/apex/WorkListController.clockInOut';
-import completeReport from '@salesforce/apex/MonthReportController.completeReport';
-import cancelCompleteReport from '@salesforce/apex/MonthReportController.cancelCompleteReport';
-import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/workReportAuth';
+import getReport from '@salesforce/apex/WorkreportController.getReport';
+import clockInOut from '@salesforce/apex/WorkreportListController.clockInOut';
+import completeReport from '@salesforce/apex/WorkreportController.completeReport';
+import cancelCompleteReport from '@salesforce/apex/WorkreportController.cancelCompleteReport';
+import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/auth';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
 // 勤務実績入力画面(Experience Builderのページ名)
 const WORKTIME_INPUT_PAGE = 'worktime_input__c';
 // 勤務表作成画面(編集モードで開く)
-const CREATE_WORK_PAGE = 'create_work__c';
+const CREATE_WORK_PAGE = 'workreport_input__c';
 // プロジェクト・プロジェクトコードの表示文字数(超える分はマウスを乗せると表示する)
 const PROJECT_DISPLAY_LENGTH = 20;
 const STATUS_ICONS = {
@@ -31,7 +31,7 @@ const STATUS_CLASSES = {
 // 承認日時を表示する状況(それ以外は申請日時を表示する)
 const APPROVED_STATUSES = ['承認済', '却下'];
 
-export default class WorkReportMonthReport extends NavigationMixin(LightningElement) {
+export default class Workreport extends NavigationMixin(LightningElement) {
   reportId;
   report = {};
   worktimes = [];

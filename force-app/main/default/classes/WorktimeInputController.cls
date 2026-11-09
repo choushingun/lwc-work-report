@@ -1,5 +1,5 @@
 /**
- * 機能名 : 勤務実績入力画面(workReportWorktimeInput)のコントローラー
+ * 機能名 : 勤務実績入力画面(worktimeInput)のコントローラー
  *
  * 勤務実績(会社提出分)の時間・休み・プロジェクト・作業場所・備考を一括で編集する。
  * 旧システムの実績編集画面(Worktime1_PAGE / Worktime1_CTRL)を移植したもの。
@@ -64,13 +64,13 @@ public class WorktimeInputController {
   // 初期表示データ取得
   @AuraEnabled
   public static InitData getInitData(String sessionKey, Id reportId) {
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+    Id contactId = WorkreportSession.getContactId(sessionKey);
     MonthlyReport__c report = getReport(reportId, contactId);
 
     InitData data = new InitData();
     data.report = report;
     data.rows = new List<WorktimeRow>();
-    for (WorkTime__c wt : WorkTimeDao.getListByReport(reportId)) {
+    for (WorkTime__c wt : WorktimeDao.getListByReport(reportId)) {
       if (wt.IsSubmit__c != true) {
         data.rows.add(toRow(wt));
       }
@@ -87,23 +87,23 @@ public class WorktimeInputController {
     }
     data.hourOptions = getPicklistValues(WorkTime__c.StartHour__c);
     data.minuteOptions = getPicklistValues(WorkTime__c.StartTime__c);
-    data.isReadonly = MonthReportController.isReadonly(report);
+    data.isReadonly = WorkreportController.isReadonly(report);
     return data;
   }
 
   // 勤務実績保存
   @AuraEnabled
   public static void saveWorktimes(String sessionKey, Id reportId, List<WorktimeRow> rows) {
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+    Id contactId = WorkreportSession.getContactId(sessionKey);
     MonthlyReport__c report = getReport(reportId, contactId);
-    if (MonthReportController.isReadonly(report)) {
+    if (WorkreportController.isReadonly(report)) {
       throw createException('この勤務表は編集できません。');
     }
 
     // 修正前の勤務実績(会社提出・客先提出)
     Map<Id, WorkTime__c> companyById = new Map<Id, WorkTime__c>();
     Map<Date, WorkTime__c> customerByDay = new Map<Date, WorkTime__c>();
-    for (WorkTime__c wt : WorkTimeDao.getListByReport(reportId)) {
+    for (WorkTime__c wt : WorktimeDao.getListByReport(reportId)) {
       if (wt.IsSubmit__c == true) {
         customerByDay.put(wt.WorkDay__c, wt);
       } else {
@@ -177,8 +177,8 @@ public class WorktimeInputController {
 
     Savepoint sp = Database.setSavepoint();
     try {
-      WorkTimeDao.deleteWorkTimes(deletes.values());
-      WorkTimeDao.updateWorkTimes(updates.values());
+      WorktimeDao.deleteWorkTimes(deletes.values());
+      WorktimeDao.updateWorkTimes(updates.values());
     } catch (DmlException e) {
       Database.rollback(sp);
       throw createException(e.getDmlMessage(0));

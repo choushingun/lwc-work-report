@@ -2,9 +2,8 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>68.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>勤務報告ログイン</masterLabel>
-    <description
-  >メールアドレスとパスワードでログインするExperience Cloud用ログイン画面</description>
+    <masterLabel>ログイン画面</masterLabel>
+    <description>勤務システム用ログイン画面</description>
     <targets>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>

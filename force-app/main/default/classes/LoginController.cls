@@ -1,5 +1,5 @@
 /**
- * 機能名 : ログイン画面(workReportLogin)のコントローラー
+ * 機能名 : ログイン画面(login)のコントローラー
  *
  * 社員(Contact)のメールアドレス・パスワードで認証し、SessionManagement__cにセッションを登録する。
  * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。

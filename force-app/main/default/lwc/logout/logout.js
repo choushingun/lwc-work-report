@@ -1,11 +1,11 @@
 import { LightningElement } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import logout from '@salesforce/apex/LoginController.logout';
-import { LOGIN_PAGE, clearSessionKey, getSessionKey } from 'c/workReportAuth';
+import { LOGIN_PAGE, clearSessionKey, getSessionKey } from 'c/auth';
 
 const SYSTEM_ERROR_MESSAGE = 'ログアウトに失敗しました。時間をおいて再度お試しください。';
 
-export default class WorkReportLogout extends NavigationMixin(LightningElement) {
+export default class Logout extends NavigationMixin(LightningElement) {
   errorMessage = '';
   isLoading = true;
 

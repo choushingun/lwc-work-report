@@ -2,16 +2,16 @@
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
         <members>ContactDao</members>
-        <members>CreateWorkController</members>
+        <members>WorkreportInputController</members>
         <members>HolidayDao</members>
         <members>LoginController</members>
         <members>MonthlyReportDao</members>
-        <members>MonthReportController</members>
+        <members>WorkreportController</members>
         <members>ReportUtility</members>
         <members>SessionManagementDao</members>
-        <members>WorkListController</members>
-        <members>WorkReportSession</members>
-        <members>WorkTimeDao</members>
+        <members>WorkreportListController</members>
+        <members>WorkreportSession</members>
+        <members>WorktimeDao</members>
         <members>WorktimeInputController</members>
         <name>ApexClass</name>
     </types>
@@ -50,15 +50,15 @@
         <name>GlobalValueSet</name>
     </types>
     <types>
-        <members>workReportAuth</members>
-        <members>workReportAuthGuard</members>
-        <members>workReportCreateWork</members>
-        <members>workReportLogin</members>
-        <members>workReportLogout</members>
-        <members>workReportMonthReport</members>
+        <members>auth</members>
+        <members>authGuard</members>
+        <members>login</members>
+        <members>logout</members>
         <members>spinner</members>
-        <members>workReportList</members>
-        <members>workReportWorktimeInput</members>
+        <members>workreport</members>
+        <members>workreportInput</members>
+        <members>workreportList</members>
+        <members>worktimeInput</members>
         <name>LightningComponentBundle</name>
     </types>
     <types>
@@ -72,6 +72,11 @@
     <types>
         <members>GoogleCalendar</members>
         <name>RemoteSiteSetting</name>
+    </types>
+    <types>
+        <members>Workreport</members>
+        <members>XlsxPopulate</members>
+        <name>StaticResource</name>
     </types>
     <version>68.0</version>
 </Package>

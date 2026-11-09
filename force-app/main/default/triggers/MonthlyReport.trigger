@@ -59,7 +59,7 @@ trigger MonthlyReport on MonthlyReport__c(before update, after update) {
         }
 
         // 実績検索
-        List<WorkTime__c> workTimes = WorkTimeDao.getListByProject(report.Id, lstPrjForDelete);
+        List<WorkTime__c> workTimes = WorktimeDao.getListByProject(report.Id, lstPrjForDelete);
 
         for (WorkTime__c wt : workTimes) {
           wt.ProjectName__c = '';
@@ -67,6 +67,6 @@ trigger MonthlyReport on MonthlyReport__c(before update, after update) {
         }
       }
     }
-    WorkTimeDao.updateWorkTimes(worktimesForUpdate);
+    WorktimeDao.updateWorkTimes(worktimesForUpdate);
   }
 }

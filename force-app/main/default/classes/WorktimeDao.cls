@@ -4,7 +4,7 @@
  * ゲストユーザーは勤務実績の所有者になれず共有上参照できないため、without sharing かつシステムモードで実行する。
  * 呼び出し元で必ずログイン社員の勤務表に絞り込むこと。
  */
-public without sharing class WorkTimeDao {
+public without sharing class WorktimeDao {
   // 勤務表の中で、指定したプロジェクトの勤務実績
   public static List<WorkTime__c> getListByProject(Id reportId, List<String> projectNames) {
     return [

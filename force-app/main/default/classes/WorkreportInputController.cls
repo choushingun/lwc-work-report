@@ -1,11 +1,11 @@
 /**
- * 機能名 : 勤務表作成画面(workReportCreateWork)のコントローラー
+ * 機能名 : 勤務表作成画面(workreportInput)のコントローラー
  *
  * 新規作成または既存勤務表の複製で勤務表を作成し、当月分の勤務実績を一括作成する。
  * 編集モード(勤務表画面の「勤務表編集」から遷移)では既存の勤務表を更新する(勤務実績は作り直さない)。
  * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
-public class CreateWorkController {
+public class WorkreportInputController {
   private static final String STATUS_DRAFT = 'ドラフト';
   // 曜日判定の基準日(日曜日)
   private static final Date BASE_SUNDAY = Date.newInstance(1900, 1, 7);
@@ -67,7 +67,7 @@ public class CreateWorkController {
   // 初期表示データ取得(sourceIdを指定した場合は複製、isEditがtrueの場合はsourceIdの勤務表を編集)
   @AuraEnabled
   public static InitData getInitData(String sessionKey, Id sourceId, Boolean isEdit) {
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+    Id contactId = WorkreportSession.getContactId(sessionKey);
     Contact con = ContactDao.getWithAccountById(contactId);
     if (isEdit == true) {
       return getEditData(sourceId, contactId, con);
@@ -124,7 +124,7 @@ public class CreateWorkController {
     // コールアウトはDMLより前に行う必要があるため、セッション認証(最終アクセス日時の更新)より先に祝日を取得する
     List<Holiday__c> newHolidays = fetchHolidaysIfMissing(Integer.valueOf(input.Year__c));
 
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+    Id contactId = WorkreportSession.getContactId(sessionKey);
     Integer duplicates = MonthlyReportDao.countByYearMonth(contactId, input.Year__c, input.Month__c);
     if (duplicates > 0) {
       throw createException('勤務表がすでに存在しています。');
@@ -164,7 +164,7 @@ public class CreateWorkController {
     try {
       HolidayDao.insertHolidays(newHolidays);
       MonthlyReportDao.insertReport(report);
-      WorkTimeDao.insertWorkTimes(createWorkTimes(report));
+      WorktimeDao.insertWorkTimes(createWorkTimes(report));
     } catch (DmlException e) {
       Database.rollback(sp);
       throw createException(e.getDmlMessage(0));
@@ -186,7 +186,7 @@ public class CreateWorkController {
 
     InitData data = new InitData();
     data.report = report;
-    data.isReadonly = MonthReportController.isReadonly(report);
+    data.isReadonly = WorkreportController.isReadonly(report);
     // 勤務表の年が選択肢にない場合(前年など)も表示できるよう、その年だけを選択肢にする
     data.yearOptions = new List<Option>{ new Option(report.Year__c, report.Year__c) };
     data.picklistOptions = new Map<String, List<Option>>{
@@ -205,7 +205,7 @@ public class CreateWorkController {
 
   // 勤務表更新(入力項目のみ更新する。年月・状況は変更しない。勤務実績は作り直さない)
   private static Id updateReport(String sessionKey, MonthlyReport__c input) {
-    Id contactId = WorkReportSession.getContactId(sessionKey);
+    Id contactId = WorkreportSession.getContactId(sessionKey);
     List<MonthlyReport__c> reports = MonthlyReportDao.getFieldListById(
       input.Id,
       contactId,
@@ -214,7 +214,7 @@ public class CreateWorkController {
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
     }
-    if (MonthReportController.isReadonly(reports[0])) {
+    if (WorkreportController.isReadonly(reports[0])) {
       throw createException('作成完了以降の勤務表は編集できません。');
     }
 
