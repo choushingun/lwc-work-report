@@ -74,6 +74,7 @@
     </types>
     <types>
         <members>GoogleApiKey</members>
+        <members>PasswordResetSenderId</members>
         <name>CustomLabel</name>
     </types>
     <types>

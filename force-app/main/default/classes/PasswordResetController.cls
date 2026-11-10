@@ -98,7 +98,10 @@ public class PasswordResetController {
     Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
     mail.setToAddresses(new List<String>{ email });
     mail.setSaveAsActivity(false);
-    mail.setSenderDisplayName('勤務報告システム');
+    // 送信元は組織のメールアドレス(choushingun@gmail.com)を使う(ゲストユーザーの自動割り当てアドレスは受信側で迷惑メール扱いされやすい)
+    // ゲストユーザーは組織のメールアドレスを検索できないため、Idはカスタム表示ラベルに設定しておく
+    // 組織のメールアドレスを使う場合、送信者名は組織のメールアドレスの表示名になる(setSenderDisplayNameは併用できない)
+    mail.setOrgWideEmailAddressId(System.Label.PasswordResetSenderId);
     mail.setSubject('【勤務報告システム】パスワード再設定のご案内');
     mail.setPlainTextBody(
       String.join(

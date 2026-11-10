@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
     <labels>
+        <fullName>PasswordResetSenderId</fullName>
+        <language>ja</language>
+        <protected>true</protected>
+        <shortDescription>パスワード再設定メールの送信元(組織のメールアドレスのId)</shortDescription>
+        <value>0D2Ih000000k9cpKAA</value>
+    </labels>
+    <labels>
         <fullName>GoogleApiKey</fullName>
         <language>ja</language>
         <protected>true</protected>
