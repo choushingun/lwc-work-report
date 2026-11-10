@@ -66,6 +66,12 @@
   padding-bottom: 0.5rem;
 }
 
+/* 勤務表の情報は、アイコンのある行(申請状況・勤務レポート)も含めて3列とも同じ高さにそろえる */
+.info-table th,
+.info-table td {
+  height: 2.5rem;
+}
+
 .col-day {
   white-space: nowrap;
 }
@@ -89,35 +95,49 @@
   --slds-c-icon-color-foreground-default: #747474;
 }
 
-/* 状況アイコンの色(状況ごとに色分けする) */
+/* 状況アイコン：色付きの丸の中に白い記号を表示する(状況ごとに色分けする) */
+.status-default,
+.status-completed,
+.status-pending,
+.status-success,
+.status-error,
+.status-canceled {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  --slds-c-icon-color-foreground-default: #ffffff;
+}
+
 .status-default {
   /* ドラフト：青 */
-  --slds-c-icon-color-foreground-default: #0176d3;
+  background: linear-gradient(to bottom, #3b8fe0, #0b5cab);
 }
 
 .status-completed {
   /* 作成完了：緑(承認済と同じ) */
-  --slds-c-icon-color-foreground-default: #2ead4b;
+  background: linear-gradient(to bottom, #6cbf2f, #2e7d12);
 }
 
 .status-pending {
   /* 申請中：オレンジ */
-  --slds-c-icon-color-foreground-default: #fe9339;
+  background: linear-gradient(to bottom, #fb9a3c, #d96a00);
 }
 
 .status-success {
   /* 承認済：緑 */
-  --slds-c-icon-color-foreground-default: #2ead4b;
+  background: linear-gradient(to bottom, #6cbf2f, #2e7d12);
 }
 
 .status-error {
   /* 却下：赤 */
-  --slds-c-icon-color-foreground-default: #ea001e;
+  background: linear-gradient(to bottom, #ef4352, #c00018);
 }
 
 .status-canceled {
   /* 申請取消：グレー(取り消し済のため控えめにする) */
-  --slds-c-icon-color-foreground-default: #747474;
+  background: linear-gradient(to bottom, #8c8c8c, #5c5c5c);
 }
 
 /* 注意事項(警告)は左寄せ・太字・斜線模様なしで表示する */
@@ -149,4 +169,26 @@
 .confirm-footer {
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
+}
+
+/* 勤務レポートのダウンロードアイコン(水色の丸の中に白い矢印) */
+.download-icon {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: linear-gradient(to bottom, #c4dcf2, #8fbbe3);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+  --slds-c-icon-color-foreground-default: #ffffff;
+}
+
+/* ボタンの行の高さ(SLDS標準 1.875rem)で行が高くならないようにする */
+.download-button {
+  display: flex;
+  line-height: 1;
+  border: 0;
+}
+
+.download-button:disabled .download-icon {
+  opacity: 0.5;
 }

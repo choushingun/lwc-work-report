@@ -92,7 +92,7 @@
                         <lightning-icon
                           icon-name={statusIcon}
                           alternative-text={report.Status__c}
-                          size="x-small"
+                          size="xx-small"
                           class={statusClass}
                         ></lightning-icon>
                         <template lwc:if={statusDateTime}>
@@ -152,6 +152,29 @@
                   <tr>
                     <th scope="row" class="info-label">プロジェクトコード</th>
                     <td title={projectCodes}>{projectCodeLabel}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="info-label">勤務レポート</th>
+                    <!-- 月末締めで作成した勤務表ファイルがある場合のみダウンロードアイコンを表示する -->
+                    <!-- 申請状況と同じく、アイコンで行が高くならないようグリッドで上下中央に配置する -->
+                    <td>
+                      <div class="slds-grid slds-grid_vertical-align-center">
+                        <button
+                          lwc:if={hasReportFile}
+                          class="slds-button slds-button_icon download-button"
+                          title="勤務表ファイルをダウンロードします。"
+                          disabled={isLoading}
+                          onclick={handleDownloadReport}
+                        >
+                          <lightning-icon
+                            icon-name="utility:download"
+                            alternative-text="ダウンロード"
+                            size="xx-small"
+                            class="download-icon"
+                          ></lightning-icon>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 </tbody>
               </table>

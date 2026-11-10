@@ -15,6 +15,18 @@ public without sharing class AttachmentDao {
     ];
   }
 
+  // 親レコードに添付された、指定したファイル名の添付ファイル(本文付き、新しい順)
+  public static List<Attachment> getBodyListByName(Id parentId, String name) {
+    return [
+      SELECT Id, Name, ContentType, Body
+      FROM Attachment
+      WHERE ParentId = :parentId AND Name = :name
+      WITH SYSTEM_MODE
+      ORDER BY CreatedDate DESC
+      LIMIT 1
+    ];
+  }
+
   public static void insertAttachment(Attachment att) {
     insert as system att;
   }

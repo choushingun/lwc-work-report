@@ -85,7 +85,9 @@
                     ></lightning-formatted-number>
                   </td>
                   <td class="slds-text-align_right slds-show_medium">
+                    <!-- 不足(マイナス)の場合は赤字で表示する -->
                     <lightning-formatted-number
+                      class={report.overtimeClass}
                       value={report.Overtime__c}
                       minimum-fraction-digits="2"
                     ></lightning-formatted-number>

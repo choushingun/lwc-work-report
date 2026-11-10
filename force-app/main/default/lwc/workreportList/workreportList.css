@@ -57,35 +57,49 @@
   --slds-c-icon-color-foreground-default: #c9c9c9;
 }
 
-/* 状況アイコンの色(状況ごとに色分けする) */
+/* 状況アイコン：色付きの丸の中に白い記号を表示する(状況ごとに色分けする) */
+.status-default,
+.status-completed,
+.status-pending,
+.status-success,
+.status-error,
+.status-canceled {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  --slds-c-icon-color-foreground-default: #ffffff;
+}
+
 .status-default {
   /* ドラフト：青 */
-  --slds-c-icon-color-foreground-default: #0176d3;
+  background: linear-gradient(to bottom, #3b8fe0, #0b5cab);
 }
 
 .status-completed {
   /* 作成完了：緑(承認済と同じ) */
-  --slds-c-icon-color-foreground-default: #2ead4b;
+  background: linear-gradient(to bottom, #6cbf2f, #2e7d12);
 }
 
 .status-pending {
   /* 申請中：オレンジ */
-  --slds-c-icon-color-foreground-default: #fe9339;
+  background: linear-gradient(to bottom, #fb9a3c, #d96a00);
 }
 
 .status-success {
   /* 承認済：緑 */
-  --slds-c-icon-color-foreground-default: #2ead4b;
+  background: linear-gradient(to bottom, #6cbf2f, #2e7d12);
 }
 
 .status-error {
   /* 却下：赤 */
-  --slds-c-icon-color-foreground-default: #ea001e;
+  background: linear-gradient(to bottom, #ef4352, #c00018);
 }
 
 .status-canceled {
   /* 申請取消：グレー(取り消し済のため控えめにする) */
-  --slds-c-icon-color-foreground-default: #747474;
+  background: linear-gradient(to bottom, #8c8c8c, #5c5c5c);
 }
 
 .delete-confirm {
@@ -115,4 +129,9 @@
 /* 画面タイトルは太字にする(勤務表作成画面と同じ) */
 .page-title {
   font-weight: 700;
+}
+
+/* 残業(不足)時間がマイナスの場合の赤字(勤務表画面の日曜日の色と同じ) */
+.text-red {
+  color: #ea001e;
 }

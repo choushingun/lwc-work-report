@@ -30,6 +30,19 @@ public class WorkreportController {
     // 画面上部に表示するお知らせ
     @AuraEnabled
     public List<String> messages;
+    // 勤務表ファイル(月末締めで添付したExcel)がある
+    @AuraEnabled
+    public Boolean hasReportFile;
+  }
+
+  public class ReportFile {
+    @AuraEnabled
+    public String fileName;
+    @AuraEnabled
+    public String contentType;
+    // ファイル内容(Base64文字列)
+    @AuraEnabled
+    public String content;
   }
 
   public class WorktimeRow {
@@ -73,7 +86,27 @@ public class WorkreportController {
     data.isReadonly = isReadonly(report);
     data.canCancelComplete = canCancelComplete(report);
     data.messages = getMessages(report);
+    data.hasReportFile = !AttachmentDao.getListByName(report.Id, getReportFileName(report)).isEmpty();
     return data;
+  }
+
+  // 勤務表ファイル(月末締めで添付したExcel)のダウンロード用データ取得
+  @AuraEnabled
+  public static ReportFile getReportFile(String sessionKey, Id reportId) {
+    Id contactId = WorkreportSession.getContactId(sessionKey);
+    List<MonthlyReport__c> reports = MonthlyReportDao.getDetailListById(reportId, contactId);
+    if (reports.isEmpty()) {
+      throw createException('勤務表が見つかりません。');
+    }
+    List<Attachment> attachments = AttachmentDao.getBodyListByName(reportId, getReportFileName(reports[0]));
+    if (attachments.isEmpty()) {
+      throw createException('勤務表ファイルがありません。');
+    }
+    ReportFile file = new ReportFile();
+    file.fileName = attachments[0].Name;
+    file.contentType = String.isNotBlank(attachments[0].ContentType) ? attachments[0].ContentType : XLSX_CONTENT_TYPE;
+    file.content = EncodingUtil.base64Encode(attachments[0].Body);
+    return file;
   }
 
   // 月末締め前のチェックを行い、勤務表ファイル(Excel)の作成に使うデータを返す。

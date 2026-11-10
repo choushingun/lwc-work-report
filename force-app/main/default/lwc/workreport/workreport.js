@@ -5,6 +5,7 @@ import clockInOut from '@salesforce/apex/WorkreportListController.clockInOut';
 import getCompleteData from '@salesforce/apex/WorkreportController.getCompleteData';
 import completeReport from '@salesforce/apex/WorkreportController.completeReport';
 import cancelCompleteReport from '@salesforce/apex/WorkreportController.cancelCompleteReport';
+import getReportFile from '@salesforce/apex/WorkreportController.getReportFile';
 import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/auth';
 import { createWorkreportFile } from './workreportFile';
 
@@ -17,9 +18,9 @@ const CREATE_WORK_PAGE = 'workreport_input__c';
 const PROJECT_DISPLAY_LENGTH = 20;
 const STATUS_ICONS = {
   作成完了: 'utility:lock',
-  申請中: 'utility:clock',
-  承認済: 'utility:success',
-  却下: 'utility:error',
+  申請中: 'utility:forward',
+  承認済: 'utility:check',
+  却下: 'utility:close',
   申請取消: 'utility:undo'
 };
 // 状況アイコンの色(CSSのクラス名)
@@ -41,6 +42,8 @@ export default class Workreport extends NavigationMixin(LightningElement) {
   isReadonly = true;
   // 締め取消できる(作成完了で、対象の年月の場合)
   canCancelComplete = false;
+  // 勤務表ファイル(月末締めで添付したExcel)がある
+  hasReportFile = false;
   messages = [];
   isLoading = false;
   // ログイン確認済み(確認できるまで画面を表示しない)
@@ -80,7 +83,20 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     this.isReadonly = data.isReadonly;
     this.canCancelComplete = data.canCancelComplete;
     this.messages = data.messages.map((message, index) => ({ key: `${index}`, message }));
+    this.hasReportFile = data.hasReportFile;
     this.isAuthenticated = true;
+  }
+
+  // 勤務表ファイル(月末締めで添付したExcel)をダウンロードする
+  handleDownloadReport() {
+    this.infoMessage = '';
+    this.callApex(async () => {
+      const file = await getReportFile({ sessionKey: getSessionKey(), reportId: this.reportId });
+      const link = document.createElement('a');
+      link.href = `data:${file.contentType};base64,${file.content}`;
+      link.download = file.fileName;
+      link.click();
+    });
   }
 
   get showPageError() {
