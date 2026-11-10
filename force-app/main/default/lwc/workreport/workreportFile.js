@@ -76,9 +76,9 @@ function writeWorktimes(sheet, report, worktimes) {
     // 稼働時間は実績のプロジェクトに対応する列に書き込む
     const project = projectColumns.find((p) => p.name === wt.ProjectName__c);
     if (project) {
-      const workTime = Number(wt.WorkTime__c ?? 0);
-      project.total += workTime;
-      row.cell(project.column).value(workTime);
+      const workHours = Number(wt.WorkHours__c ?? 0);
+      project.total += workHours;
+      row.cell(project.column).value(workHours);
     }
     row.cell('I').value(wt.Workplace__c ?? '');
     row.cell('J').value(wt.Memo__c ?? '');

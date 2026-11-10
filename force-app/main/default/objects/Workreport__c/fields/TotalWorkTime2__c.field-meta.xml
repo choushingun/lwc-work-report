@@ -3,13 +3,13 @@
     <fullName>TotalWorkTime2__c</fullName>
     <externalId>false</externalId>
     <label>総労働時間(客先提出)</label>
-    <summarizedField>WorkTime__c.WorkTime__c</summarizedField>
+    <summarizedField>Worktime__c.WorkHours__c</summarizedField>
     <summaryFilterItems>
-        <field>WorkTime__c.IsSubmitCompany__c</field>
+        <field>Worktime__c.IsSubmitCompany__c</field>
         <operation>notEqual</operation>
         <value>True</value>
     </summaryFilterItems>
-    <summaryForeignKey>WorkTime__c.MonthlyReport__c</summaryForeignKey>
+    <summaryForeignKey>Worktime__c.Workreport__c</summaryForeignKey>
     <summaryOperation>sum</summaryOperation>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

@@ -34,7 +34,7 @@ public class WorkreportInputController {
 
   public class InitData {
     @AuraEnabled
-    public MonthlyReport__c report;
+    public Workreport__c report;
     @AuraEnabled
     public List<Option> yearOptions;
     @AuraEnabled
@@ -73,12 +73,12 @@ public class WorkreportInputController {
       return getEditData(sourceId, contactId, con);
     }
 
-    MonthlyReport__c report;
+    Workreport__c report;
     if (sourceId != null) {
       report = copyInputFields(getSourceReport(sourceId, contactId));
     } else {
       // 項目の初期値を設定する
-      report = (MonthlyReport__c) MonthlyReport__c.SObjectType.newSObject(null, true);
+      report = (Workreport__c) Workreport__c.SObjectType.newSObject(null, true);
     }
     Date today = Date.today();
     report.Year__c = String.valueOf(today.year());
@@ -89,12 +89,12 @@ public class WorkreportInputController {
     data.report = report;
     data.yearOptions = getYearOptions(today);
     data.picklistOptions = new Map<String, List<Option>>{
-      'Month__c' => getPicklistOptions(MonthlyReport__c.Month__c),
-      'StartHour__c' => getPicklistOptions(MonthlyReport__c.StartHour__c),
-      'StartTime__c' => getPicklistOptions(MonthlyReport__c.StartTime__c),
-      'EndHour__c' => getPicklistOptions(MonthlyReport__c.EndHour__c),
-      'EndTime__c' => getPicklistOptions(MonthlyReport__c.EndTime__c),
-      'LunchTime__c' => getPicklistOptions(MonthlyReport__c.LunchTime__c)
+      'Month__c' => getPicklistOptions(Workreport__c.Month__c),
+      'StartHour__c' => getPicklistOptions(Workreport__c.StartHour__c),
+      'StartTime__c' => getPicklistOptions(Workreport__c.StartTime__c),
+      'EndHour__c' => getPicklistOptions(Workreport__c.EndHour__c),
+      'EndTime__c' => getPicklistOptions(Workreport__c.EndTime__c),
+      'LunchTime__c' => getPicklistOptions(Workreport__c.LunchTime__c)
     };
     data.reportTo = con.Account?.ReportTo__c;
     data.reportToMail = con.Account?.ReportToMail__c;
@@ -104,7 +104,7 @@ public class WorkreportInputController {
 
   // 勤務表保存(新規・複製の場合は勤務実績も一括作成し、勤務表Idを返す。Idがある場合は編集として更新する)
   @AuraEnabled
-  public static Id saveReport(String sessionKey, MonthlyReport__c input) {
+  public static Id saveReport(String sessionKey, Workreport__c input) {
     if (input == null || String.isBlank(input.Year__c) || String.isBlank(input.Month__c)) {
       throw createException('作業年月を選択してください。');
     }
@@ -125,14 +125,14 @@ public class WorkreportInputController {
     List<Holiday__c> newHolidays = fetchHolidaysIfMissing(Integer.valueOf(input.Year__c));
 
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    Integer duplicates = MonthlyReportDao.countByYearMonth(contactId, input.Year__c, input.Month__c);
+    Integer duplicates = WorkreportDao.countByYearMonth(contactId, input.Year__c, input.Month__c);
     if (duplicates > 0) {
       throw createException('勤務表がすでに存在しています。');
     }
 
     Contact con = ContactDao.getWithAccountById(contactId);
     // 画面から受け取るのは入力項目のみとし、それ以外はサーバー側で設定する
-    MonthlyReport__c report = copyInputFields(input);
+    Workreport__c report = copyInputFields(input);
     report.Year__c = input.Year__c;
     report.Month__c = input.Month__c;
     report.Contact__c = contactId;
@@ -157,8 +157,8 @@ public class WorkreportInputController {
     Savepoint sp = Database.setSavepoint();
     try {
       HolidayDao.insertHolidays(newHolidays);
-      MonthlyReportDao.insertReport(report);
-      WorktimeDao.insertWorkTimes(createWorkTimes(report));
+      WorkreportDao.insertReport(report);
+      WorktimeDao.insertWorktimes(createWorktimes(report));
     } catch (DmlException e) {
       Database.rollback(sp);
       throw createException(e.getDmlMessage(0));
@@ -170,13 +170,13 @@ public class WorkreportInputController {
   private static InitData getEditData(Id reportId, Id contactId, Contact con) {
     List<String> fields = new List<String>(INPUT_FIELDS);
     fields.addAll(new List<String>{ 'Id', 'Year__c', 'Month__c', 'Status__c', 'ReportName__c', 'Superior__r.Name' });
-    List<MonthlyReport__c> reports = reportId == null
-      ? new List<MonthlyReport__c>()
-      : MonthlyReportDao.getFieldListById(reportId, contactId, fields);
+    List<Workreport__c> reports = reportId == null
+      ? new List<Workreport__c>()
+      : WorkreportDao.getFieldListById(reportId, contactId, fields);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
     }
-    MonthlyReport__c report = reports[0];
+    Workreport__c report = reports[0];
 
     InitData data = new InitData();
     data.report = report;
@@ -184,12 +184,12 @@ public class WorkreportInputController {
     // 勤務表の年が選択肢にない場合(前年など)も表示できるよう、その年だけを選択肢にする
     data.yearOptions = new List<Option>{ new Option(report.Year__c, report.Year__c) };
     data.picklistOptions = new Map<String, List<Option>>{
-      'Month__c' => getPicklistOptions(MonthlyReport__c.Month__c),
-      'StartHour__c' => getPicklistOptions(MonthlyReport__c.StartHour__c),
-      'StartTime__c' => getPicklistOptions(MonthlyReport__c.StartTime__c),
-      'EndHour__c' => getPicklistOptions(MonthlyReport__c.EndHour__c),
-      'EndTime__c' => getPicklistOptions(MonthlyReport__c.EndTime__c),
-      'LunchTime__c' => getPicklistOptions(MonthlyReport__c.LunchTime__c)
+      'Month__c' => getPicklistOptions(Workreport__c.Month__c),
+      'StartHour__c' => getPicklistOptions(Workreport__c.StartHour__c),
+      'StartTime__c' => getPicklistOptions(Workreport__c.StartTime__c),
+      'EndHour__c' => getPicklistOptions(Workreport__c.EndHour__c),
+      'EndTime__c' => getPicklistOptions(Workreport__c.EndTime__c),
+      'LunchTime__c' => getPicklistOptions(Workreport__c.LunchTime__c)
     };
     data.reportTo = con.Account?.ReportTo__c;
     data.reportToMail = con.Account?.ReportToMail__c;
@@ -198,9 +198,9 @@ public class WorkreportInputController {
   }
 
   // 勤務表更新(入力項目のみ更新する。年月・状況は変更しない。勤務実績は作り直さない)
-  private static Id updateReport(String sessionKey, MonthlyReport__c input) {
+  private static Id updateReport(String sessionKey, Workreport__c input) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    List<MonthlyReport__c> reports = MonthlyReportDao.getFieldListById(
+    List<Workreport__c> reports = WorkreportDao.getFieldListById(
       input.Id,
       contactId,
       new List<String>{ 'Id', 'Year__c', 'Month__c', 'Status__c' }
@@ -212,7 +212,7 @@ public class WorkreportInputController {
       throw createException('作成完了以降の勤務表は編集できません。');
     }
 
-    MonthlyReport__c report = new MonthlyReport__c(Id = input.Id);
+    Workreport__c report = new Workreport__c(Id = input.Id);
     // 空にした項目もクリアできるよう、入力項目はすべて上書きする
     for (String field : INPUT_FIELDS) {
       report.put(field, input.get(field));
@@ -220,7 +220,7 @@ public class WorkreportInputController {
     report.LastModifiedBy__c = contactId;
     report.LastModified__c = System.now();
     try {
-      MonthlyReportDao.updateReports(new List<MonthlyReport__c>{ report });
+      WorkreportDao.updateReports(new List<Workreport__c>{ report });
     } catch (DmlException e) {
       throw createException(e.getDmlMessage(0));
     }
@@ -228,16 +228,16 @@ public class WorkreportInputController {
   }
 
   // 複製元の勤務表取得(本人の勤務表のみ)
-  private static MonthlyReport__c getSourceReport(Id sourceId, Id contactId) {
-    List<MonthlyReport__c> reports = MonthlyReportDao.getFieldListById(sourceId, contactId, INPUT_FIELDS);
+  private static Workreport__c getSourceReport(Id sourceId, Id contactId) {
+    List<Workreport__c> reports = WorkreportDao.getFieldListById(sourceId, contactId, INPUT_FIELDS);
     if (reports.isEmpty()) {
       throw createException('複製元の勤務表が見つかりません。');
     }
     return reports[0];
   }
 
-  private static MonthlyReport__c copyInputFields(MonthlyReport__c source) {
-    MonthlyReport__c report = new MonthlyReport__c();
+  private static Workreport__c copyInputFields(Workreport__c source) {
+    Workreport__c report = new Workreport__c();
     Map<String, Object> values = source.getPopulatedFieldsAsMap();
     for (String field : INPUT_FIELDS) {
       if (values.containsKey(field)) {
@@ -321,7 +321,7 @@ public class WorkreportInputController {
   }
 
   // 当月分の勤務実績作成(土日・祝日は休みとする)
-  private static List<WorkTime__c> createWorkTimes(MonthlyReport__c report) {
+  private static List<Worktime__c> createWorktimes(Workreport__c report) {
     Integer year = Integer.valueOf(report.Year__c);
     Integer month = Integer.valueOf(report.Month__c);
     Date firstDay = Date.newInstance(year, month, 1);
@@ -337,10 +337,10 @@ public class WorkreportInputController {
     Boolean hasStart = report.StartHour__c != null && report.StartTime__c != null;
     Boolean hasEnd = report.EndHour__c != null && report.EndTime__c != null;
 
-    List<WorkTime__c> works = new List<WorkTime__c>();
+    List<Worktime__c> works = new List<Worktime__c>();
     for (Date day = firstDay; day <= lastDay; day = day.addDays(1)) {
-      WorkTime__c work = new WorkTime__c(
-        MonthlyReport__c = report.Id,
+      Worktime__c work = new Worktime__c(
+        Workreport__c = report.Id,
         WorkDay__c = day,
         ProjectName__c = projectName,
         Workplace__c = workplace,

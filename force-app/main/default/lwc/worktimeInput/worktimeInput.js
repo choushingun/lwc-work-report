@@ -111,7 +111,7 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
       workplaceOptions: optionsFor(row, this.workplaceOptions, row.workplace),
       restTimeLabel: row.isVacation ? '' : row.restTime,
       // 休みの日は作業時間を表示しない
-      workTimeLabel: row.isVacation ? '' : calcWorkTime(row)
+      workHoursLabel: row.isVacation ? '' : calcWorkHours(row)
     };
   }
 
@@ -328,7 +328,7 @@ function weekClass(row) {
 }
 
 // 作業時間(時間、小数2桁)。終了が開始より前の場合は日を跨いだと見なす
-function calcWorkTime(row) {
+function calcWorkHours(row) {
   const start = Number(row.startHour) * 60 + Number(row.startTime);
   let end = Number(row.endHour) * 60 + Number(row.endTime);
   if (Number.isNaN(start) || Number.isNaN(end)) {

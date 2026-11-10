@@ -135,25 +135,16 @@
                   </tr>
                   <tr>
                     <th scope="row" class="info-label">勤務レポート</th>
-                    <!-- 月末締めで作成した勤務表ファイルがある場合のみダウンロードアイコンを表示する -->
-                    <!-- 申請状況と同じく、アイコンで行が高くならないようグリッドで上下中央に配置する -->
+                    <!-- 月末締めで作成した勤務表ファイルがある場合のみファイル名を表示し、クリックでダウンロードする -->
                     <td>
-                      <div class="slds-grid slds-grid_vertical-align-center">
-                        <button
-                          lwc:if={hasReportFile}
-                          class="slds-button slds-button_icon download-button"
-                          title="勤務表ファイルをダウンロードします。"
-                          disabled={isLoading}
-                          onclick={handleDownloadReport}
-                        >
-                          <lightning-icon
-                            icon-name="utility:download"
-                            alternative-text="ダウンロード"
-                            size="xx-small"
-                            class="download-icon"
-                          ></lightning-icon>
-                        </button>
-                      </div>
+                      <a
+                        lwc:if={hasReportFile}
+                        href="#"
+                        class="download-link"
+                        title="クリックすると勤務表ファイルをダウンロードします。"
+                        onclick={handleDownloadReport}
+                        >{reportFileName}</a
+                      >
                     </td>
                   </tr>
                 </tbody>
@@ -197,7 +188,7 @@
                       <td class="slds-text-align_right"><span class={wt.timeClass}>{wt.startTime}</span></td>
                       <td class="slds-text-align_right"><span class={wt.timeClass}>{wt.endTime}</span></td>
                       <td class="slds-text-align_right">{wt.restTime}</td>
-                      <td class="slds-text-align_right">{wt.workTime}</td>
+                      <td class="slds-text-align_right">{wt.workHoursLabel}</td>
                     </tr>
                   </template>
                 </tbody>
@@ -232,7 +223,7 @@
                       <td class="slds-text-align_right"><span class={wt.timeClass}>{wt.startTime}</span></td>
                       <td class="slds-text-align_right"><span class={wt.timeClass}>{wt.endTime}</span></td>
                       <td class="slds-text-align_right">{wt.restTime}</td>
-                      <td class="slds-text-align_right">{wt.workTime}</td>
+                      <td class="slds-text-align_right">{wt.workHoursLabel}</td>
                     </tr>
                   </template>
                 </tbody>

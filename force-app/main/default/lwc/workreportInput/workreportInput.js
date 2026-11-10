@@ -167,10 +167,11 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
     if (!isValid) {
       return;
     }
+    // 保存後は新規・複製・編集とも、保存した勤務表の画面へ移動する
     this.callApex(async () => {
-      await saveReport({ sessionKey: getSessionKey(), input: this.toInput() });
+      const reportId = await saveReport({ sessionKey: getSessionKey(), input: this.toInput() });
       this.isNavigating = true;
-      this.navigateBack();
+      this.navigateTo(MONTH_REPORT_PAGE, { id: reportId });
     });
   }
 

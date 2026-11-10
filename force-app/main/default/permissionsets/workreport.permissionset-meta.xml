@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <classAccesses>
+        <apexClass>PasswordResetController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>WorkreportInputController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -92,297 +96,297 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.ApplicationApprovalDT__c</field>
+        <field>Workreport__c.ApplicationApprovalDT__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ApplicationDateTime__c</field>
+        <field>Workreport__c.ApplicationDateTime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ApproveDateTime__c</field>
+        <field>Workreport__c.ApproveDateTime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ApproverCC__c</field>
+        <field>Workreport__c.ApproverCC__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ApproverMail__c</field>
+        <field>Workreport__c.ApproverMail__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ApproverTo__c</field>
+        <field>Workreport__c.ApproverTo__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.Approver__c</field>
+        <field>Workreport__c.Approver__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.CalcTotalWorktime__c</field>
+        <field>Workreport__c.CalcTotalWorktime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.CreatedBy__c</field>
+        <field>Workreport__c.CreatedBy__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.Created__c</field>
+        <field>Workreport__c.Created__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.EmployeeNo__c</field>
+        <field>Workreport__c.EmployeeNo__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.LastModifiedBy__c</field>
+        <field>Workreport__c.LastModifiedBy__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.LastModified__c</field>
+        <field>Workreport__c.LastModified__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.LastUpdated__c</field>
+        <field>Workreport__c.LastUpdated__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.NoonBreakTime__c</field>
+        <field>Workreport__c.NoonBreakTime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.Overtime__c</field>
+        <field>Workreport__c.Overtime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.PaidHolidayUsed__c</field>
+        <field>Workreport__c.PaidHolidayUsed__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ProjectCode2__c</field>
+        <field>Workreport__c.ProjectCode2__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ProjectCode3__c</field>
+        <field>Workreport__c.ProjectCode3__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ProjectCode__c</field>
+        <field>Workreport__c.ProjectCode__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ProjectName2__c</field>
+        <field>Workreport__c.ProjectName2__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ProjectName3__c</field>
+        <field>Workreport__c.ProjectName3__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ProjectName__c</field>
+        <field>Workreport__c.ProjectName__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.RejectComment__c</field>
+        <field>Workreport__c.RejectComment__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ReplyMailContent__c</field>
+        <field>Workreport__c.ReplyMailContent__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ReportFileName__c</field>
+        <field>Workreport__c.ReportFileName__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.ReportName__c</field>
+        <field>Workreport__c.ReportName__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ReportToMail__c</field>
+        <field>Workreport__c.ReportToMail__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.ReportTo__c</field>
+        <field>Workreport__c.ReportTo__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.StandardWorkDays__c</field>
+        <field>Workreport__c.StandardWorkDays__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.StandardWorktime__c</field>
+        <field>Workreport__c.StandardWorktime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.StatusForOrder__c</field>
+        <field>Workreport__c.StatusForOrder__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.Status__c</field>
+        <field>Workreport__c.Status__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.SubmitDate__c</field>
+        <field>Workreport__c.SubmitDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.Superior__c</field>
+        <field>Workreport__c.Superior__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.TotalWorkTime2__c</field>
+        <field>Workreport__c.TotalWorkTime2__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.TotalWorkTime__c</field>
+        <field>Workreport__c.TotalWorkTime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.UK__c</field>
+        <field>Workreport__c.UK__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.UserName__c</field>
+        <field>Workreport__c.UserName__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>MonthlyReport__c.WorkDays__c</field>
+        <field>Workreport__c.WorkDays__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.Workplace__c</field>
+        <field>Workreport__c.Workplace__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>MonthlyReport__c.bReminderMailSent__c</field>
+        <field>Workreport__c.bReminderMailSent__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.ClockInDatetime__c</field>
+        <field>Worktime__c.ClockInDatetime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.ClockOutDatetime__c</field>
+        <field>Worktime__c.ClockOutDatetime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>WorkTime__c.End__c</field>
+        <field>Worktime__c.End__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.IsBusinessTrip__c</field>
+        <field>Worktime__c.IsBusinessTrip__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.IsHoliday__c</field>
+        <field>Worktime__c.IsHoliday__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.IsPaidHoliday__c</field>
+        <field>Worktime__c.IsPaidHoliday__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.IsSubmitCompany__c</field>
+        <field>Worktime__c.IsSubmitCompany__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.IsSubmit__c</field>
+        <field>Worktime__c.IsSubmit__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.IsVacation__c</field>
+        <field>Worktime__c.IsVacation__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>WorkTime__c.LunchTime__c</field>
+        <field>Worktime__c.LunchTime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.Memo__c</field>
+        <field>Worktime__c.Memo__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.ProjectName__c</field>
+        <field>Worktime__c.ProjectName__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.RestTime__c</field>
+        <field>Worktime__c.RestTime__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>WorkTime__c.Start__c</field>
+        <field>Worktime__c.Start__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>WorkTime__c.Week__c</field>
+        <field>Worktime__c.Week__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.WorkTime__c</field>
+        <field>Worktime__c.WorkHours__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>WorkTime__c.Workplace__c</field>
+        <field>Worktime__c.Workplace__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
@@ -423,7 +427,7 @@
         <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
-        <object>MonthlyReport__c</object>
+        <object>Workreport__c</object>
         <viewAllFields>false</viewAllFields>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
@@ -433,7 +437,7 @@
         <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
-        <object>WorkTime__c</object>
+        <object>Worktime__c</object>
         <viewAllFields>false</viewAllFields>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>

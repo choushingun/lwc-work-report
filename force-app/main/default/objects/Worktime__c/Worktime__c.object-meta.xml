@@ -165,7 +165,7 @@
         <lookupDialogsAdditionalFields>EndHour__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>EndTime__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>RestTime__c</lookupDialogsAdditionalFields>
-        <lookupDialogsAdditionalFields>WorkTime__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>WorkHours__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Memo__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>IsBusinessTrip__c</lookupDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>StartHour__c</lookupPhoneDialogsAdditionalFields>
@@ -173,7 +173,7 @@
         <lookupPhoneDialogsAdditionalFields>EndHour__c</lookupPhoneDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>EndTime__c</lookupPhoneDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>RestTime__c</lookupPhoneDialogsAdditionalFields>
-        <lookupPhoneDialogsAdditionalFields>WorkTime__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>WorkHours__c</lookupPhoneDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>Memo__c</lookupPhoneDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>IsBusinessTrip__c</lookupPhoneDialogsAdditionalFields>
         <searchFilterFields>NAME</searchFilterFields>
@@ -182,7 +182,7 @@
         <searchFilterFields>EndHour__c</searchFilterFields>
         <searchFilterFields>EndTime__c</searchFilterFields>
         <searchFilterFields>RestTime__c</searchFilterFields>
-        <searchFilterFields>WorkTime__c</searchFilterFields>
+        <searchFilterFields>WorkHours__c</searchFilterFields>
         <searchFilterFields>Memo__c</searchFilterFields>
         <searchFilterFields>IsBusinessTrip__c</searchFilterFields>
     </searchLayouts>

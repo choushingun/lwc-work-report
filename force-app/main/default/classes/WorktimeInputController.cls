@@ -8,7 +8,7 @@
 public class WorktimeInputController {
   public class InitData {
     @AuraEnabled
-    public MonthlyReport__c report;
+    public Workreport__c report;
     // 勤務実績(会社提出分、実績日順)
     @AuraEnabled
     public List<WorktimeRow> rows;
@@ -48,7 +48,7 @@ public class WorktimeInputController {
     @AuraEnabled
     public Decimal restTime { get; set; }
     @AuraEnabled
-    public Decimal workTime { get; set; }
+    public Decimal workHours { get; set; }
     @AuraEnabled
     public String projectName { get; set; }
     @AuraEnabled
@@ -65,12 +65,12 @@ public class WorktimeInputController {
   @AuraEnabled
   public static InitData getInitData(String sessionKey, Id reportId) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    MonthlyReport__c report = getReport(reportId, contactId);
+    Workreport__c report = getReport(reportId, contactId);
 
     InitData data = new InitData();
     data.report = report;
     data.rows = new List<WorktimeRow>();
-    for (WorkTime__c wt : WorktimeDao.getListByReport(reportId)) {
+    for (Worktime__c wt : WorktimeDao.getListByReport(reportId)) {
       if (wt.IsSubmit__c != true) {
         data.rows.add(toRow(wt));
       }
@@ -85,8 +85,8 @@ public class WorktimeInputController {
     if (String.isNotBlank(report.Workplace__c)) {
       data.workplaces.addAll(report.Workplace__c.split(';'));
     }
-    data.hourOptions = getPicklistValues(WorkTime__c.StartHour__c);
-    data.minuteOptions = getPicklistValues(WorkTime__c.StartTime__c);
+    data.hourOptions = getPicklistValues(Worktime__c.StartHour__c);
+    data.minuteOptions = getPicklistValues(Worktime__c.StartTime__c);
     data.isReadonly = WorkreportController.isReadonly(report);
     return data;
   }
@@ -95,15 +95,15 @@ public class WorktimeInputController {
   @AuraEnabled
   public static void saveWorktimes(String sessionKey, Id reportId, List<WorktimeRow> rows) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    MonthlyReport__c report = getReport(reportId, contactId);
+    Workreport__c report = getReport(reportId, contactId);
     if (WorkreportController.isReadonly(report)) {
       throw createException('この勤務表は編集できません。');
     }
 
     // 修正前の勤務実績(会社提出・客先提出)
-    Map<Id, WorkTime__c> companyById = new Map<Id, WorkTime__c>();
-    Map<Date, WorkTime__c> customerByDay = new Map<Date, WorkTime__c>();
-    for (WorkTime__c wt : WorktimeDao.getListByReport(reportId)) {
+    Map<Id, Worktime__c> companyById = new Map<Id, Worktime__c>();
+    Map<Date, Worktime__c> customerByDay = new Map<Date, Worktime__c>();
+    for (Worktime__c wt : WorktimeDao.getListByReport(reportId)) {
       if (wt.IsSubmit__c == true) {
         customerByDay.put(wt.WorkDay__c, wt);
       } else {
@@ -111,17 +111,17 @@ public class WorktimeInputController {
       }
     }
 
-    Map<Id, WorkTime__c> updates = new Map<Id, WorkTime__c>();
+    Map<Id, Worktime__c> updates = new Map<Id, Worktime__c>();
     // 削除する客先提出レコード(実績日単位)
-    Map<Date, WorkTime__c> deletes = new Map<Date, WorkTime__c>();
+    Map<Date, Worktime__c> deletes = new Map<Date, Worktime__c>();
     for (WorktimeRow row : rows == null ? new List<WorktimeRow>() : rows) {
-      WorkTime__c old = companyById.get(row.id);
+      Worktime__c old = companyById.get(row.id);
       // 他の勤務表の実績は更新しない
       if (old == null) {
         continue;
       }
       Boolean isVacation = row.isVacation == true;
-      WorkTime__c wt = new WorkTime__c(
+      Worktime__c wt = new Worktime__c(
         Id = old.Id,
         IsVacation__c = isVacation,
         StartHour__c = row.startHour,
@@ -146,7 +146,7 @@ public class WorktimeInputController {
         throw createException(old.Name + '：労働時間が０の場合、休みにチェックを入れてください。');
       }
 
-      WorkTime__c customer = customerByDay.get(old.WorkDay__c);
+      Worktime__c customer = customerByDay.get(old.WorkDay__c);
       if (customer != null) {
         // 休み：×⇒〇の場合、客先提出レコードを削除する
         if (old.IsVacation__c != true && isVacation) {
@@ -166,34 +166,34 @@ public class WorktimeInputController {
     }
 
     // 客先提出レコードがある日だけ、会社提出レコードに会社提出フラグを立てる
-    for (WorkTime__c old : companyById.values()) {
+    for (Worktime__c old : companyById.values()) {
       Boolean isSubmitCompany = customerByDay.containsKey(old.WorkDay__c) && !deletes.containsKey(old.WorkDay__c);
       if (updates.containsKey(old.Id)) {
         updates.get(old.Id).IsSubmitCompany__c = isSubmitCompany;
       } else if ((old.IsSubmitCompany__c == true) != isSubmitCompany) {
-        updates.put(old.Id, new WorkTime__c(Id = old.Id, IsSubmitCompany__c = isSubmitCompany));
+        updates.put(old.Id, new Worktime__c(Id = old.Id, IsSubmitCompany__c = isSubmitCompany));
       }
     }
 
     Savepoint sp = Database.setSavepoint();
     try {
-      WorktimeDao.deleteWorkTimes(deletes.values());
-      WorktimeDao.updateWorkTimes(updates.values());
+      WorktimeDao.deleteWorktimes(deletes.values());
+      WorktimeDao.updateWorktimes(updates.values());
     } catch (DmlException e) {
       Database.rollback(sp);
       throw createException(e.getDmlMessage(0));
     }
   }
 
-  private static MonthlyReport__c getReport(Id reportId, Id contactId) {
-    List<MonthlyReport__c> reports = MonthlyReportDao.getInputListById(reportId, contactId);
+  private static Workreport__c getReport(Id reportId, Id contactId) {
+    List<Workreport__c> reports = WorkreportDao.getInputListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
     }
     return reports[0];
   }
 
-  private static WorktimeRow toRow(WorkTime__c wt) {
+  private static WorktimeRow toRow(Worktime__c wt) {
     WorktimeRow row = new WorktimeRow();
     row.id = wt.Id;
     row.name = wt.Name;
@@ -204,7 +204,7 @@ public class WorktimeInputController {
     row.endHour = wt.EndHour__c;
     row.endTime = wt.EndTime__c;
     row.restTime = wt.RestTime__c;
-    row.workTime = wt.WorkTime__c;
+    row.workHours = wt.WorkHours__c;
     row.projectName = wt.ProjectName__c;
     row.workplace = wt.Workplace__c;
     row.memo = wt.Memo__c;
@@ -214,7 +214,7 @@ public class WorktimeInputController {
   }
 
   // 会社提出と客先提出で時間が違うか
-  private static Boolean isTimeModified(WorkTime__c company, WorkTime__c customer) {
+  private static Boolean isTimeModified(Worktime__c company, Worktime__c customer) {
     return company.StartHour__c != customer.StartHour__c ||
       company.StartTime__c != customer.StartTime__c ||
       company.EndHour__c != customer.EndHour__c ||
@@ -222,7 +222,7 @@ public class WorktimeInputController {
   }
 
   // 昼休憩の開始以降に出社した場合、休憩時間を0にする(昼休憩中の場合は出社時間を昼休憩の終了時間にする)
-  private static void adjustLunchTime(WorkTime__c wt, String lunchTime) {
+  private static void adjustLunchTime(Worktime__c wt, String lunchTime) {
     if (String.isBlank(lunchTime) || !lunchTime.contains(':')) {
       return;
     }

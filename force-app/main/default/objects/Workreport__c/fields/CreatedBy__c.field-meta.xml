@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Contact__c</fullName>
-    <deleteConstraint>Restrict</deleteConstraint>
-    <description>勤務表を使う人</description>
+    <fullName>CreatedBy__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
     <externalId>false</externalId>
-    <label>社員</label>
+    <label>作成者</label>
     <referenceTo>Contact</referenceTo>
-    <relationshipLabel>勤務表</relationshipLabel>
-    <relationshipName>Employee</relationshipName>
-    <required>true</required>
+    <relationshipLabel>勤務表 (作成者)</relationshipLabel>
+    <relationshipName>CreatedByWorkreports</relationshipName>
+    <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

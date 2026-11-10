@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>MonthlyReport__c</fullName>
+    <fullName>Workreport__c</fullName>
     <externalId>false</externalId>
     <label>勤務表</label>
-    <referenceTo>MonthlyReport__c</referenceTo>
+    <referenceTo>Workreport__c</referenceTo>
     <relationshipLabel>勤務実績</relationshipLabel>
-    <relationshipName>MonthlyReportRelation</relationshipName>
+    <relationshipName>WorkreportRelation</relationshipName>
     <relationshipOrder>0</relationshipOrder>
     <reparentableMasterDetail>false</reparentableMasterDetail>
     <trackTrending>false</trackTrending>

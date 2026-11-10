@@ -1,26 +1,26 @@
-trigger WorkTime on WorkTime__c(before insert, before update, after insert, after update, after delete) {
+trigger Worktime on Worktime__c(before insert, before update, after insert, after update, after delete) {
   // 登録・更新前：勤務実績名・勤務時間を設定し、勤務表と同じ年月かチェックする
   if (Trigger.isBefore && (Trigger.isInsert || Trigger.isUpdate)) {
     // 勤務表ID
     Set<Id> reportIdSet = new Set<Id>();
 
-    for (WorkTime__c w : Trigger.new) {
-      reportIdSet.add(w.MonthlyReport__c);
+    for (Worktime__c w : Trigger.new) {
+      reportIdSet.add(w.Workreport__c);
     }
     // 勤務表情報取得
-    Map<Id, MonthlyReport__c> reportMap = MonthlyReportDao.getMapByIds(reportIdSet);
+    Map<Id, Workreport__c> reportMap = WorkreportDao.getMapByIds(reportIdSet);
     system.debug('reportIdSet=' + reportIdSet);
 
     for (Integer i = 0; i < Trigger.new.size(); i++) {
-      WorkTime__c w = Trigger.new[i];
+      Worktime__c w = Trigger.new[i];
       // 勤務表
-      MonthlyReport__c report = reportMap.get(w.MonthlyReport__c);
+      Workreport__c report = reportMap.get(w.Workreport__c);
       //勤務実績名
       Datetime dt = Datetime.newInstance(w.WorkDay__c, Time.newInstance(0, 0, 0, 0));
       w.Name = dt.format('MM月dd日');
 
       // 勤務時間計算
-      w = ReportUtility.calcWorkTime(w);
+      w = ReportUtility.calcWorkHours(w);
 
       // 年月チェック
       if (
@@ -37,15 +37,15 @@ trigger WorkTime on WorkTime__c(before insert, before update, after insert, afte
   // 登録・更新・削除後：勤務表の最終更新日時を更新する
   if (Trigger.isAfter) {
     Set<Id> reportIds = new Set<Id>();
-    list<WorkTime__c> lstWorktime = Trigger.isDelete ? Trigger.old : Trigger.new;
-    for (WorkTime__c worktime : lstWorktime) {
-      reportIds.add(worktime.MonthlyReport__c);
+    list<Worktime__c> lstWorktime = Trigger.isDelete ? Trigger.old : Trigger.new;
+    for (Worktime__c worktime : lstWorktime) {
+      reportIds.add(worktime.Workreport__c);
     }
 
-    List<MonthlyReport__c> reports = MonthlyReportDao.getMapByIds(reportIds).values();
-    for (MonthlyReport__c report : reports) {
+    List<Workreport__c> reports = WorkreportDao.getMapByIds(reportIds).values();
+    for (Workreport__c report : reports) {
       report.LastModified__c = System.now();
     }
-    MonthlyReportDao.updateReports(reports);
+    WorkreportDao.updateReports(reports);
   }
 }

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>PaidHolidayUsed__c</fullName>
+    <fullName>StandardWorkDays__c</fullName>
     <externalId>false</externalId>
-    <label>有給消化日数</label>
+    <label>標準勤務日数</label>
     <summaryFilterItems>
-        <field>WorkTime__c.IsPaidHoliday__c</field>
+        <field>Worktime__c.IsHoliday__c</field>
         <operation>equals</operation>
-        <value>True</value>
+        <value>False</value>
     </summaryFilterItems>
     <summaryFilterItems>
-        <field>WorkTime__c.IsSubmit__c</field>
+        <field>Worktime__c.IsSubmit__c</field>
         <operation>notEqual</operation>
         <value>True</value>
     </summaryFilterItems>
-    <summaryForeignKey>WorkTime__c.MonthlyReport__c</summaryForeignKey>
+    <summaryForeignKey>Worktime__c.Workreport__c</summaryForeignKey>
     <summaryOperation>count</summaryOperation>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

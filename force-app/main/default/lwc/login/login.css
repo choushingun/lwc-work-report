@@ -19,11 +19,23 @@
   padding: 2rem 1.5rem;
 }
 
-/* 項目ラベル(SLDSの項目ラベルと同じ見た目) */
+/* ロゴ画像(左右の端を入力欄・ボタンにそろえ、枠の幅いっぱいに表示する) */
+.logo {
+  margin-bottom: 1rem;
+}
+
+.logo-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* 項目ラベル(SLDSの項目ラベルと同じ大きさで太字にする) */
 .field-label {
   display: block;
   margin-bottom: 0.25rem;
   font-size: 0.75rem;
+  font-weight: 700;
   color: #444444;
 }
 

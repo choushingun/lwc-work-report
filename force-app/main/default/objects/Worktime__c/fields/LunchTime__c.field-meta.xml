@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>LunchTime__c</fullName>
     <externalId>false</externalId>
-    <formula>TEXT(MonthlyReport__r.LunchTime__c)</formula>
+    <formula>TEXT(Workreport__r.LunchTime__c)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>昼休憩時間</label>
     <required>false</required>

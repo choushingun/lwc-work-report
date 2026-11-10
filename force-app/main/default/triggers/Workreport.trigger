@@ -1,9 +1,9 @@
-trigger MonthlyReport on MonthlyReport__c(before update, after update) {
+trigger Workreport on Workreport__c(before update, after update) {
   // 更新前：状況の変化に応じて申請日時・承認日時などを設定する
   if (Trigger.isBefore && Trigger.isUpdate) {
-    for (MonthlyReport__c report : Trigger.new) {
+    for (Workreport__c report : Trigger.new) {
       // report.IsSelected__c = false;
-      MonthlyReport__c oldReport = Trigger.oldMap.get(report.Id);
+      Workreport__c oldReport = Trigger.oldMap.get(report.Id);
       // 状況が変化なかった場合、なにもしない
       if (oldReport.Status__c == report.Status__c) {
         continue;
@@ -37,9 +37,9 @@ trigger MonthlyReport on MonthlyReport__c(before update, after update) {
 
   // 更新後：勤務表から削除・変更されたプロジェクトを勤務実績からクリアする
   if (Trigger.isAfter && Trigger.isUpdate) {
-    List<WorkTime__c> worktimesForUpdate = new List<WorkTime__c>();
-    for (MonthlyReport__c report : Trigger.new) {
-      MonthlyReport__c oldReport = Trigger.oldMap.get(report.Id);
+    List<Worktime__c> worktimesForUpdate = new List<Worktime__c>();
+    for (Workreport__c report : Trigger.new) {
+      Workreport__c oldReport = Trigger.oldMap.get(report.Id);
       if (String.isNotBlank(oldReport.ProjectName__c) && oldReport.ProjectName__c != report.ProjectName__c) {
         List<String> oldList = oldReport.ProjectName__c.split(',');
         List<String> newList = new List<String>();
@@ -59,14 +59,14 @@ trigger MonthlyReport on MonthlyReport__c(before update, after update) {
         }
 
         // 実績検索
-        List<WorkTime__c> workTimes = WorktimeDao.getListByProject(report.Id, lstPrjForDelete);
+        List<Worktime__c> worktimes = WorktimeDao.getListByProject(report.Id, lstPrjForDelete);
 
-        for (WorkTime__c wt : workTimes) {
+        for (Worktime__c wt : worktimes) {
           wt.ProjectName__c = '';
           worktimesForUpdate.add(wt);
         }
       }
     }
-    WorktimeDao.updateWorkTimes(worktimesForUpdate);
+    WorktimeDao.updateWorktimes(worktimesForUpdate);
   }
 }

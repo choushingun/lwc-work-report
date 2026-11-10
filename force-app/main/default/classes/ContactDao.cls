@@ -15,6 +15,29 @@ public without sharing class ContactDao {
     ];
   }
 
+  // メールアドレスで取得する(パスワード再設定用。退職済みは除く。重複判定のため最大2件)
+  public static List<Contact> getResetListByEmail(String email) {
+    Date today = Date.today();
+    return [
+      SELECT Id, Email
+      FROM Contact
+      WHERE Email = :email AND (RetirementDate__c = NULL OR RetirementDate__c >= :today)
+      WITH SYSTEM_MODE
+      LIMIT 2
+    ];
+  }
+
+  // パスワード再設定トークン(ハッシュ値)で取得する
+  public static List<Contact> getListByResetToken(String tokenHash) {
+    return [
+      SELECT Id, PasswordResetExpires__c
+      FROM Contact
+      WHERE PasswordResetToken__c = :tokenHash
+      WITH SYSTEM_MODE
+      LIMIT 1
+    ];
+  }
+
   // 社員と所属会社・上長
   public static Contact getWithAccountById(Id contactId) {
     return [

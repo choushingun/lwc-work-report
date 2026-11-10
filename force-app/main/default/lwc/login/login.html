@@ -3,11 +3,12 @@
     <div class="login-box slds-box slds-theme_default slds-is-relative">
       <c-spinner lwc:if={isLoading} alternative-text="ログイン中"></c-spinner>
 
-      <h1
-        class="slds-text-heading_medium slds-text-align_center slds-m-bottom_large"
-      >
-        ログイン
-      </h1>
+      <!-- ロゴ画像(旧システムのログイン画面と同じ。クリックで会社のホームページを開く) -->
+      <div class="logo">
+        <a href="https://www.accenture.com/jp-ja" target="_blank" rel="noopener noreferrer">
+          <img src={logoUrl} class="logo-image" alt="アクセンチュア" title="アクセンチュア株式会社ホームページへ" />
+        </a>
+      </div>
 
       <div
         lwc:if={errorMessage}
@@ -21,6 +22,7 @@
       <div class="field-label">メールアドレス<abbr class="slds-required required-mark" title="必須">*</abbr></div>
       <lightning-input
         class="slds-m-bottom_medium"
+        data-id="email"
         type="email"
         variant="label-hidden"
         label="メールアドレス"
@@ -53,6 +55,25 @@
         disabled={isLoading}
         onclick={handleLogin}
       ></lightning-button>
+      <lightning-button
+        class="login-button reset-button"
+        variant="brand"
+        label="パスワードを忘れた"
+        stretch
+        disabled={isLoading}
+        onclick={handleForgotPassword}
+      ></lightning-button>
     </div>
+    <!-- 共通ダイアログ(パスワード再設定の確認・処理結果) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
   </main>
 </template>

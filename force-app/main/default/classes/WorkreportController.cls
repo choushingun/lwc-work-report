@@ -14,7 +14,7 @@ public class WorkreportController {
 
   public class ReportData {
     @AuraEnabled
-    public MonthlyReport__c report;
+    public Workreport__c report;
     // 勤務実績(会社提出分、実績日順)
     @AuraEnabled
     public List<WorktimeRow> worktimes;
@@ -36,6 +36,9 @@ public class WorkreportController {
     // 勤務表ファイル(月末締めで添付したExcel)がある
     @AuraEnabled
     public Boolean hasReportFile;
+    // 勤務表ファイル名(ファイルがない場合は null)
+    @AuraEnabled
+    public String reportFileName;
   }
 
   public class ReportFile {
@@ -62,7 +65,7 @@ public class WorkreportController {
     @AuraEnabled
     public Decimal restTime;
     @AuraEnabled
-    public Decimal workTime;
+    public Decimal workHours;
     // 備考(客先提出分の備考・時間をまとめたもの)
     @AuraEnabled
     public String memo;
@@ -76,21 +79,23 @@ public class WorkreportController {
   @AuraEnabled
   public static ReportData getReport(String sessionKey, Id reportId) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    List<MonthlyReport__c> reports = MonthlyReportDao.getDetailListById(reportId, contactId);
+    List<Workreport__c> reports = WorkreportDao.getDetailListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
     }
-    MonthlyReport__c report = reports[0];
+    Workreport__c report = reports[0];
 
     ReportData data = new ReportData();
     data.report = report;
-    data.worktimes = toRows(report.MonthlyReportRelation__r);
+    data.worktimes = toRows(report.WorkreportRelation__r);
     data.isCurrentMonth = isCurrentMonth(report.Year__c, report.Month__c);
     data.isReadonly = isReadonly(report);
     data.canCancelComplete = canCancelComplete(report);
     data.isClosableMonth = isClosableMonth(report.Year__c, report.Month__c);
     data.messages = getMessages(report);
-    data.hasReportFile = !AttachmentDao.getListByName(report.Id, getReportFileName(report)).isEmpty();
+    String fileName = getReportFileName(report);
+    data.hasReportFile = !AttachmentDao.getListByName(report.Id, fileName).isEmpty();
+    data.reportFileName = data.hasReportFile ? fileName : null;
     return data;
   }
 
@@ -98,7 +103,7 @@ public class WorkreportController {
   @AuraEnabled
   public static ReportFile getReportFile(String sessionKey, Id reportId) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    List<MonthlyReport__c> reports = MonthlyReportDao.getDetailListById(reportId, contactId);
+    List<Workreport__c> reports = WorkreportDao.getDetailListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
     }
@@ -118,19 +123,19 @@ public class WorkreportController {
   @AuraEnabled
   public static CompleteData getCompleteData(String sessionKey, Id reportId) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    MonthlyReport__c report = getCompletableReport(reportId, contactId);
+    Workreport__c report = getCompletableReport(reportId, contactId);
     CompleteData data = new CompleteData();
     data.report = report;
-    data.worktimes = getCompanyWorktimes(report.MonthlyReportRelation__r);
+    data.worktimes = getCompanyWorktimes(report.WorkreportRelation__r);
     return data;
   }
 
   public class CompleteData {
     @AuraEnabled
-    public MonthlyReport__c report;
+    public Workreport__c report;
     // 勤務実績(会社提出分、実績日順)
     @AuraEnabled
-    public List<WorkTime__c> worktimes;
+    public List<Worktime__c> worktimes;
   }
 
   // 月末締め(勤務表ファイルを添付し、状況を作成完了にする。以降は編集不可)
@@ -138,7 +143,7 @@ public class WorkreportController {
   @AuraEnabled
   public static String completeReport(String sessionKey, Id reportId, String fileContent) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    MonthlyReport__c report = getCompletableReport(reportId, contactId);
+    Workreport__c report = getCompletableReport(reportId, contactId);
     if (String.isBlank(fileContent)) {
       throw createException('勤務表ファイルを作成できませんでした。');
     }
@@ -151,7 +156,7 @@ public class WorkreportController {
       report.Contact__r?.Name
     );
     Datetime now = System.now();
-    MonthlyReport__c updated = new MonthlyReport__c(
+    Workreport__c updated = new Workreport__c(
       Id = report.Id,
       ReportFileName__c = fileName,
       Status__c = STATUS_COMPLETED,
@@ -162,7 +167,7 @@ public class WorkreportController {
     // 例外時はファイルの添付も取り消されるよう、同じトランザクションで行う
     try {
       saveReportFile(report, fileName, EncodingUtil.base64Decode(fileContent));
-      MonthlyReportDao.updateReports(new List<MonthlyReport__c>{ updated });
+      WorkreportDao.updateReports(new List<Workreport__c>{ updated });
     } catch (DmlException e) {
       throw createException(e.getDmlMessage(0));
     }
@@ -170,7 +175,7 @@ public class WorkreportController {
   }
 
   // 勤務表ファイルを添付する(同名のファイル、ファイル名を作り直す前の旧名のファイルがあれば置き換える)
-  private static void saveReportFile(MonthlyReport__c report, String fileName, Blob body) {
+  private static void saveReportFile(Workreport__c report, String fileName, Blob body) {
     AttachmentDao.deleteAttachments(AttachmentDao.getListByName(report.Id, getReportFileName(report)));
     AttachmentDao.deleteAttachments(AttachmentDao.getListByName(report.Id, fileName));
     AttachmentDao.insertAttachment(
@@ -178,14 +183,14 @@ public class WorkreportController {
     );
   }
 
-  private static String getReportFileName(MonthlyReport__c report) {
+  private static String getReportFileName(Workreport__c report) {
     return String.isNotBlank(report.ReportFileName__c) ? report.ReportFileName__c : report.ReportName__c + '.xlsx';
   }
 
   // 会社提出分の勤務実績
-  private static List<WorkTime__c> getCompanyWorktimes(List<WorkTime__c> worktimes) {
-    List<WorkTime__c> companyWorktimes = new List<WorkTime__c>();
-    for (WorkTime__c wt : worktimes) {
+  private static List<Worktime__c> getCompanyWorktimes(List<Worktime__c> worktimes) {
+    List<Worktime__c> companyWorktimes = new List<Worktime__c>();
+    for (Worktime__c wt : worktimes) {
       if (wt.IsSubmit__c != true) {
         companyWorktimes.add(wt);
       }
@@ -194,12 +199,12 @@ public class WorkreportController {
   }
 
   // 月末締めできる勤務表を取得する(入力内容に不備があれば例外)
-  private static MonthlyReport__c getCompletableReport(Id reportId, Id contactId) {
-    List<MonthlyReport__c> reports = MonthlyReportDao.getDetailListById(reportId, contactId);
+  private static Workreport__c getCompletableReport(Id reportId, Id contactId) {
+    List<Workreport__c> reports = WorkreportDao.getDetailListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
     }
-    MonthlyReport__c report = reports[0];
+    Workreport__c report = reports[0];
     if (isReadonly(report)) {
       throw createException('この勤務表は締めることができません。');
     }
@@ -219,8 +224,8 @@ public class WorkreportController {
       throw createException('勤務実績を作成してください。');
     }
     // 勤務のある日(有給休暇を除く)は、プロジェクト・作業場所・備考が必須
-    for (WorkTime__c wt : WorktimeDao.getCompanyListByReport(report.Id)) {
-      if (wt.WorkTime__c == null || wt.WorkTime__c <= 0 || wt.IsPaidHoliday__c) {
+    for (Worktime__c wt : WorktimeDao.getCompanyListByReport(report.Id)) {
+      if (wt.WorkHours__c == null || wt.WorkHours__c <= 0 || wt.IsPaidHoliday__c) {
         continue;
       }
       String day = String.valueOf(wt.WorkDay__c.day());
@@ -241,14 +246,14 @@ public class WorkreportController {
   @AuraEnabled
   public static String cancelCompleteReport(String sessionKey, Id reportId) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    List<MonthlyReport__c> reports = MonthlyReportDao.getDetailListById(reportId, contactId);
+    List<Workreport__c> reports = WorkreportDao.getDetailListById(reportId, contactId);
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
     }
     if (!canCancelComplete(reports[0])) {
       throw createException('この勤務表は締め取消できません。');
     }
-    MonthlyReport__c updated = new MonthlyReport__c(
+    Workreport__c updated = new Workreport__c(
       Id = reportId,
       Status__c = STATUS_DRAFT,
       LastModifiedBy__c = contactId,
@@ -256,28 +261,28 @@ public class WorkreportController {
     );
     try {
       AttachmentDao.deleteAttachments(AttachmentDao.getListByName(reportId, getReportFileName(reports[0])));
-      MonthlyReportDao.updateReports(new List<MonthlyReport__c>{ updated });
+      WorkreportDao.updateReports(new List<Workreport__c>{ updated });
     } catch (DmlException e) {
       throw createException(e.getDmlMessage(0));
     }
     return '月末締めを取り消しました。';
   }
 
-  private static Boolean canCancelComplete(MonthlyReport__c report) {
+  private static Boolean canCancelComplete(Workreport__c report) {
     return report.Status__c == STATUS_COMPLETED && !isReadonlyMonth(report.Year__c, report.Month__c);
   }
 
   // 会社提出分の実績を表示用に変換する(客先提出分の備考と時間は備考にまとめる)
-  private static List<WorktimeRow> toRows(List<WorkTime__c> worktimes) {
-    Map<Date, WorkTime__c> customerWorktimes = new Map<Date, WorkTime__c>();
-    for (WorkTime__c wt : worktimes) {
+  private static List<WorktimeRow> toRows(List<Worktime__c> worktimes) {
+    Map<Date, Worktime__c> customerWorktimes = new Map<Date, Worktime__c>();
+    for (Worktime__c wt : worktimes) {
       if (wt.IsSubmit__c == true && wt.IsSubmitCompany__c != true) {
         customerWorktimes.put(wt.WorkDay__c, wt);
       }
     }
 
     List<WorktimeRow> rows = new List<WorktimeRow>();
-    for (WorkTime__c wt : worktimes) {
+    for (Worktime__c wt : worktimes) {
       if (wt.IsSubmit__c == true) {
         continue;
       }
@@ -288,7 +293,7 @@ public class WorkreportController {
       row.startTime = wt.Start__c;
       row.endTime = wt.End__c;
       row.restTime = wt.RestTime__c;
-      row.workTime = wt.WorkTime__c;
+      row.workHours = wt.WorkHours__c;
       row.isHoliday = wt.IsHoliday__c == true;
       row.isSubmitCompany = wt.IsSubmitCompany__c == true;
       row.memo = mergeMemo(wt.Memo__c, customerWorktimes.get(wt.WorkDay__c));
@@ -297,7 +302,7 @@ public class WorkreportController {
     return rows;
   }
 
-  private static String mergeMemo(String memo, WorkTime__c customer) {
+  private static String mergeMemo(String memo, Worktime__c customer) {
     List<String> lines = new List<String>();
     if (String.isNotBlank(memo)) {
       lines.add(memo);
@@ -311,7 +316,7 @@ public class WorkreportController {
     return String.join(lines, '\n');
   }
 
-  private static List<String> getMessages(MonthlyReport__c report) {
+  private static List<String> getMessages(Workreport__c report) {
     List<String> messages = new List<String>();
     if (String.isBlank(report.ProjectName__c) || String.isBlank(report.ProjectCode__c)) {
       // ダイアログで1要素1行に表示するため、2行に分けて追加する
@@ -340,7 +345,7 @@ public class WorkreportController {
   }
 
   // 編集不可(状況または年月による)の判定。実績入力画面(WorktimeInputController)からも使う
-  public static Boolean isReadonly(MonthlyReport__c report) {
+  public static Boolean isReadonly(Workreport__c report) {
     return READONLY_STATUSES.contains(report.Status__c) || isReadonlyMonth(report.Year__c, report.Month__c);
   }
 

@@ -141,32 +141,7 @@
   background: linear-gradient(to bottom, #8c8c8c, #5c5c5c);
 }
 
-/* 勤務レポートのダウンロードアイコン(水色の丸の中に白い矢印) */
-.download-icon {
-  /* 幅と高さを固定して正円にする(中の記号は上下左右の中央に置く) */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-sizing: border-box;
-  width: 1.25rem;
-  height: 1.25rem;
-  padding: 0;
-  line-height: 0;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  background: linear-gradient(to bottom, #c4dcf2, #8fbbe3);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
-  --slds-c-icon-color-foreground-default: #ffffff;
-}
-
-/* ボタンの行の高さ(SLDS標準 1.875rem)で行が高くならないようにする */
-.download-button {
-  display: flex;
-  line-height: 1;
-  border: 0;
-}
-
-.download-button:disabled .download-icon {
-  opacity: 0.5;
+/* 勤務レポートのファイル名(長い場合は折り返す) */
+.download-link {
+  word-break: break-all;
 }

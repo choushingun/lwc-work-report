@@ -46,6 +46,7 @@ export default class Workreport extends NavigationMixin(LightningElement) {
   isClosableMonth = false;
   // 勤務表ファイル(月末締めで添付したExcel)がある
   hasReportFile = false;
+  reportFileName;
   messages = [];
   isLoading = false;
   // ログイン確認済み(確認できるまで画面を表示しない)
@@ -94,11 +95,16 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     this.isClosableMonth = data.isClosableMonth;
     this.messages = data.messages;
     this.hasReportFile = data.hasReportFile;
+    this.reportFileName = data.reportFileName;
     this.isAuthenticated = true;
   }
 
   // 勤務表ファイル(月末締めで添付したExcel)をダウンロードする
-  handleDownloadReport() {
+  handleDownloadReport(event) {
+    event.preventDefault();
+    if (this.isLoading) {
+      return;
+    }
     this.callApex(async () => {
       const file = await getReportFile({ sessionKey: getSessionKey(), reportId: this.reportId });
       const link = document.createElement('a');
@@ -229,7 +235,9 @@ export default class Workreport extends NavigationMixin(LightningElement) {
       hasMemo: !!wt.memo,
       rowClass: wt.workDay === today ? 'row-today' : '',
       weekClass: this.weekClass(wt),
-      timeClass: wt.isSubmitCompany ? 'text-red' : ''
+      timeClass: wt.isSubmitCompany ? 'text-red' : '',
+      // 作業時間は小数点以下2桁で表示する
+      workHoursLabel: Number(wt.workHours ?? 0).toFixed(2)
     }));
   }
 
