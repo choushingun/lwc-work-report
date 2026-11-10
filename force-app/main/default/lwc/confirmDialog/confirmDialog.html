@@ -1,0 +1,36 @@
+<template>
+  <section
+    role="alertdialog"
+    tabindex="-1"
+    aria-modal="true"
+    aria-labelledby="dialog-heading"
+    aria-describedby="dialog-message"
+    class="slds-modal slds-fade-in-open"
+    onkeydown={handleKeyDown}
+  >
+    <div class="slds-modal__container dialog">
+      <div class="slds-modal__header dialog-header">
+        <lightning-button-icon
+          class="dialog-close"
+          icon-name="utility:close"
+          variant="bare"
+          size="large"
+          alternative-text="閉じる"
+          title="閉じる"
+          onclick={handleClose}
+        ></lightning-button-icon>
+        <h1 id="dialog-heading" class="slds-modal__title">{title}</h1>
+      </div>
+      <div id="dialog-message" class="slds-modal__content slds-p-horizontal_medium slds-p-top_medium slds-p-bottom_xx-large">
+        <template for:each={messageLines} for:item="line">
+          <p key={line.key} class={messageClass}>{line.text}</p>
+        </template>
+      </div>
+      <div class="slds-modal__footer dialog-footer">
+        <button lwc:if={cancelLabel} class="slds-button slds-button_neutral" onclick={handleClose}>{cancelLabel}</button>
+        <button class="slds-button slds-button_brand confirm-button" onclick={handleConfirm}>{confirmLabel}</button>
+      </div>
+    </div>
+  </section>
+  <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+</template>

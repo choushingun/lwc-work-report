@@ -1,6 +1,6 @@
 <template>
   <main class="worktime-input-page">
-    <c-spinner></c-spinner>
+    <c-spinner lwc:if={isLoading}></c-spinner>
     <!-- 初期表示失敗時(画面を表示できない場合)もエラーが見えるよう、カードの外に出す -->
     <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
     <lightning-card lwc:if={isAuthenticated} icon-name="standard:timesheet_entry">

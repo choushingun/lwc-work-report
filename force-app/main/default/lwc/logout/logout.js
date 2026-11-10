@@ -20,7 +20,6 @@ export default class Logout extends NavigationMixin(LightningElement) {
   async handleLogout() {
     this.errorMessage = '';
     this.isLoading = true;
-    this.showSpinner();
     try {
       await logout({
         sessionKey: getSessionKey()
@@ -31,7 +30,6 @@ export default class Logout extends NavigationMixin(LightningElement) {
       this.errorMessage = SYSTEM_ERROR_MESSAGE;
     }
     this.isLoading = false;
-    this.hideSpinner();
   }
 
   handleGoToLogin() {
@@ -39,16 +37,5 @@ export default class Logout extends NavigationMixin(LightningElement) {
       type: 'comm__namedPage',
       attributes: { name: LOGIN_PAGE }
     });
-  }
-
-  // スピナーは描画後でないと取得できないため、描画を待ってから操作する
-  async showSpinner() {
-    await Promise.resolve();
-    this.template.querySelector('c-spinner')?.showSpinner();
-  }
-
-  async hideSpinner() {
-    await Promise.resolve();
-    this.template.querySelector('c-spinner')?.hideSpinner();
   }
 }

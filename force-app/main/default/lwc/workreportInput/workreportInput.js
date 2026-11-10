@@ -56,9 +56,9 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
   // 編集不可(編集モードで、作成完了以降の状況または対象外の年月の場合)
   isReadonly = false;
   initialized = false;
-  // キャンセル確認ダイアログを表示中
-  showCancelConfirm = false;
-  focusCancelConfirm = false;
+  // 表示中のダイアログ(確認・処理結果を1つの共通ダイアログで切り替えて表示する。null は非表示)
+  // { title, messages, confirmLabel, cancelLabel, isError, onConfirm(確定時の処理) }
+  dialog = null;
   // 初期表示時の入力値(変更有無の判定に使う)
   initialInput = '';
 
@@ -74,7 +74,12 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
       redirectToLogin(this);
       return;
     }
-    this.callApex(async () => {
+    this.loadInitData();
+  }
+
+  // 初期表示(編集できない勤務表の場合はダイアログで知らせる)
+  async loadInitData() {
+    await this.callApex(async () => {
       const data = await getInitData({ sessionKey: getSessionKey(), sourceId: this.sourceId, isEdit: this.isEdit });
       this.report = { ...data.report };
       this.isReadonly = data.isReadonly;
@@ -86,6 +91,9 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
       this.superiorName = data.superiorName;
       this.isAuthenticated = true;
     });
+    if (this.isAuthenticated && this.isReadonly) {
+      this.dialog = { title: '注意', messages: 'この勤務表は編集できません。', confirmLabel: 'OK' };
+    }
   }
 
   get pageTitle() {
@@ -166,38 +174,37 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
     });
   }
 
-  // 入力内容に変更がある場合のみキャンセル確認ダイアログを開く(はいボタンにフォーカスする)
+  // 入力内容に変更がある場合のみキャンセル確認ダイアログを開く
   handleCancel() {
     if (JSON.stringify(this.toInput()) === this.initialInput) {
-      this.handleCancelConfirm();
+      this.cancelInput();
       return;
     }
-    this.showCancelConfirm = true;
-    this.focusCancelConfirm = true;
+    this.dialog = {
+      title: '入力内容の破棄',
+      messages: [`入力内容を破棄して${this.returnPageLabel}に戻りますか？`, '保存されていない内容は失われます。'],
+      confirmLabel: 'はい',
+      cancelLabel: 'いいえ',
+      onConfirm: () => this.cancelInput()
+    };
   }
 
-  renderedCallback() {
-    if (this.focusCancelConfirm) {
-      this.focusCancelConfirm = false;
-      this.template.querySelector('.cancel-confirm-button')?.focus();
-    }
+  // ダイアログの確定ボタン(ダイアログを閉じてから確定時の処理を行う)
+  handleDialogConfirm() {
+    const onConfirm = this.dialog?.onConfirm;
+    this.dialog = null;
+    onConfirm?.();
   }
 
-  handleCancelConfirmClose() {
-    this.showCancelConfirm = false;
+  // ダイアログのキャンセルボタン・×ボタン・Escキー
+  handleDialogClose() {
+    this.dialog = null;
   }
 
-  handleCancelConfirmKeyDown(event) {
-    if (event.key === 'Escape') {
-      this.handleCancelConfirmClose();
-    }
-  }
-
-  handleCancelConfirm() {
-    this.showCancelConfirm = false;
+  // 入力内容を破棄して戻る
+  cancelInput() {
     this.isNavigating = true;
     this.isLoading = true;
-    this.showSpinner();
     this.navigateBack();
   }
 
@@ -226,10 +233,11 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
   }
 
   // Apex呼び出し共通処理(ローディング表示・エラー処理・セッション切れ時のログイン画面遷移)
+  // エラーは、画面表示後(ボタン押下時)はダイアログ、初期表示時は画面上部に表示する
   async callApex(action) {
     this.errorMessage = '';
     this.isLoading = true;
-    this.showSpinner();
+    let errorMessage;
     try {
       await action();
     } catch (error) {
@@ -237,11 +245,15 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
         redirectToLogin(this);
         return;
       }
-      this.errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
+      errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
     } finally {
       this.isLoading = this.isNavigating;
-      if (!this.isNavigating) {
-        this.hideSpinner();
+    }
+    if (errorMessage) {
+      if (this.isAuthenticated) {
+        this.dialog = { title: 'エラー', messages: errorMessage, confirmLabel: 'OK', isError: true };
+      } else {
+        this.errorMessage = errorMessage;
       }
     }
   }
@@ -252,16 +264,5 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
       attributes: { name },
       state
     });
-  }
-
-  // スピナーは描画後でないと取得できないため、描画を待ってから操作する
-  async showSpinner() {
-    await Promise.resolve();
-    this.template.querySelector('c-spinner')?.showSpinner();
-  }
-
-  async hideSpinner() {
-    await Promise.resolve();
-    this.template.querySelector('c-spinner')?.hideSpinner();
   }
 }

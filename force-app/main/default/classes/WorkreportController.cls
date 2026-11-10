@@ -27,6 +27,9 @@ public class WorkreportController {
     // 締め取消できる(作成完了で、対象の年月の場合)
     @AuraEnabled
     public Boolean canCancelComplete;
+    // 月末締めできる年月(当月以前。未来の月は締められない)
+    @AuraEnabled
+    public Boolean isClosableMonth;
     // 画面上部に表示するお知らせ
     @AuraEnabled
     public List<String> messages;
@@ -85,6 +88,7 @@ public class WorkreportController {
     data.isCurrentMonth = isCurrentMonth(report.Year__c, report.Month__c);
     data.isReadonly = isReadonly(report);
     data.canCancelComplete = canCancelComplete(report);
+    data.isClosableMonth = isClosableMonth(report.Year__c, report.Month__c);
     data.messages = getMessages(report);
     data.hasReportFile = !AttachmentDao.getListByName(report.Id, getReportFileName(report)).isEmpty();
     return data;
@@ -199,6 +203,9 @@ public class WorkreportController {
     if (isReadonly(report)) {
       throw createException('この勤務表は締めることができません。');
     }
+    if (!isClosableMonth(report.Year__c, report.Month__c)) {
+      throw createException('月末締めは' + Integer.valueOf(report.Month__c) + '月になってから行ってください。');
+    }
     // 現場承認者
     if (String.isBlank(report.Approver__c) || String.isBlank(report.ApproverMail__c)) {
       throw createException('現場承認者情報を入力してください。');
@@ -307,9 +314,9 @@ public class WorkreportController {
   private static List<String> getMessages(MonthlyReport__c report) {
     List<String> messages = new List<String>();
     if (String.isBlank(report.ProjectName__c) || String.isBlank(report.ProjectCode__c)) {
-      messages.add(
-        '案件はアサインされていません、上長へ連絡してください。勤務表の記入は可能ですが、月末締め処理はできません。'
-      );
+      // ダイアログで1要素1行に表示するため、2行に分けて追加する
+      messages.add('案件はアサインされていません、上長へ連絡してください。');
+      messages.add('勤務表の記入は可能ですが、月末締め処理はできません。');
     }
     if (report.Status__c == STATUS_REJECTED) {
       String message = '申請は却下されました。';
@@ -319,6 +326,12 @@ public class WorkreportController {
       messages.add(message);
     }
     return messages;
+  }
+
+  // 月末締めできる年月(当月以前)
+  private static Boolean isClosableMonth(String yyyy, String mm) {
+    Date today = Date.today();
+    return Date.newInstance(Integer.valueOf(yyyy), Integer.valueOf(mm), 1) <= today.toStartOfMonth();
   }
 
   private static Boolean isCurrentMonth(String yyyy, String mm) {

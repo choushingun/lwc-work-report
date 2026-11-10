@@ -1,6 +1,6 @@
 <template>
   <main class="creatework-page">
-    <c-spinner></c-spinner>
+    <c-spinner lwc:if={isLoading}></c-spinner>
     <!-- 初期表示失敗時(フォームを表示できない場合)もエラーが見えるよう、カードの外に出す -->
     <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
     <lightning-card lwc:if={isAuthenticated} icon-name="standard:timesheet">
@@ -21,20 +21,6 @@
       ></lightning-button>
 
       <div class="slds-p-horizontal_medium">
-        <div lwc:if={errorMessage} class="slds-scoped-notification slds-theme_error slds-m-bottom_small" role="alert">
-          <lightning-icon
-            icon-name="utility:error"
-            alternative-text="エラー"
-            size="x-small"
-            variant="inverse"
-            class="slds-m-right_x-small"
-          ></lightning-icon>
-          {errorMessage}
-        </div>
-        <div lwc:if={isReadonly} class="slds-scoped-notification slds-scoped-notification_light slds-m-bottom_small">
-          この勤務表は編集できません。
-        </div>
-
         <!-- 勤務条件 -->
         <div class="slds-section slds-is-open">
           <h2 class="slds-section__title slds-theme_shade">
@@ -351,46 +337,16 @@
         </div>
       </div>
     </lightning-card>
-    <!-- キャンセル確認ダイアログ -->
-    <template lwc:if={showCancelConfirm}>
-      <section
-        role="alertdialog"
-        tabindex="-1"
-        aria-modal="true"
-        aria-labelledby="cancel-confirm-heading"
-        aria-describedby="cancel-confirm-message"
-        class="slds-modal slds-fade-in-open"
-        onkeydown={handleCancelConfirmKeyDown}
-      >
-        <div class="slds-modal__container cancel-confirm">
-          <div class="slds-modal__header cancel-confirm-header">
-            <lightning-button-icon
-              class="cancel-confirm-close"
-              icon-name="utility:close"
-              variant="bare"
-              size="large"
-              alternative-text="閉じる"
-              title="閉じる"
-              onclick={handleCancelConfirmClose}
-            ></lightning-button-icon>
-            <h1 id="cancel-confirm-heading" class="slds-modal__title">入力内容の破棄</h1>
-          </div>
-          <div
-            id="cancel-confirm-message"
-            class="slds-modal__content slds-p-horizontal_medium slds-p-top_medium slds-p-bottom_xx-large"
-          >
-            <p>入力内容を破棄して{returnPageLabel}に戻りますか？</p>
-            <p>保存されていない内容は失われます。</p>
-          </div>
-          <div class="slds-modal__footer confirm-footer">
-            <button class="slds-button slds-button_neutral" onclick={handleCancelConfirmClose}>いいえ</button>
-            <button class="slds-button slds-button_brand cancel-confirm-button" onclick={handleCancelConfirm}>
-              はい
-            </button>
-          </div>
-        </div>
-      </section>
-      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
-    </template>
+    <!-- 共通ダイアログ(キャンセル確認・エラーを切り替えて表示する) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
   </main>
 </template>

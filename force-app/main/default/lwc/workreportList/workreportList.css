@@ -8,11 +8,11 @@
   width: 5rem;
 }
 
-/* 一覧のタイトル行・データ行の高さを少し大きくする */
+/* 一覧のタイトル行・データ行の上下余白(SLDS標準の0.25remより少しだけ広げる) */
 .report-table th,
 .report-table td {
-  padding-top: 0.625rem;
-  padding-bottom: 0.625rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
 }
 
 /* アクションボタンは正方形にし、マウスを乗せても枠を残す */
@@ -108,30 +108,6 @@
 .status-canceled {
   /* 申請取消：グレー(取り消し済のため控えめにする) */
   background: linear-gradient(to bottom, #8c8c8c, #5c5c5c);
-}
-
-.delete-confirm {
-  width: 90%;
-  max-width: 46rem;
-  min-width: auto;
-}
-
-.delete-confirm-header {
-  position: relative;
-}
-
-/* 閉じるボタンはヘッダー内の右端に置く */
-.delete-confirm-close {
-  position: absolute;
-  top: 50%;
-  right: 0.75rem;
-  transform: translateY(-50%);
-}
-
-/* 確認ダイアログのボタン上下余白 */
-.confirm-footer {
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
 }
 
 /* 画面タイトルは太字にする(勤務表作成画面と同じ) */

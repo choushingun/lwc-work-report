@@ -1,6 +1,6 @@
 <template>
   <main class="worklist-page">
-    <c-spinner></c-spinner>
+    <c-spinner lwc:if={isLoading}></c-spinner>
     <!-- 初回読み込み失敗時(一覧を表示できない場合)もエラーが見えるよう、カードの外に出す -->
     <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
     <article lwc:if={isAuthenticated} class="slds-card">
@@ -14,9 +14,6 @@
       </div>
 
       <div class="slds-card__body slds-card__body_inner">
-        <div lwc:if={errorMessage} class="slds-text-color_error slds-m-bottom_small" role="alert">{errorMessage}</div>
-        <div lwc:if={infoMessage} class="slds-text-color_success slds-m-bottom_small" role="status">{infoMessage}</div>
-
         <div class="slds-scrollable_x">
           <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer report-table">
             <thead>
@@ -142,46 +139,16 @@
         </div>
       </div>
     </article>
-    <!-- 削除確認ダイアログ -->
-    <template lwc:if={showDeleteConfirm}>
-      <section
-        role="alertdialog"
-        tabindex="-1"
-        aria-modal="true"
-        aria-labelledby="delete-confirm-heading"
-        aria-describedby="delete-confirm-message"
-        class="slds-modal slds-fade-in-open"
-        onkeydown={handleDeleteKeyDown}
-      >
-        <div class="slds-modal__container delete-confirm">
-          <div class="slds-modal__header delete-confirm-header">
-            <lightning-button-icon
-              class="delete-confirm-close"
-              icon-name="utility:close"
-              variant="bare"
-              size="large"
-              alternative-text="閉じる"
-              title="閉じる"
-              onclick={handleDeleteCancel}
-            ></lightning-button-icon>
-            <h1 id="delete-confirm-heading" class="slds-modal__title">勤務表を削除</h1>
-          </div>
-          <div
-            id="delete-confirm-message"
-            class="slds-modal__content slds-p-horizontal_medium slds-p-top_medium slds-p-bottom_xx-large"
-          >
-            <p>この勤務表を削除しますか？</p>
-            <p>勤務実績もすべて削除されます。</p>
-          </div>
-          <div class="slds-modal__footer confirm-footer">
-            <button class="slds-button slds-button_neutral" onclick={handleDeleteCancel}>キャンセル</button>
-            <button class="slds-button slds-button_brand delete-confirm-button" onclick={handleDeleteConfirm}>
-              削除
-            </button>
-          </div>
-        </div>
-      </section>
-      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
-    </template>
+    <!-- 共通ダイアログ(削除確認・処理結果を切り替えて表示する) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
   </main>
 </template>

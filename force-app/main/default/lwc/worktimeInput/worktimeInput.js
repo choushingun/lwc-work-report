@@ -236,7 +236,6 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
     this.showCancelConfirm = false;
     this.isNavigating = true;
     this.isLoading = true;
-    this.showSpinner();
     this.navigateTo(MONTH_REPORT_PAGE, { id: this.reportId });
   }
 
@@ -273,7 +272,6 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
   async callApex(action) {
     this.errorMessage = '';
     this.isLoading = true;
-    this.showSpinner();
     try {
       await action();
     } catch (error) {
@@ -284,9 +282,6 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
       this.errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
     } finally {
       this.isLoading = this.isNavigating;
-      if (!this.isNavigating) {
-        this.hideSpinner();
-      }
     }
   }
 
@@ -296,17 +291,6 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
       attributes: { name },
       state
     });
-  }
-
-  // スピナーは描画後でないと取得できないため、描画を待ってから操作する
-  async showSpinner() {
-    await Promise.resolve();
-    this.template.querySelector('c-spinner')?.showSpinner();
-  }
-
-  async hideSpinner() {
-    await Promise.resolve();
-    this.template.querySelector('c-spinner')?.hideSpinner();
   }
 }
 

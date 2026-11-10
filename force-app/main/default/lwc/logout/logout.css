@@ -1,14 +1,26 @@
+/* ログアウト枠を画面の上下左右の中央に表示する(ログイン画面と同じ)
+   (サイトのレイアウトの余白に影響されないよう、画面全体を基準にする。画面が低い場合はスクロールする) */
 .logout-page {
+  position: fixed;
+  inset: 0;
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding: var(--lwc-spacingXxLarge, 3rem) var(--lwc-spacingMedium, 1rem);
+  overflow-y: auto;
+  padding: var(--lwc-spacingMedium, 1rem);
+  /* 真ん中より少し上に表示する(下側の余白を多めに取る) */
+  padding-bottom: 15vh;
 }
 
+/* 枠の内側の余白を広げて高さを持たせる(ログイン画面と同じ) */
 .logout-box {
   width: 100%;
   max-width: 24rem;
+  padding: 2rem 1.5rem;
 }
 
+/* ボタンの下に少し空白を空ける(ログイン画面と同じ) */
 .logout-button {
   display: block;
+  margin-bottom: 0.75rem;
 }

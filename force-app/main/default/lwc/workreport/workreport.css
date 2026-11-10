@@ -141,37 +141,6 @@
   background: linear-gradient(to bottom, #8c8c8c, #5c5c5c);
 }
 
-/* 注意事項(警告)は左寄せ・太字・斜線模様なしで表示する */
-.warning-message {
-  background-image: none;
-  justify-content: flex-start;
-  text-align: left;
-  font-weight: 700;
-}
-
-/* 確認ダイアログ(他の画面のキャンセル確認と同じ) */
-.confirm-dialog {
-  width: 90%;
-  max-width: 40rem;
-  min-width: auto;
-}
-
-.confirm-dialog-header {
-  position: relative;
-}
-
-.confirm-dialog-close {
-  position: absolute;
-  top: 50%;
-  right: 0.75rem;
-  transform: translateY(-50%);
-}
-
-.confirm-footer {
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-}
-
 /* 勤務レポートのダウンロードアイコン(水色の丸の中に白い矢印) */
 .download-icon {
   /* 幅と高さを固定して正円にする(中の記号は上下左右の中央に置く) */

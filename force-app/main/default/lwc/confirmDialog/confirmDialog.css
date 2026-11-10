@@ -1,0 +1,28 @@
+.dialog {
+  width: 90%;
+  max-width: 40rem;
+  min-width: auto;
+}
+
+.dialog-header {
+  position: relative;
+}
+
+/* 閉じるボタンはヘッダー内の右端に置く */
+.dialog-close {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+}
+
+/* ボタンの上下余白 */
+.dialog-footer {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+/* エラーの本文(勤務表画面の日曜日の色と同じ) */
+.text-red {
+  color: #ea001e;
+}

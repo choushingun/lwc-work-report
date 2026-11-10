@@ -53,6 +53,8 @@
     <types>
         <members>auth</members>
         <members>authGuard</members>
+        <members>confirmDialog</members>
+        <members>homeRedirect</members>
         <members>login</members>
         <members>logout</members>
         <members>spinner</members>
@@ -76,6 +78,7 @@
     </types>
     <types>
         <members>Workreport</members>
+        <members>WorkreportFavicon</members>
         <members>XlsxPopulate</members>
         <name>StaticResource</name>
     </types>

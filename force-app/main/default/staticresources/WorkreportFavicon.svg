@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 勤務表サイトのファビコン(SLDS standard:timesheet と同系色の背景に、カレンダーと時計) -->
+  <rect width="64" height="64" rx="12" fill="#7e8be4"/>
+  <!-- カレンダー -->
+  <rect x="10" y="14" width="36" height="34" rx="4" fill="#ffffff"/>
+  <rect x="10" y="14" width="36" height="9" rx="4" fill="#dfe3fb"/>
+  <rect x="10" y="19" width="36" height="4" fill="#dfe3fb"/>
+  <rect x="17" y="9" width="4" height="10" rx="2" fill="#ffffff"/>
+  <rect x="35" y="9" width="4" height="10" rx="2" fill="#ffffff"/>
+  <g fill="#7e8be4">
+    <rect x="15" y="28" width="6" height="5" rx="1"/>
+    <rect x="25" y="28" width="6" height="5" rx="1"/>
+    <rect x="35" y="28" width="6" height="5" rx="1"/>
+    <rect x="15" y="37" width="6" height="5" rx="1"/>
+    <rect x="25" y="37" width="6" height="5" rx="1"/>
+  </g>
+  <!-- 時計 -->
+  <circle cx="45" cy="45" r="14" fill="#ffffff" stroke="#7e8be4" stroke-width="3"/>
+  <path d="M45 37 V45 L51 48" fill="none" stroke="#3a49c6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

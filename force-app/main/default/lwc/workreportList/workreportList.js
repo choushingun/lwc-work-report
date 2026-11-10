@@ -37,11 +37,11 @@ export default class WorkreportList extends NavigationMixin(LightningElement) {
   errorMessage = '';
   // 日時はSalesforce標準画面と同じ24時間表記(例：2026/11/09 0:15)にする
   hour12 = false;
-  infoMessage = '';
   pageSizeOptions = PAGE_SIZE_OPTIONS;
   // 削除確認中の勤務表Id(設定中は確認ダイアログを表示する)
-  deleteTargetId = null;
-  focusDeleteConfirm = false;
+  // 表示中のダイアログ(共通ダイアログで表示する。null は非表示)
+  // { title, messages, confirmLabel, cancelLabel, isError, onConfirm(確定時の処理) }
+  dialog = null;
 
   connectedCallback() {
     if (!getSessionKey()) {
@@ -90,10 +90,6 @@ export default class WorkreportList extends NavigationMixin(LightningElement) {
     return `${this.pageSize}`;
   }
 
-  get showDeleteConfirm() {
-    return !!this.deleteTargetId;
-  }
-
   get hasPaging() {
     return this.totalPages > 1;
   }
@@ -125,11 +121,10 @@ export default class WorkreportList extends NavigationMixin(LightningElement) {
   }
 
   handleClockInOut() {
-    this.infoMessage = '';
     this.callApex(async () => {
       const message = await clockInOut({ sessionKey: this.sessionKey });
       await this.fetchReports();
-      this.infoMessage = message;
+      return message;
     });
   }
 
@@ -145,33 +140,37 @@ export default class WorkreportList extends NavigationMixin(LightningElement) {
     this.navigateTo(CREATE_WORK_PAGE, { id: event.currentTarget.dataset.id });
   }
 
-  // 削除確認ダイアログを開く(削除ボタンにフォーカスする)
+  // 削除確認ダイアログを開く
   handleDeleteReport(event) {
-    this.deleteTargetId = event.currentTarget.dataset.id;
-    this.focusDeleteConfirm = true;
+    const reportId = event.currentTarget.dataset.id;
+    this.dialog = {
+      title: '勤務表を削除',
+      messages: ['この勤務表を削除しますか？', '勤務実績もすべて削除されます。'],
+      confirmLabel: '削除',
+      cancelLabel: 'キャンセル',
+      onConfirm: () => this.removeReport(reportId)
+    };
   }
 
-  renderedCallback() {
-    if (this.focusDeleteConfirm) {
-      this.focusDeleteConfirm = false;
-      this.template.querySelector('.delete-confirm-button')?.focus();
-    }
+  // 処理結果ダイアログを開く(OKボタンのみ)
+  openResultDialog(message, isError) {
+    this.dialog = { title: isError ? 'エラー' : '完了', messages: message, confirmLabel: 'OK', isError };
   }
 
-  handleDeleteCancel() {
-    this.deleteTargetId = null;
+  // ダイアログの確定ボタン(ダイアログを閉じてから確定時の処理を行う)
+  handleDialogConfirm() {
+    const onConfirm = this.dialog?.onConfirm;
+    this.dialog = null;
+    onConfirm?.();
   }
 
-  handleDeleteKeyDown(event) {
-    if (event.key === 'Escape') {
-      this.handleDeleteCancel();
-    }
+  // ダイアログのキャンセルボタン・×ボタン・Escキー
+  handleDialogClose() {
+    this.dialog = null;
   }
 
-  handleDeleteConfirm() {
-    const reportId = this.deleteTargetId;
-    this.deleteTargetId = null;
-    this.infoMessage = '';
+  // 勤務表を削除する(Apexの deleteReport と区別するため別名にする)
+  removeReport(reportId) {
     this.callApex(async () => {
       await deleteReport({ sessionKey: this.sessionKey, reportId });
       await this.fetchReports();
@@ -192,21 +191,32 @@ export default class WorkreportList extends NavigationMixin(LightningElement) {
   }
 
   // Apex呼び出し共通処理(ローディング表示・エラー処理・セッション切れ時のログイン画面遷移)
+  // action が返したメッセージは、ボタン押下の結果としてダイアログで表示する。
+  // エラーは、画面表示後(ボタン押下時)はダイアログ、初期表示時は画面上部に表示する
   async callApex(action) {
     this.errorMessage = '';
     this.isLoading = true;
-    this.showSpinner();
+    let message;
+    let errorMessage;
     try {
-      await action();
+      message = await action();
     } catch (error) {
       if (isSessionInvalidError(error)) {
         redirectToLogin(this);
         return;
       }
-      this.errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
+      errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
     } finally {
       this.isLoading = false;
-      this.hideSpinner();
+    }
+    if (errorMessage) {
+      if (this.isAuthenticated) {
+        this.openResultDialog(errorMessage, true);
+      } else {
+        this.errorMessage = errorMessage;
+      }
+    } else if (message) {
+      this.openResultDialog(message, false);
     }
   }
 
@@ -216,16 +226,5 @@ export default class WorkreportList extends NavigationMixin(LightningElement) {
       attributes: { name },
       state
     });
-  }
-
-  // スピナーは描画後でないと取得できないため、描画を待ってから操作する
-  async showSpinner() {
-    await Promise.resolve();
-    this.template.querySelector('c-spinner')?.showSpinner();
-  }
-
-  async hideSpinner() {
-    await Promise.resolve();
-    this.template.querySelector('c-spinner')?.hideSpinner();
   }
 }

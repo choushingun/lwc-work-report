@@ -1,6 +1,6 @@
 <template>
   <main class="monthreport-page">
-    <c-spinner></c-spinner>
+    <c-spinner lwc:if={isLoading}></c-spinner>
     <!-- 初期表示失敗時(勤務表を表示できない場合)もエラーが見えるよう、カードの外に出す -->
     <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
     <lightning-card lwc:if={isAuthenticated} icon-name="standard:timesheet">
@@ -36,32 +36,13 @@
         <lightning-button
           lwc:else
           label="月末締め"
-          title="月末締めをすると編集ができなくなります。"
-          disabled={editDisabled}
+          title="月末締めをすると編集ができなくなります。(その月になってから押せます)"
+          disabled={completeDisabled}
           onclick={handleComplete}
         ></lightning-button>
       </lightning-button-group>
 
       <div class="slds-p-horizontal_medium">
-        <template lwc:if={hasMessages}>
-          <template for:each={messages} for:item="item">
-            <!-- 注意事項は目立つよう警告(黄色)で表示する -->
-            <div
-              key={item.key}
-              class="slds-notify slds-notify_alert slds-alert_warning slds-m-bottom_small warning-message"
-              role="alert"
-            >
-              <lightning-icon
-                icon-name="utility:warning"
-                alternative-text="警告"
-                size="x-small"
-                class="slds-m-right_x-small"
-              ></lightning-icon>
-              <h2>{item.message}</h2>
-            </div>
-          </template>
-        </template>
-
         <!-- 勤務表情報 -->
         <div class="slds-section slds-is-open">
           <h3 class="slds-section__title slds-theme_shade">
@@ -262,86 +243,16 @@
         </div>
       </div>
     </lightning-card>
-    <!-- 月末締め確認ダイアログ -->
-    <template lwc:if={showCompleteConfirm}>
-      <section
-        role="alertdialog"
-        tabindex="-1"
-        aria-modal="true"
-        aria-labelledby="complete-confirm-heading"
-        aria-describedby="complete-confirm-message"
-        class="slds-modal slds-fade-in-open"
-        onkeydown={handleCompleteConfirmKeyDown}
-      >
-        <div class="slds-modal__container confirm-dialog">
-          <div class="slds-modal__header confirm-dialog-header">
-            <lightning-button-icon
-              class="confirm-dialog-close"
-              icon-name="utility:close"
-              variant="bare"
-              size="large"
-              alternative-text="閉じる"
-              title="閉じる"
-              onclick={handleCompleteConfirmClose}
-            ></lightning-button-icon>
-            <h1 id="complete-confirm-heading" class="slds-modal__title">月末締め</h1>
-          </div>
-          <div
-            id="complete-confirm-message"
-            class="slds-modal__content slds-p-horizontal_medium slds-p-top_medium slds-p-bottom_xx-large"
-          >
-            <p>勤務表を締めて作成完了にしますか？</p>
-            <p>月末締めをすると、勤務表・勤務実績の編集ができなくなります。</p>
-          </div>
-          <div class="slds-modal__footer confirm-footer">
-            <button class="slds-button slds-button_neutral" onclick={handleCompleteConfirmClose}>いいえ</button>
-            <button class="slds-button slds-button_brand complete-confirm-button" onclick={handleCompleteConfirm}>
-              はい
-            </button>
-          </div>
-        </div>
-      </section>
-      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
-    </template>
-    <!-- 処理結果ダイアログ(月末締め確認ダイアログと同じ見た目。エラーの場合は本文を赤字にする) -->
-    <template lwc:if={resultDialog}>
-      <section
-        role="alertdialog"
-        tabindex="-1"
-        aria-modal="true"
-        aria-labelledby="result-dialog-heading"
-        aria-describedby="result-dialog-message"
-        class="slds-modal slds-fade-in-open"
-        onkeydown={handleResultDialogKeyDown}
-      >
-        <div class="slds-modal__container confirm-dialog">
-          <div class="slds-modal__header confirm-dialog-header">
-            <lightning-button-icon
-              class="confirm-dialog-close"
-              icon-name="utility:close"
-              variant="bare"
-              size="large"
-              alternative-text="閉じる"
-              title="閉じる"
-              onclick={handleResultDialogClose}
-            ></lightning-button-icon>
-            <h1 id="result-dialog-heading" class="slds-modal__title">{resultDialog.title}</h1>
-          </div>
-          <div
-            id="result-dialog-message"
-            class="slds-modal__content slds-p-horizontal_medium slds-p-top_medium slds-p-bottom_xx-large"
-          >
-            <p lwc:if={resultDialog.isError} class="text-red">{resultDialog.message}</p>
-            <p lwc:else>{resultDialog.message}</p>
-          </div>
-          <div class="slds-modal__footer confirm-footer">
-            <button class="slds-button slds-button_brand result-dialog-button" onclick={handleResultDialogClose}>
-              OK
-            </button>
-          </div>
-        </div>
-      </section>
-      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
-    </template>
+    <!-- 共通ダイアログ(月末締め確認・処理結果を切り替えて表示する) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
   </main>
 </template>

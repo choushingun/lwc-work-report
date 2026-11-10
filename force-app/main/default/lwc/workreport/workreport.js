@@ -42,6 +42,8 @@ export default class Workreport extends NavigationMixin(LightningElement) {
   isReadonly = true;
   // 締め取消できる(作成完了で、対象の年月の場合)
   canCancelComplete = false;
+  // 月末締めできる年月(当月以前)
+  isClosableMonth = false;
   // 勤務表ファイル(月末締めで添付したExcel)がある
   hasReportFile = false;
   messages = [];
@@ -51,12 +53,9 @@ export default class Workreport extends NavigationMixin(LightningElement) {
   errorMessage = '';
   // 日時はSalesforce標準画面と同じ24時間表記(例：2026/11/09 0:15)にする
   hour12 = false;
-  // 月末締め確認ダイアログ
-  showCompleteConfirm = false;
-  focusCompleteConfirm = false;
-  // 処理結果ダイアログ(ボタン押下後の完了・エラーメッセージ)
-  resultDialog = null;
-  focusResultDialog = false;
+  // 表示中のダイアログ(確認・処理結果を1つの共通ダイアログで切り替えて表示する。null は非表示)
+  // { title, messages, confirmLabel, cancelLabel, isError, onConfirm(確定時の処理) }
+  dialog = null;
   clockTitle = '午後2時までは出勤、以降は退勤と見なされます。\n徹夜など日を跨る場合は使用しないでください。';
 
   @wire(CurrentPageReference)
@@ -74,7 +73,15 @@ export default class Workreport extends NavigationMixin(LightningElement) {
       this.errorMessage = '勤務表が指定されていません。';
       return;
     }
-    this.callApex(() => this.fetchReport());
+    this.loadReport();
+  }
+
+  // 初期表示(注意事項があればダイアログで表示する)
+  async loadReport() {
+    await this.callApex(() => this.fetchReport());
+    if (this.messages.length > 0) {
+      this.dialog = { title: '注意', messages: this.messages, confirmLabel: 'OK' };
+    }
   }
 
   async fetchReport() {
@@ -84,7 +91,8 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     this.isCurrentMonth = data.isCurrentMonth;
     this.isReadonly = data.isReadonly;
     this.canCancelComplete = data.canCancelComplete;
-    this.messages = data.messages.map((message, index) => ({ key: `${index}`, message }));
+    this.isClosableMonth = data.isClosableMonth;
+    this.messages = data.messages;
     this.hasReportFile = data.hasReportFile;
     this.isAuthenticated = true;
   }
@@ -102,10 +110,6 @@ export default class Workreport extends NavigationMixin(LightningElement) {
 
   get showPageError() {
     return !this.isAuthenticated && this.errorMessage;
-  }
-
-  get hasMessages() {
-    return this.messages.length > 0;
   }
 
   get workHours() {
@@ -198,6 +202,11 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     return this.isLoading || this.isReadonly;
   }
 
+  // 月末締めは編集できる勤務表で、その月になってから押せる
+  get completeDisabled() {
+    return this.editDisabled || !this.isClosableMonth;
+  }
+
   // 勤務表作成画面を編集モードで開く
   handleEditReport() {
     this[NavigationMixin.Navigate]({
@@ -255,47 +264,32 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     return `${now.getFullYear()}-${mm}-${dd}`;
   }
 
-  // 月末締め確認ダイアログを開く(はいボタンにフォーカスする)
+  // 月末締め確認ダイアログを開く
   handleComplete() {
-    this.showCompleteConfirm = true;
-    this.focusCompleteConfirm = true;
+    this.dialog = {
+      title: '月末締め',
+      messages: ['勤務表を締めて作成完了にしますか？', '月末締めをすると、勤務表・勤務実績の編集ができなくなります。'],
+      confirmLabel: 'はい',
+      cancelLabel: 'いいえ',
+      onConfirm: () => this.completeReport()
+    };
   }
 
-  renderedCallback() {
-    if (this.focusCompleteConfirm) {
-      this.focusCompleteConfirm = false;
-      this.template.querySelector('.complete-confirm-button')?.focus();
-    }
-    if (this.focusResultDialog) {
-      this.focusResultDialog = false;
-      this.template.querySelector('.result-dialog-button')?.focus();
-    }
-  }
-
-  // 処理結果ダイアログを開く(OKボタンにフォーカスする)
+  // 処理結果ダイアログを開く(OKボタンのみ)
   openResultDialog(message, isError) {
-    this.resultDialog = { message, title: isError ? 'エラー' : '完了', isError };
-    this.focusResultDialog = true;
+    this.dialog = { title: isError ? 'エラー' : '完了', messages: message, confirmLabel: 'OK', isError };
   }
 
-  handleResultDialogClose() {
-    this.resultDialog = null;
+  // ダイアログの確定ボタン(ダイアログを閉じてから確定時の処理を行う)
+  handleDialogConfirm() {
+    const onConfirm = this.dialog?.onConfirm;
+    this.dialog = null;
+    onConfirm?.();
   }
 
-  handleResultDialogKeyDown(event) {
-    if (event.key === 'Escape') {
-      this.handleResultDialogClose();
-    }
-  }
-
-  handleCompleteConfirmClose() {
-    this.showCompleteConfirm = false;
-  }
-
-  handleCompleteConfirmKeyDown(event) {
-    if (event.key === 'Escape') {
-      this.handleCompleteConfirmClose();
-    }
+  // ダイアログのキャンセルボタン・×ボタン・Escキー
+  handleDialogClose() {
+    this.dialog = null;
   }
 
   // 月末締め済(作成完了)の場合は締め取消ボタンを表示する
@@ -317,8 +311,7 @@ export default class Workreport extends NavigationMixin(LightningElement) {
   }
 
   // 月末締め(入力内容のチェック後、勤務表ファイルを作成して添付する。成功後は勤務表を再取得し、編集不可の状態で表示する)
-  handleCompleteConfirm() {
-    this.showCompleteConfirm = false;
+  completeReport() {
     this.callApex(async () => {
       const sessionKey = getSessionKey();
       const data = await getCompleteData({ sessionKey, reportId: this.reportId });
@@ -343,7 +336,6 @@ export default class Workreport extends NavigationMixin(LightningElement) {
   async callApex(action) {
     this.errorMessage = '';
     this.isLoading = true;
-    this.showSpinner();
     let message;
     let errorMessage;
     try {
@@ -356,7 +348,6 @@ export default class Workreport extends NavigationMixin(LightningElement) {
       errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
     } finally {
       this.isLoading = false;
-      this.hideSpinner();
     }
     if (errorMessage) {
       if (this.isAuthenticated) {
@@ -367,16 +358,5 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     } else if (message) {
       this.openResultDialog(message, false);
     }
-  }
-
-  // スピナーは描画後でないと取得できないため、描画を待ってから操作する
-  async showSpinner() {
-    await Promise.resolve();
-    this.template.querySelector('c-spinner')?.showSpinner();
-  }
-
-  async hideSpinner() {
-    await Promise.resolve();
-    this.template.querySelector('c-spinner')?.hideSpinner();
   }
 }
