@@ -15,9 +15,9 @@
   margin-bottom: 1rem;
 }
 
-/* セクション見出し(高さと文字を本文より少し大きくする。ボタンの上下にも余白を持たせる) */
+/* セクション見出し(文字を本文より少し大きくする。ボタンは右上にまとめたため高さは控えめにする) */
 .slds-section__title {
-  min-height: 3.25rem;
+  min-height: 2.5rem;
   font-size: 1.125rem;
   /* 普通(400)と太字(700)の中間 */
   font-weight: 600;
@@ -43,13 +43,6 @@
 /* セクション見出しと一行目の間の余白 */
 .section-body {
   padding-top: 0.75rem;
-}
-
-/* 見出しの右端にボタンを置く */
-.section-title-with-action {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 /* 勤務表の情報(項目名と値の表) */
@@ -102,8 +95,16 @@
 .status-success,
 .status-error,
 .status-canceled {
+  /* 幅と高さを固定して正円にする(中の記号は上下左右の中央に置く) */
   display: inline-flex;
-  padding: 2px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  line-height: 0;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.2);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
@@ -151,7 +152,7 @@
 /* 確認ダイアログ(他の画面のキャンセル確認と同じ) */
 .confirm-dialog {
   width: 90%;
-  max-width: 46rem;
+  max-width: 40rem;
   min-width: auto;
 }
 
@@ -173,8 +174,16 @@
 
 /* 勤務レポートのダウンロードアイコン(水色の丸の中に白い矢印) */
 .download-icon {
+  /* 幅と高さを固定して正円にする(中の記号は上下左右の中央に置く) */
   display: inline-flex;
-  padding: 2px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  line-height: 0;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.15);
   background: linear-gradient(to bottom, #c4dcf2, #8fbbe3);

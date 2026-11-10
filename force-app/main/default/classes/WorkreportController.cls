@@ -139,9 +139,17 @@ public class WorkreportController {
       throw createException('勤務表ファイルを作成できませんでした。');
     }
 
+    // ファイル名は勤務表作成時に決まるが、その後に会社の略名が登録・変更されることがあるため、締めの時点で作り直す
+    String fileName = WorkreportInputController.buildReportFileName(
+      report.Year__c,
+      report.Month__c,
+      report.Contact__r?.Account,
+      report.Contact__r?.Name
+    );
     Datetime now = System.now();
     MonthlyReport__c updated = new MonthlyReport__c(
       Id = report.Id,
+      ReportFileName__c = fileName,
       Status__c = STATUS_COMPLETED,
       ApplicationDateTime__c = now,
       LastModifiedBy__c = contactId,
@@ -149,7 +157,7 @@ public class WorkreportController {
     );
     // 例外時はファイルの添付も取り消されるよう、同じトランザクションで行う
     try {
-      saveReportFile(report, EncodingUtil.base64Decode(fileContent));
+      saveReportFile(report, fileName, EncodingUtil.base64Decode(fileContent));
       MonthlyReportDao.updateReports(new List<MonthlyReport__c>{ updated });
     } catch (DmlException e) {
       throw createException(e.getDmlMessage(0));
@@ -157,9 +165,9 @@ public class WorkreportController {
     return '勤務表を作成完了にしました。';
   }
 
-  // 勤務表ファイルを添付する(同名のファイルがあれば置き換える)
-  private static void saveReportFile(MonthlyReport__c report, Blob body) {
-    String fileName = getReportFileName(report);
+  // 勤務表ファイルを添付する(同名のファイル、ファイル名を作り直す前の旧名のファイルがあれば置き換える)
+  private static void saveReportFile(MonthlyReport__c report, String fileName, Blob body) {
+    AttachmentDao.deleteAttachments(AttachmentDao.getListByName(report.Id, getReportFileName(report)));
     AttachmentDao.deleteAttachments(AttachmentDao.getListByName(report.Id, fileName));
     AttachmentDao.insertAttachment(
       new Attachment(ParentId = report.Id, Name = fileName, ContentType = XLSX_CONTENT_TYPE, Body = body)

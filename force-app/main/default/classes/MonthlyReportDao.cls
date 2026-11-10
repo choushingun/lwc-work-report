@@ -134,6 +134,7 @@ public without sharing class MonthlyReportDao {
         Superior__r.Name,
         Contact__r.Name,
         Contact__r.Account.Name,
+        Contact__r.Account.Abbreviation__c,
         Contact__r.Account.ReportTo__c,
         Contact__r.Account.ReportToMail__c,
         (

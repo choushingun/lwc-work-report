@@ -5,19 +5,44 @@
     <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
     <lightning-card lwc:if={isAuthenticated} icon-name="standard:timesheet">
       <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">勤務表</span>
+      <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する -->
+      <lightning-button-group slot="actions">
+        <lightning-button
+          label="情報編集"
+          title="勤務条件・承認者・プロジェクトを編集します。"
+          disabled={editDisabled}
+          onclick={handleEditReport}
+        ></lightning-button>
+        <lightning-button
+          label="実績入力"
+          title="勤務実績(会社提出分)を入力します。"
+          disabled={worktimeInputDisabled}
+          onclick={handleWorktimeInput}
+        ></lightning-button>
+        <lightning-button
+          label="打刻する"
+          title={clockTitle}
+          disabled={clockDisabled}
+          onclick={handleClockInOut}
+        ></lightning-button>
+        <!-- 作成完了(月末締め済)の場合は締め取消、それ以外は月末締めを表示する -->
+        <lightning-button
+          lwc:if={isCompleted}
+          label="締め取消"
+          title="月末締めを取り消してドラフトに戻します。"
+          disabled={cancelCompleteDisabled}
+          onclick={handleCancelComplete}
+        ></lightning-button>
+        <lightning-button
+          lwc:else
+          label="月末締め"
+          title="月末締めをすると編集ができなくなります。"
+          disabled={editDisabled}
+          onclick={handleComplete}
+        ></lightning-button>
+      </lightning-button-group>
 
       <div class="slds-p-horizontal_medium">
-        <div lwc:if={errorMessage} class="slds-scoped-notification slds-theme_error slds-m-bottom_small" role="alert">
-          <lightning-icon
-            icon-name="utility:error"
-            alternative-text="エラー"
-            size="x-small"
-            variant="inverse"
-            class="slds-m-right_x-small"
-          ></lightning-icon>
-          {errorMessage}
-        </div>
-        <div lwc:if={infoMessage} class="slds-text-color_success slds-m-bottom_small" role="status">{infoMessage}</div>
         <template lwc:if={hasMessages}>
           <template for:each={messages} for:item="item">
             <!-- 注意事項は目立つよう警告(黄色)で表示する -->
@@ -37,40 +62,14 @@
           </template>
         </template>
 
-        <!-- 勤務表の情報 -->
+        <!-- 勤務表情報 -->
         <div class="slds-section slds-is-open">
-          <h2 class="slds-section__title slds-theme_shade section-title-with-action">
-            <span class="slds-truncate section-title-text slds-col">勤務表の情報</span>
-            <lightning-button
-              class="slds-m-right_x-small"
-              label="情報編集"
-              title="勤務条件・承認者・プロジェクトを編集します。"
-              disabled={editDisabled}
-              onclick={handleEditReport}
-            ></lightning-button>
-            <!-- 作成完了(月末締め済)の場合は締め取消、それ以外は月末締めを表示する -->
-            <lightning-button
-              lwc:if={isCompleted}
-              class="slds-m-right_x-small"
-              variant="brand"
-              label="締め取消"
-              title="月末締めを取り消してドラフトに戻します。"
-              disabled={cancelCompleteDisabled}
-              onclick={handleCancelComplete}
-            ></lightning-button>
-            <lightning-button
-              lwc:else
-              class="slds-m-right_x-small"
-              variant="brand"
-              label="月末締め"
-              title="月末締めをすると編集ができなくなります。"
-              disabled={editDisabled}
-              onclick={handleComplete}
-            ></lightning-button>
-          </h2>
+          <h3 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">勤務表情報</span>
+          </h3>
           <div class="slds-grid slds-wrap section-body">
             <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
-              <table class="slds-table slds-table_bordered slds-table_striped info-table">
+              <table class="slds-table slds-table_bordered slds-no-row-hover info-table">
                 <tbody>
                   <tr>
                     <th scope="row" class="info-label">作業年月</th>
@@ -115,7 +114,7 @@
               </table>
             </div>
             <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
-              <table class="slds-table slds-table_bordered slds-table_striped info-table">
+              <table class="slds-table slds-table_bordered slds-no-row-hover info-table">
                 <tbody>
                   <tr>
                     <th scope="row" class="info-label">勤務時間</th>
@@ -139,7 +138,7 @@
               </table>
             </div>
             <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-3">
-              <table class="slds-table slds-table_bordered slds-table_striped info-table">
+              <table class="slds-table slds-table_bordered slds-no-row-hover info-table">
                 <tbody>
                   <tr>
                     <th scope="row" class="info-label">現場責任者</th>
@@ -184,27 +183,12 @@
 
         <!-- 勤務実績 -->
         <div class="slds-section slds-is-open">
-          <h2 class="slds-section__title slds-theme_shade section-title-with-action">
-            <span class="slds-truncate section-title-text slds-col">勤務実績</span>
-            <lightning-button
-              class="slds-m-right_x-small"
-              label="実績入力"
-              title="勤務実績(会社提出分)を入力します。"
-              disabled={worktimeInputDisabled}
-              onclick={handleWorktimeInput}
-            ></lightning-button>
-            <lightning-button
-              class="slds-m-right_x-small"
-              variant="brand"
-              label="打刻する"
-              title={clockTitle}
-              disabled={clockDisabled}
-              onclick={handleClockInOut}
-            ></lightning-button>
-          </h2>
+          <h3 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">勤務実績</span>
+          </h3>
           <div lwc:if={hasWorktimes} class="slds-grid slds-wrap slds-gutters_x-small section-body">
             <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
-              <table class="slds-table slds-table_bordered slds-table_striped worktime-table">
+              <table class="slds-table slds-table_bordered slds-no-row-hover worktime-table">
                 <thead>
                   <tr>
                     <th scope="col" class="col-day">実績日</th>
@@ -239,7 +223,7 @@
               </table>
             </div>
             <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
-              <table class="slds-table slds-table_bordered slds-table_striped worktime-table">
+              <table class="slds-table slds-table_bordered slds-no-row-hover worktime-table">
                 <thead class="slds-show_large">
                   <tr>
                     <th scope="col" class="col-day">実績日</th>
@@ -313,6 +297,46 @@
             <button class="slds-button slds-button_neutral" onclick={handleCompleteConfirmClose}>いいえ</button>
             <button class="slds-button slds-button_brand complete-confirm-button" onclick={handleCompleteConfirm}>
               はい
+            </button>
+          </div>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+    <!-- 処理結果ダイアログ(月末締め確認ダイアログと同じ見た目。エラーの場合は本文を赤字にする) -->
+    <template lwc:if={resultDialog}>
+      <section
+        role="alertdialog"
+        tabindex="-1"
+        aria-modal="true"
+        aria-labelledby="result-dialog-heading"
+        aria-describedby="result-dialog-message"
+        class="slds-modal slds-fade-in-open"
+        onkeydown={handleResultDialogKeyDown}
+      >
+        <div class="slds-modal__container confirm-dialog">
+          <div class="slds-modal__header confirm-dialog-header">
+            <lightning-button-icon
+              class="confirm-dialog-close"
+              icon-name="utility:close"
+              variant="bare"
+              size="large"
+              alternative-text="閉じる"
+              title="閉じる"
+              onclick={handleResultDialogClose}
+            ></lightning-button-icon>
+            <h1 id="result-dialog-heading" class="slds-modal__title">{resultDialog.title}</h1>
+          </div>
+          <div
+            id="result-dialog-message"
+            class="slds-modal__content slds-p-horizontal_medium slds-p-top_medium slds-p-bottom_xx-large"
+          >
+            <p lwc:if={resultDialog.isError} class="text-red">{resultDialog.message}</p>
+            <p lwc:else>{resultDialog.message}</p>
+          </div>
+          <div class="slds-modal__footer confirm-footer">
+            <button class="slds-button slds-button_brand result-dialog-button" onclick={handleResultDialogClose}>
+              OK
             </button>
           </div>
         </div>

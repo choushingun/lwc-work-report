@@ -147,13 +147,7 @@ public class WorkreportInputController {
       '{0}{1}年{2}月勤務表',
       new List<String>{ contactName, report.Year__c, report.Month__c }
     );
-    String accountName = String.isNotBlank(con.Account?.Abbreviation__c)
-      ? con.Account.Abbreviation__c
-      : con.Account?.Name;
-    report.ReportFileName__c = String.format(
-      '作業報告書_{0}年{1}月_{2}_{3}.xlsx',
-      new List<String>{ report.Year__c, report.Month__c, removeSpace(accountName), contactName }
-    );
+    report.ReportFileName__c = buildReportFileName(report.Year__c, report.Month__c, con.Account, con.Name);
     Datetime now = System.now();
     report.CreatedBy__c = contactId;
     report.Created__c = now;
@@ -381,6 +375,16 @@ public class WorkreportInputController {
       works.add(work);
     }
     return works;
+  }
+
+  // 勤務表ファイル名(作業報告書_YYYY年MM月_会社略名_氏名.xlsx。略名がなければ会社名を使う)
+  // 月末締め(WorkreportController.completeReport)でも、その時点の略名で作り直すために使う
+  public static String buildReportFileName(String year, String month, Account acc, String contactName) {
+    String accountName = String.isNotBlank(acc?.Abbreviation__c) ? acc.Abbreviation__c : acc?.Name;
+    return String.format(
+      '作業報告書_{0}年{1}月_{2}_{3}.xlsx',
+      new List<String>{ year, month, removeSpace(accountName), removeSpace(contactName) }
+    );
   }
 
   // 全角半角スペース削除

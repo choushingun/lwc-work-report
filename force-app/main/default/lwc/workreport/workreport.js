@@ -51,10 +51,12 @@ export default class Workreport extends NavigationMixin(LightningElement) {
   errorMessage = '';
   // 日時はSalesforce標準画面と同じ24時間表記(例：2026/11/09 0:15)にする
   hour12 = false;
-  infoMessage = '';
   // 月末締め確認ダイアログ
   showCompleteConfirm = false;
   focusCompleteConfirm = false;
+  // 処理結果ダイアログ(ボタン押下後の完了・エラーメッセージ)
+  resultDialog = null;
+  focusResultDialog = false;
   clockTitle = '午後2時までは出勤、以降は退勤と見なされます。\n徹夜など日を跨る場合は使用しないでください。';
 
   @wire(CurrentPageReference)
@@ -89,7 +91,6 @@ export default class Workreport extends NavigationMixin(LightningElement) {
 
   // 勤務表ファイル(月末締めで添付したExcel)をダウンロードする
   handleDownloadReport() {
-    this.infoMessage = '';
     this.callApex(async () => {
       const file = await getReportFile({ sessionKey: getSessionKey(), reportId: this.reportId });
       const link = document.createElement('a');
@@ -265,6 +266,26 @@ export default class Workreport extends NavigationMixin(LightningElement) {
       this.focusCompleteConfirm = false;
       this.template.querySelector('.complete-confirm-button')?.focus();
     }
+    if (this.focusResultDialog) {
+      this.focusResultDialog = false;
+      this.template.querySelector('.result-dialog-button')?.focus();
+    }
+  }
+
+  // 処理結果ダイアログを開く(OKボタンにフォーカスする)
+  openResultDialog(message, isError) {
+    this.resultDialog = { message, title: isError ? 'エラー' : '完了', isError };
+    this.focusResultDialog = true;
+  }
+
+  handleResultDialogClose() {
+    this.resultDialog = null;
+  }
+
+  handleResultDialogKeyDown(event) {
+    if (event.key === 'Escape') {
+      this.handleResultDialogClose();
+    }
   }
 
   handleCompleteConfirmClose() {
@@ -288,53 +309,63 @@ export default class Workreport extends NavigationMixin(LightningElement) {
 
   // 締め取消(ドラフトに戻す。成功後は勤務表を再取得し、編集できる状態で表示する)
   handleCancelComplete() {
-    this.infoMessage = '';
     this.callApex(async () => {
       const message = await cancelCompleteReport({ sessionKey: getSessionKey(), reportId: this.reportId });
       await this.fetchReport();
-      this.infoMessage = message;
+      return message;
     });
   }
 
   // 月末締め(入力内容のチェック後、勤務表ファイルを作成して添付する。成功後は勤務表を再取得し、編集不可の状態で表示する)
   handleCompleteConfirm() {
     this.showCompleteConfirm = false;
-    this.infoMessage = '';
     this.callApex(async () => {
       const sessionKey = getSessionKey();
       const data = await getCompleteData({ sessionKey, reportId: this.reportId });
       const fileContent = await createWorkreportFile(this, data);
       const message = await completeReport({ sessionKey, reportId: this.reportId, fileContent });
       await this.fetchReport();
-      this.infoMessage = message;
+      return message;
     });
   }
 
   handleClockInOut() {
-    this.infoMessage = '';
     this.callApex(async () => {
       const message = await clockInOut({ sessionKey: getSessionKey() });
       await this.fetchReport();
-      this.infoMessage = message;
+      return message;
     });
   }
 
   // Apex呼び出し共通処理(ローディング表示・エラー処理・セッション切れ時のログイン画面遷移)
+  // action が返したメッセージは、ボタン押下の結果としてダイアログで表示する。
+  // エラーは、画面表示後(ボタン押下時)はダイアログ、初期表示時は画面上部に表示する
   async callApex(action) {
     this.errorMessage = '';
     this.isLoading = true;
     this.showSpinner();
+    let message;
+    let errorMessage;
     try {
-      await action();
+      message = await action();
     } catch (error) {
       if (isSessionInvalidError(error)) {
         redirectToLogin(this);
         return;
       }
-      this.errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
+      errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
     } finally {
       this.isLoading = false;
       this.hideSpinner();
+    }
+    if (errorMessage) {
+      if (this.isAuthenticated) {
+        this.openResultDialog(errorMessage, true);
+      } else {
+        this.errorMessage = errorMessage;
+      }
+    } else if (message) {
+      this.openResultDialog(message, false);
     }
   }
 

@@ -6,20 +6,11 @@
     <article lwc:if={isAuthenticated} class="slds-card">
       <div class="slds-card__header slds-grid slds-grid_vertical-align-center">
         <h1 class="slds-card__header-title slds-col slds-has-flexi-truncate slds-text-heading_medium slds-text-color_default page-title">勤務表一覧</h1>
-        <div class="slds-no-flex">
-          <lightning-button
-            variant="brand"
-            label="打刻する"
-            disabled={isLoading}
-            onclick={handleClockInOut}
-          ></lightning-button>
-          <lightning-button
-            class="slds-m-left_x-small"
-            label="新規勤務表"
-            disabled={isLoading}
-            onclick={handleCreateReport}
-          ></lightning-button>
-        </div>
+        <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する(勤務表参照画面と同じ) -->
+        <lightning-button-group class="slds-no-flex">
+          <lightning-button label="打刻する" disabled={isLoading} onclick={handleClockInOut}></lightning-button>
+          <lightning-button label="新規勤務表" disabled={isLoading} onclick={handleCreateReport}></lightning-button>
+        </lightning-button-group>
       </div>
 
       <div class="slds-card__body slds-card__body_inner">
@@ -27,7 +18,7 @@
         <div lwc:if={infoMessage} class="slds-text-color_success slds-m-bottom_small" role="status">{infoMessage}</div>
 
         <div class="slds-scrollable_x">
-          <table class="slds-table slds-table_bordered slds-table_striped slds-table_cell-buffer report-table">
+          <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer report-table">
             <thead>
               <tr class="slds-line-height_reset">
                 <th scope="col">アクション</th>
@@ -97,7 +88,7 @@
                       icon-name={report.statusIcon}
                       alternative-text={report.Status__c}
                       title={report.Status__c}
-                      size="x-small"
+                      size="xx-small"
                       class={report.statusClass}
                     ></lightning-icon>
                   </td>
