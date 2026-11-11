@@ -5,8 +5,8 @@
     <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
     <lightning-card lwc:if={isAuthenticated} icon-name="standard:timesheet">
       <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">勤務表</span>
-      <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する -->
-      <lightning-button-group slot="actions">
+      <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する(上長として部下の勤務表を参照している場合は表示しない) -->
+      <lightning-button-group lwc:if={isOwner} slot="actions">
         <lightning-button
           label="情報編集"
           title="勤務条件・承認者・プロジェクトを編集します。"

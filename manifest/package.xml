@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
+        <members>ApprovalListController</members>
         <members>AttachmentDao</members>
         <members>ContactDao</members>
         <members>WorkreportInputController</members>
+        <members>HeaderController</members>
         <members>HolidayDao</members>
         <members>LoginController</members>
         <members>PasswordResetController</members>
+        <members>PersonalSettingController</members>
         <members>WorkreportDao</members>
         <members>WorkreportController</members>
         <members>ReportUtility</members>
@@ -54,6 +57,7 @@
         <name>GlobalValueSet</name>
     </types>
     <types>
+        <members>approvalList</members>
         <members>auth</members>
         <members>authGuard</members>
         <members>confirmDialog</members>
@@ -61,10 +65,12 @@
         <members>login</members>
         <members>logout</members>
         <members>passwordReset</members>
+        <members>personalSetting</members>
         <members>spinner</members>
         <members>workreport</members>
         <members>workreportInput</members>
         <members>workreportList</members>
+        <members>workreportNav</members>
         <members>worktimeInput</members>
         <name>LightningComponentBundle</name>
     </types>

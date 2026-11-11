@@ -15,6 +15,12 @@ public class WorkreportSession {
     return findSession(sessionKey) != null;
   }
 
+  // セッションキーから社員Idを取得する(無効な場合はnullを返す。ヘッダーなどログイン画面へ遷移させない処理用)
+  public static Id findContactId(String sessionKey) {
+    SessionManagement__c session = findSession(sessionKey);
+    return session?.LoginUser__c;
+  }
+
   // セッションキーから社員Idを取得する(無効な場合はSESSION_INVALIDの例外を投げる)
   public static Id getContactId(String sessionKey) {
     SessionManagement__c session = findSession(sessionKey);

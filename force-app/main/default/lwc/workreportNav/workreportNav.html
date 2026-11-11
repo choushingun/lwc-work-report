@@ -1,0 +1,33 @@
+<template>
+  <nav lwc:if={isLoggedIn} class="workreport-nav" aria-label="メニュー">
+    <!-- 左側：写真・設定・通知 -->
+    <div class="nav-tools">
+      <span class="photo" title={photoTitle}>
+        <img lwc:if={photoUrl} src={photoUrl} alt={userName} />
+        <lightning-icon lwc:else icon-name="utility:user" size="small" alternative-text={photoTitle} class="tool-icon"></lightning-icon>
+      </span>
+      <button type="button" class="tool-button" title="設定" onclick={handlePersonalSetting}>
+        <lightning-icon icon-name="utility:settings" size="small" alternative-text="設定" class="tool-icon"></lightning-icon>
+      </button>
+      <span class="tool-button tool-button_disabled" title="通知機能は作成中...">
+        <lightning-icon icon-name="utility:notification" size="small" alternative-text="通知" class="tool-icon"></lightning-icon>
+      </span>
+    </div>
+
+    <!-- 右側：メニュー -->
+    <ul class="nav-list">
+      <template for:each={menuItems} for:item="item">
+        <li key={item.key}>
+          <a
+            href={item.url}
+            class={item.itemClass}
+            aria-current={item.ariaCurrent}
+            data-url={item.url}
+            onclick={handleClick}
+            >{item.label}</a
+          >
+        </li>
+      </template>
+    </ul>
+  </nav>
+</template>

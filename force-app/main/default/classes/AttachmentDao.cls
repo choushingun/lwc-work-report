@@ -27,6 +27,30 @@ public without sharing class AttachmentDao {
     ];
   }
 
+  // 親レコードに添付された、ファイル名が prefix で始まる画像(本文付き、最新の1件。maxBytes を超えるものは除く)
+  public static List<Attachment> getLatestImageList(Id parentId, String prefix, Integer maxBytes) {
+    String namePattern = prefix + '%';
+    return [
+      SELECT Id, ContentType, Body
+      FROM Attachment
+      WHERE ParentId = :parentId AND Name LIKE :namePattern AND ContentType LIKE 'image/%' AND BodyLength <= :maxBytes
+      WITH SYSTEM_MODE
+      ORDER BY LastModifiedDate DESC
+      LIMIT 1
+    ];
+  }
+
+  // 親レコードに添付された、ファイル名が prefix で始まる添付ファイル(写真の置き換え用)
+  public static List<Attachment> getListByNamePrefix(Id parentId, String prefix) {
+    String namePattern = prefix + '%';
+    return [
+      SELECT Id
+      FROM Attachment
+      WHERE ParentId = :parentId AND Name LIKE :namePattern
+      WITH SYSTEM_MODE
+    ];
+  }
+
   public static void insertAttachment(Attachment att) {
     insert as system att;
   }

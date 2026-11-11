@@ -1,0 +1,43 @@
+.approval-page {
+  position: relative;
+  min-height: 10rem;
+  padding: var(--lwc-spacingMedium, 1rem);
+}
+
+/* 前月・翌月ボタンと年月選択は上端をそろえて並べる(どちらも高さ2rem)
+   年月選択はコンポーネントの下に余白があり、上下中央でそろえると上にずれるため上端でそろえる */
+.month-nav {
+  align-items: flex-start;
+}
+
+/* ボタンは行内要素のままだと文字の行の高さの分だけ余白ができるため、ブロックにする */
+.month-nav lightning-button-icon {
+  display: flex;
+}
+
+/* 年月選択(「2026年11月」が収まる幅) */
+.month-select {
+  width: 8.5rem;
+}
+
+/* 一覧のタイトル行・データ行の上下余白(勤務表一覧と同じ) */
+.report-table th,
+.report-table td {
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+}
+
+/* チェックボックスの列は最小幅にする */
+.col-check {
+  width: 2.5rem;
+}
+
+/* 画面タイトルは太字にする(勤務表一覧と同じ) */
+.page-title {
+  font-weight: 700;
+}
+
+/* 残業(不足)時間がマイナスの場合の赤字(勤務表一覧と同じ) */
+.text-red {
+  color: #ea001e;
+}

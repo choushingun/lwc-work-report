@@ -48,10 +48,6 @@ export default class WorkreportList extends NavigationMixin(LightningElement) {
     return !this.isAuthenticated && this.errorMessage;
   }
 
-  get noReports() {
-    return !this.isLoading && !this.hasReports;
-  }
-
   get totalPages() {
     return Math.max(1, Math.ceil(this.reports.length / this.pageSize));
   }

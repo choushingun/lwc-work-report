@@ -37,6 +37,36 @@ public without sharing class WorkreportDao {
     ];
   }
 
+  // 上長(管理職)の部下の指定年月の勤務表一覧(勤務承認画面用、社員番号順)
+  public static List<Workreport__c> getListBySuperior(Id superiorId, String year, String month) {
+    return [
+      SELECT
+        Id,
+        ReportName__c,
+        Status__c,
+        WorkDays__c,
+        StandardWorkDays__c,
+        StandardWorktime__c,
+        TotalWorkTime__c,
+        Overtime__c,
+        ApplicationApprovalDT__c
+      FROM Workreport__c
+      WHERE Superior__c = :superiorId AND Year__c = :year AND Month__c = :month
+      WITH SYSTEM_MODE
+      ORDER BY EmployeeNo__c, ReportName__c
+    ];
+  }
+
+  // 社員の勤務表のうち、上長が superiorId と異なるもの(上司変更時に上長を置き換える用)
+  public static List<Workreport__c> getListWithOtherSuperior(Id contactId, Id superiorId) {
+    return [
+      SELECT Id
+      FROM Workreport__c
+      WHERE Contact__c = :contactId AND Superior__c != :superiorId
+      WITH SYSTEM_MODE
+    ];
+  }
+
   // 社員の指定年月の勤務表件数
   public static Integer countByYearMonth(Id contactId, String year, String month) {
     return [
@@ -103,6 +133,12 @@ public without sharing class WorkreportDao {
 
   // 社員の勤務表と勤務実績(参照画面用)
   public static List<Workreport__c> getDetailListById(Id reportId, Id contactId) {
+    return getDetailListById(reportId, contactId, null);
+  }
+
+  // 社員の勤務表、または上長(superiorId)の部下の勤務表と勤務実績(参照画面用)
+  // superiorId が null の場合は社員本人の勤務表のみ取得する
+  public static List<Workreport__c> getDetailListById(Id reportId, Id contactId, Id superiorId) {
     return [
       SELECT
         Id,
@@ -132,6 +168,7 @@ public without sharing class WorkreportDao {
         ApproveDateTime__c,
         ReportFileName__c,
         Superior__r.Name,
+        Contact__c,
         Contact__r.Name,
         Contact__r.Account.Name,
         Contact__r.Account.Abbreviation__c,
@@ -157,7 +194,11 @@ public without sharing class WorkreportDao {
           ORDER BY WorkDay__c
         )
       FROM Workreport__c
-      WHERE Id = :reportId AND Contact__c = :contactId
+      WHERE
+        Id = :reportId
+        AND (Contact__c = :contactId
+        OR (Superior__c = :superiorId
+        AND Superior__c != NULL))
       WITH SYSTEM_MODE
     ];
   }

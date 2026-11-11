@@ -11,6 +11,8 @@ const SESSION_STORAGE_KEY = 'workReportSessionKey';
 const RETURN_URL_STORAGE_KEY = 'workReportReturnUrl';
 const SESSION_INVALID = 'SESSION_INVALID';
 export const LOGIN_PAGE = 'workreport_login__c';
+// 個人情報(写真など)を変更したときに通知するイベント名(ヘッダーが受け取って表示し直す)
+export const PROFILE_CHANGE_EVENT = 'workreportprofilechange';
 const HOME_PAGE = 'Home';
 
 export function getSessionKey() {
@@ -23,6 +25,11 @@ export function setSessionKey(sessionKey) {
 
 export function clearSessionKey() {
   sessionStorage.removeItem(SESSION_STORAGE_KEY);
+}
+
+// 個人情報の変更をヘッダーへ通知する
+export function notifyProfileChange() {
+  window.dispatchEvent(new CustomEvent(PROFILE_CHANGE_EVENT));
 }
 
 // Apexの例外がセッション無効によるものか判定する

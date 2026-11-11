@@ -1,0 +1,126 @@
+<template>
+  <main class="approval-page">
+    <c-spinner lwc:if={isLoading}></c-spinner>
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
+    <article lwc:if={isAuthenticated} class="slds-card">
+      <div class="slds-card__header slds-grid slds-grid_vertical-align-center slds-wrap">
+        <!-- タイトル左のアイコンは勤務表一覧と揃える -->
+        <header class="slds-media slds-media_center slds-col slds-has-flexi-truncate">
+          <div class="slds-media__figure">
+            <lightning-icon icon-name="standard:approval" size="small"></lightning-icon>
+          </div>
+          <div class="slds-media__body">
+            <h1 class="slds-card__header-title slds-truncate slds-text-heading_medium slds-text-color_default page-title">勤務承認一覧</h1>
+          </div>
+        </header>
+        <!-- 年月の切替(前月・翌月・年月選択) -->
+        <div class="slds-no-flex slds-grid month-nav">
+          <lightning-button-icon
+            icon-name="utility:chevronleft"
+            alternative-text="前月"
+            title="前月"
+            disabled={isFirstMonth}
+            onclick={handlePreviousMonth}
+          ></lightning-button-icon>
+          <lightning-combobox
+            class="month-select slds-m-horizontal_x-small"
+            label="年月"
+            variant="label-hidden"
+            value={yearMonth}
+            options={monthOptions}
+            disabled={isLoading}
+            onchange={handleMonthChange}
+          ></lightning-combobox>
+          <lightning-button-icon
+            icon-name="utility:chevronright"
+            alternative-text="翌月"
+            title="翌月"
+            disabled={isLastMonth}
+            onclick={handleNextMonth}
+          ></lightning-button-icon>
+        </div>
+      </div>
+
+      <div class="slds-card__body slds-card__body_inner">
+        <div class="slds-scrollable_x">
+          <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer report-table">
+            <thead>
+              <tr class="slds-line-height_reset">
+                <th scope="col" class="col-check">
+                  <lightning-input
+                    type="checkbox"
+                    label="すべて選択"
+                    variant="label-hidden"
+                    checked={isAllSelected}
+                    disabled={noReports}
+                    onchange={handleSelectAll}
+                  ></lightning-input>
+                </th>
+                <th scope="col">勤務表名</th>
+                <th scope="col" class="slds-text-align_right slds-show_medium">勤務日数</th>
+                <th scope="col" class="slds-text-align_right slds-show_medium">標準時間</th>
+                <th scope="col" class="slds-text-align_right">時間</th>
+                <th scope="col" class="slds-text-align_right slds-show_medium">残業(不足)時間</th>
+                <th scope="col" class="slds-text-align_center">状況</th>
+                <th scope="col" class="slds-show_medium">日付(申請/承認)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template for:each={displayReports} for:item="report">
+                <tr key={report.Id}>
+                  <td class="col-check">
+                    <lightning-input
+                      type="checkbox"
+                      label="選択"
+                      variant="label-hidden"
+                      checked={report.isSelected}
+                      data-id={report.Id}
+                      onchange={handleSelect}
+                    ></lightning-input>
+                  </td>
+                  <td>
+                    <a href="#" data-id={report.Id} onclick={handleViewReport}>{report.ReportName__c}勤務表</a>
+                  </td>
+                  <td class="slds-text-align_right slds-show_medium">{report.workDaysLabel}</td>
+                  <td class="slds-text-align_right slds-show_medium">{report.StandardWorktime__c}</td>
+                  <td class="slds-text-align_right">
+                    <lightning-formatted-number
+                      value={report.TotalWorkTime__c}
+                      minimum-fraction-digits="2"
+                    ></lightning-formatted-number>
+                  </td>
+                  <td class="slds-text-align_right slds-show_medium">
+                    <!-- 不足(マイナス)の場合は赤字で表示する -->
+                    <lightning-formatted-number
+                      class={report.overtimeClass}
+                      value={report.Overtime__c}
+                      minimum-fraction-digits="2"
+                    ></lightning-formatted-number>
+                  </td>
+                  <td class="slds-text-align_center">{report.Status__c}</td>
+                  <td class="slds-show_medium">
+                    <template lwc:if={report.ApplicationApprovalDT__c}>
+                      <lightning-formatted-date-time
+                        value={report.ApplicationApprovalDT__c}
+                        year="numeric"
+                        month="2-digit"
+                        day="2-digit"
+                        hour="numeric"
+                        minute="2-digit"
+                        hour12={hour12}
+                        time-zone="Asia/Tokyo"
+                      ></lightning-formatted-date-time>
+                    </template>
+                    <template lwc:else>-</template>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+
+        <p lwc:if={hasReports} class="slds-m-top_small">{countLabel}</p>
+      </div>
+    </article>
+  </main>
+</template>

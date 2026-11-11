@@ -22,6 +22,8 @@ const APPROVED_STATUSES = ['承認済', '却下'];
 export default class Workreport extends NavigationMixin(LightningElement) {
   reportId;
   report = {};
+  // ログイン社員本人の勤務表(false は上長として部下の勤務表を参照のみ)
+  isOwner = false;
   worktimes = [];
   isCurrentMonth = false;
   isReadonly = true;
@@ -73,6 +75,7 @@ export default class Workreport extends NavigationMixin(LightningElement) {
   async fetchReport() {
     const data = await getReport({ sessionKey: getSessionKey(), reportId: this.reportId });
     this.report = data.report;
+    this.isOwner = data.isOwner;
     this.worktimes = data.worktimes;
     this.isCurrentMonth = data.isCurrentMonth;
     this.isReadonly = data.isReadonly;

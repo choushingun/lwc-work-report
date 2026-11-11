@@ -1,0 +1,128 @@
+.setting-page {
+  position: relative;
+  min-height: 10rem;
+  padding: var(--lwc-spacingMedium, 1rem);
+}
+
+/* 画面タイトルは太字にする(勤務表作成画面と同じ) */
+.page-title {
+  font-weight: 700;
+}
+
+/* セクションの上下の余白・見出し(勤務表作成画面と同じ) */
+.slds-section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.slds-section__title {
+  min-height: 3.25rem;
+  padding-left: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.section-title-text {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.section-body {
+  padding-top: 0.75rem;
+}
+
+/* 証明写真(縦長の証明写真の比率で表示し、はみ出す部分は切り抜く) */
+.photo-button {
+  display: block;
+  padding: 0;
+  border: 1px solid #c9c9c9;
+  border-radius: 0.25rem;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.photo-button:hover,
+.photo-button:focus {
+  border-color: #0176d3;
+}
+
+.photo {
+  display: block;
+  width: 9rem;
+  height: 12rem;
+  object-fit: cover;
+}
+
+.photo_empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  color: #747474;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.photo-icon {
+  --slds-c-icon-color-foreground-default: #c9c9c9;
+}
+
+/* ファイル選択欄は隠し、写真のクリックで開く */
+.photo-input {
+  display: none;
+}
+
+/* 項目の行(参照のみ・入力欄とも)は同じ高さにそろえ、中身を上下中央に置いて下線を引く
+   高さは入力欄(2rem)が収まる高さにする(入力欄のない行も同じ高さになる) */
+.form-row {
+  box-sizing: border-box;
+  min-height: 3rem;
+  margin: 0;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+/* 入力欄の行：入力欄を横幅いっぱいにしたまま、上下中央に置く */
+lightning-input.form-row,
+lightning-combobox.form-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 参照のみの行：項目名(左1/3)と値を横に並べ、上下中央に置く(入力欄の行と項目名の幅をそろえる) */
+div.form-row {
+  display: flex;
+  align-items: center;
+}
+
+div.form-row > .slds-form-element__label {
+  float: none;
+  flex: 0 0 33%;
+  max-width: 33%;
+  margin: 0;
+  padding-top: 0;
+}
+
+div.form-row > .slds-form-element__control {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-left: 0;
+}
+
+div.form-row .slds-form-element__static {
+  padding: 0;
+}
+
+/* 参照のみの文字はSLDS既定(13px)で入力欄より小さくなるため、入力欄と同じ基本の文字サイズにする */
+.slds-form-element__static {
+  font-size: inherit;
+}
+
+/* 証明写真の行は写真の上下に余白をとる */
+div.form-row.photo-row {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}

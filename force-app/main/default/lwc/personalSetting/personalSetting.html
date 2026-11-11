@@ -1,0 +1,109 @@
+<template>
+  <main class="setting-page">
+    <c-spinner lwc:if={isLoading}></c-spinner>
+    <!-- 初期表示失敗時(画面を表示できない場合)もエラーが見えるよう、カードの外に出す -->
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
+    <lightning-card lwc:if={isAuthenticated} icon-name="standard:user">
+      <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">個人情報設定</span>
+      <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する(勤務表一覧・勤務表参照画面と同じ) -->
+      <lightning-button-group slot="actions">
+        <lightning-button label="保存" disabled={isLoading} onclick={handleSave}></lightning-button>
+        <lightning-button label="キャンセル" disabled={isLoading} onclick={handleCancel}></lightning-button>
+      </lightning-button-group>
+
+      <div class="slds-p-horizontal_medium">
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">個人情報</span>
+          </h2>
+          <lightning-layout multiple-rows class="section-body">
+            <lightning-layout-item size="12" padding="horizontal-small">
+              <div class="slds-form-element slds-form-element_horizontal form-row">
+                <span class="slds-form-element__label">名前</span>
+                <div class="slds-form-element__control">
+                  <div class="slds-form-element__static">{setting.name}</div>
+                </div>
+              </div>
+              <lightning-combobox
+                class="form-row"
+                label="上司"
+                variant="label-inline"
+                value={superiorId}
+                options={superiorOptions}
+                placeholder="選択してください"
+                field-level-help="管理職の社員から選びます。作成済みの勤務表を含め、勤務表の上長になります。"
+                onchange={handleSuperiorChange}
+              ></lightning-combobox>
+              <div class="slds-form-element slds-form-element_horizontal form-row">
+                <span class="slds-form-element__label">メールアドレス</span>
+                <div class="slds-form-element__control">
+                  <div class="slds-form-element__static">{setting.email}</div>
+                </div>
+              </div>
+              <div class="slds-form-element slds-form-element_horizontal form-row">
+                <span class="slds-form-element__label">自社送付先宛名</span>
+                <div class="slds-form-element__control">
+                  <div class="slds-form-element__static">{setting.companyReportTo}</div>
+                </div>
+              </div>
+              <div class="slds-form-element slds-form-element_horizontal form-row">
+                <span class="slds-form-element__label">自社送付先</span>
+                <div class="slds-form-element__control">
+                  <div class="slds-form-element__static">{setting.companyReportToMail}</div>
+                </div>
+              </div>
+              <lightning-input
+                class="form-row"
+                label="勤務表特別送付先宛名"
+                variant="label-inline"
+                value={reportTo}
+                max-length="20"
+                field-level-help="自社送付先とは別の宛先に勤務表を送る場合に入力します。"
+                onchange={handleReportToChange}
+              ></lightning-input>
+              <lightning-input
+                class="form-row"
+                label="勤務表特別送付先"
+                variant="label-inline"
+                value={reportToMail}
+                max-length="200"
+                onchange={handleReportToMailChange}
+              ></lightning-input>
+              <!-- 証明写真(クリックして選択し、保存ボタンで登録する) -->
+              <div class="slds-form-element slds-form-element_horizontal form-row photo-row">
+                <span class="slds-form-element__label">証明写真</span>
+                <div class="slds-form-element__control">
+                  <button type="button" class="photo-button" title={photoTitle} onclick={handlePhotoClick}>
+                    <img lwc:if={photoUrl} src={photoUrl} alt="証明写真" class="photo" />
+                    <span lwc:else class="photo photo_empty">
+                      <lightning-icon icon-name="utility:user" size="large" class="photo-icon"></lightning-icon>
+                      <span class="slds-m-top_x-small">クリックして写真をアップロード</span>
+                    </span>
+                  </button>
+                  <input type="file" class="photo-input" accept={photoAccept} onchange={handlePhotoChange} />
+                </div>
+              </div>
+              <div class="slds-form-element slds-form-element_horizontal form-row">
+                <span class="slds-form-element__label">パスワード</span>
+                <div class="slds-form-element__control">
+                  <a href="#" class="slds-form-element__static" onclick={handlePasswordChange}>パスワード変更はこちら</a>
+                </div>
+              </div>
+            </lightning-layout-item>
+          </lightning-layout>
+        </div>
+      </div>
+    </lightning-card>
+
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
+  </main>
+</template>

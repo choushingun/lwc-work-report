@@ -1,0 +1,95 @@
+/* 左に写真・設定・通知、右にメニューを並べる(画面幅が狭い場合は折り返す) */
+.workreport-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding: 0.5rem 1rem;
+}
+
+.nav-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 写真は正方形に切り抜く(縦横比は保ったまま中央に合わせる) */
+.photo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  overflow: hidden;
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 設定・通知のアイコン(グレー) */
+.tool-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tool-button_disabled {
+  cursor: default;
+}
+
+.tool-icon {
+  --slds-c-icon-color-foreground-default: #919191;
+}
+
+.tool-button:hover:not(.tool-button_disabled) .tool-icon {
+  --slds-c-icon-color-foreground-default: #444444;
+}
+
+/* メニューは右寄せで横に並べる(画面幅が狭い場合は折り返す) */
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.25rem 1.5rem;
+  margin: 0 0 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+/* 文字は黒にする(サイトのリンク色(青)より優先させるため、:link・:visited も指定する) */
+.nav-list .nav-item,
+.nav-list .nav-item:link,
+.nav-list .nav-item:visited,
+.nav-list .nav-item:hover,
+.nav-list .nav-item:focus,
+.nav-list .nav-item:active {
+  display: inline-block;
+  padding: 0.25rem 0;
+  color: #181818;
+  font-size: 1rem;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+
+/* マウスを乗せた項目は薄い下線で示す */
+.nav-list .nav-item:hover,
+.nav-list .nav-item:focus {
+  border-bottom-color: #c9c9c9;
+}
+
+/* 表示中の画面の項目は青い下線で示す(文字は黒のまま) */
+.nav-list .nav-item_active,
+.nav-list .nav-item_active:link,
+.nav-list .nav-item_active:visited,
+.nav-list .nav-item_active:hover,
+.nav-list .nav-item_active:focus {
+  border-bottom-color: #0176d3;
+}

@@ -15,6 +15,9 @@ public class WorkreportController {
   public class ReportData {
     @AuraEnabled
     public Workreport__c report;
+    // ログイン社員本人の勤務表(false は上長として部下の勤務表を参照している。参照のみで操作不可)
+    @AuraEnabled
+    public Boolean isOwner;
     // 勤務実績(会社提出分、実績日順)
     @AuraEnabled
     public List<WorktimeRow> worktimes;
@@ -75,39 +78,36 @@ public class WorkreportController {
     public Boolean isSubmitCompany;
   }
 
-  // 勤務表参照データ取得
+  // 勤務表参照データ取得(管理職は上長として部下の勤務表も参照できる)
   @AuraEnabled
   public static ReportData getReport(String sessionKey, Id reportId) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    List<Workreport__c> reports = WorkreportDao.getDetailListById(reportId, contactId);
-    if (reports.isEmpty()) {
-      throw createException('勤務表が見つかりません。');
-    }
-    Workreport__c report = reports[0];
+    Workreport__c report = getViewableReport(reportId, contactId);
+    Boolean isOwner = report.Contact__c == contactId;
 
     ReportData data = new ReportData();
     data.report = report;
+    data.isOwner = isOwner;
     data.worktimes = toRows(report.WorkreportRelation__r);
     data.isCurrentMonth = isCurrentMonth(report.Year__c, report.Month__c);
-    data.isReadonly = isReadonly(report);
-    data.canCancelComplete = canCancelComplete(report);
+    // 部下の勤務表は参照のみ(締め取消などの操作はできない)
+    data.isReadonly = !isOwner || isReadonly(report);
+    data.canCancelComplete = isOwner && canCancelComplete(report);
     data.isClosableMonth = isClosableMonth(report.Year__c, report.Month__c);
-    data.messages = getMessages(report);
+    // お知らせは社員本人向けの内容のため、部下の勤務表では表示しない
+    data.messages = isOwner ? getMessages(report) : new List<String>();
     String fileName = getReportFileName(report);
     data.hasReportFile = !AttachmentDao.getListByName(report.Id, fileName).isEmpty();
     data.reportFileName = data.hasReportFile ? fileName : null;
     return data;
   }
 
-  // 勤務表ファイル(月末締めで添付したExcel)のダウンロード用データ取得
+  // 勤務表ファイル(月末締めで添付したExcel)のダウンロード用データ取得(管理職は部下の勤務表ファイルも取得できる)
   @AuraEnabled
   public static ReportFile getReportFile(String sessionKey, Id reportId) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    List<Workreport__c> reports = WorkreportDao.getDetailListById(reportId, contactId);
-    if (reports.isEmpty()) {
-      throw createException('勤務表が見つかりません。');
-    }
-    List<Attachment> attachments = AttachmentDao.getBodyListByName(reportId, getReportFileName(reports[0]));
+    Workreport__c report = getViewableReport(reportId, contactId);
+    List<Attachment> attachments = AttachmentDao.getBodyListByName(reportId, getReportFileName(report));
     if (attachments.isEmpty()) {
       throw createException('勤務表ファイルがありません。');
     }
@@ -116,6 +116,16 @@ public class WorkreportController {
     file.contentType = String.isNotBlank(attachments[0].ContentType) ? attachments[0].ContentType : XLSX_CONTENT_TYPE;
     file.content = EncodingUtil.base64Encode(attachments[0].Body);
     return file;
+  }
+
+  // 参照できる勤務表を取得する(社員本人の勤務表、管理職の場合は上長として担当する部下の勤務表)
+  private static Workreport__c getViewableReport(Id reportId, Id contactId) {
+    Id superiorId = ContactDao.isManager(contactId) ? contactId : null;
+    List<Workreport__c> reports = WorkreportDao.getDetailListById(reportId, contactId, superiorId);
+    if (reports.isEmpty()) {
+      throw createException('勤務表が見つかりません。');
+    }
+    return reports[0];
   }
 
   // 月末締め前のチェックを行い、勤務表ファイル(Excel)の作成に使うデータを返す。
