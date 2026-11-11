@@ -16,21 +16,6 @@ const WORKTIME_INPUT_PAGE = 'worktime_input__c';
 const CREATE_WORK_PAGE = 'workreport_input__c';
 // プロジェクト・プロジェクトコードの表示文字数(超える分はマウスを乗せると表示する)
 const PROJECT_DISPLAY_LENGTH = 20;
-const STATUS_ICONS = {
-  作成完了: 'utility:lock',
-  申請中: 'utility:forward',
-  承認済: 'utility:check',
-  却下: 'utility:close',
-  申請取消: 'utility:undo'
-};
-// 状況アイコンの色(CSSのクラス名)
-const STATUS_CLASSES = {
-  作成完了: 'status-completed',
-  申請中: 'status-pending',
-  承認済: 'status-success',
-  却下: 'status-error',
-  申請取消: 'status-canceled'
-};
 // 承認日時を表示する状況(それ以外は申請日時を表示する)
 const APPROVED_STATUSES = ['承認済', '却下'];
 
@@ -140,13 +125,6 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     return this.report.Superior__r?.Name;
   }
 
-  get statusIcon() {
-    return STATUS_ICONS[this.report.Status__c] || 'utility:edit';
-  }
-
-  get statusClass() {
-    return STATUS_CLASSES[this.report.Status__c] || 'status-default';
-  }
 
   get statusDateTime() {
     return APPROVED_STATUSES.includes(this.report.Status__c)

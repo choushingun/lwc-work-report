@@ -66,15 +66,9 @@
                   </tr>
                   <tr>
                     <th scope="row" class="info-label">申請状況</th>
-                    <!-- 状況はアイコンのみ表示する(マウスを乗せると状況名を表示する) -->
-                    <td title={report.Status__c}>
+                    <td>
                       <div class="slds-grid slds-grid_vertical-align-center">
-                        <lightning-icon
-                          icon-name={statusIcon}
-                          alternative-text={report.Status__c}
-                          size="xx-small"
-                          class={statusClass}
-                        ></lightning-icon>
+                        <span>{report.Status__c}</span>
                         <template lwc:if={statusDateTime}>
                           <lightning-formatted-date-time
                             class="slds-m-left_small"

@@ -11,21 +11,6 @@ const CREATE_WORK_PAGE = 'workreport_input__c';
 const READONLY_STATUSES = ['申請中', '承認済'];
 const MIN_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [MIN_PAGE_SIZE, 20, 50].map((size) => ({ label: `${size}`, value: `${size}` }));
-const STATUS_ICONS = {
-  作成完了: 'utility:lock',
-  申請中: 'utility:forward',
-  承認済: 'utility:check',
-  却下: 'utility:close',
-  申請取消: 'utility:undo'
-};
-// 状況アイコンの色(CSSのクラス名)
-const STATUS_CLASSES = {
-  作成完了: 'status-completed',
-  申請中: 'status-pending',
-  承認済: 'status-success',
-  却下: 'status-error',
-  申請取消: 'status-canceled'
-};
 
 export default class WorkreportList extends NavigationMixin(LightningElement) {
   reports = [];
@@ -111,8 +96,6 @@ export default class WorkreportList extends NavigationMixin(LightningElement) {
     this.reports = records.map((r) => ({
       ...r,
       workDaysLabel: `${r.WorkDays__c ?? 0}/${r.StandardWorkDays__c ?? 0}`,
-      statusIcon: STATUS_ICONS[r.Status__c] || 'utility:edit',
-      statusClass: STATUS_CLASSES[r.Status__c] || 'status-default',
       overtimeClass: r.Overtime__c < 0 ? 'text-red' : '',
       deleteDisabled: READONLY_STATUSES.includes(r.Status__c)
     }));
