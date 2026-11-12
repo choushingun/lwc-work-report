@@ -64,6 +64,7 @@
         <members>homeRedirect</members>
         <members>login</members>
         <members>logout</members>
+        <members>passwordChangeDialog</members>
         <members>passwordReset</members>
         <members>personalSetting</members>
         <members>spinner</members>

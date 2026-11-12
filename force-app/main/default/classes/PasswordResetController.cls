@@ -56,6 +56,14 @@ public class PasswordResetController {
     if (con == null) {
       throw createException(INVALID_TOKEN_MESSAGE);
     }
+    validateNewPassword(password);
+    LoginController.setPassword(con.Id, password);
+    ContactDao.updateContact(new Contact(Id = con.Id, PasswordResetToken__c = null, PasswordResetExpires__c = null));
+    return 'パスワードを変更しました。新しいパスワードでログインしてください。';
+  }
+
+  // 新しいパスワードのチェック(個人情報設定画面のパスワード変更でも使う)
+  public static void validateNewPassword(String password) {
     if (String.isBlank(password)) {
       throw createException('新しいパスワードを入力してください。');
     }
@@ -64,9 +72,6 @@ public class PasswordResetController {
         'パスワードは' + MIN_PASSWORD_LENGTH + '～' + MAX_PASSWORD_LENGTH + '文字で入力してください。'
       );
     }
-    LoginController.setPassword(con.Id, password);
-    ContactDao.updateContact(new Contact(Id = con.Id, PasswordResetToken__c = null, PasswordResetExpires__c = null));
-    return 'パスワードを変更しました。新しいパスワードでログインしてください。';
   }
 
   private static Contact getContactByToken(String token) {

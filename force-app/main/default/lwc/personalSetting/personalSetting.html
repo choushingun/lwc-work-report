@@ -8,6 +8,7 @@
       <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する(勤務表一覧・勤務表参照画面と同じ) -->
       <lightning-button-group slot="actions">
         <lightning-button label="保存" disabled={isLoading} onclick={handleSave}></lightning-button>
+        <lightning-button label="パスワード変更" disabled={isLoading} onclick={handlePasswordChange}></lightning-button>
         <lightning-button label="キャンセル" disabled={isLoading} onclick={handleCancel}></lightning-button>
       </lightning-button-group>
 
@@ -83,12 +84,6 @@
                   <input type="file" class="photo-input" accept={photoAccept} onchange={handlePhotoChange} />
                 </div>
               </div>
-              <div class="slds-form-element slds-form-element_horizontal form-row">
-                <span class="slds-form-element__label">パスワード</span>
-                <div class="slds-form-element__control">
-                  <a href="#" class="slds-form-element__static" onclick={handlePasswordChange}>パスワード変更はこちら</a>
-                </div>
-              </div>
             </lightning-layout-item>
           </lightning-layout>
         </div>
@@ -105,5 +100,14 @@
       onconfirm={handleDialogConfirm}
       onclose={handleDialogClose}
     ></c-confirm-dialog>
+
+    <!-- パスワード変更ダイアログ -->
+    <c-password-change-dialog
+      lwc:if={showPasswordDialog}
+      is-loading={isPasswordChanging}
+      error-message={passwordErrorMessage}
+      onsave={handlePasswordSave}
+      onclose={handlePasswordDialogClose}
+    ></c-password-change-dialog>
   </main>
 </template>

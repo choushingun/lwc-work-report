@@ -1,7 +1,7 @@
 /**
  * 機能名 : 個人情報設定画面(personalSetting)のコントローラー
  *
- * ログイン社員の個人情報(上司・勤務表特別送付先・証明写真)の参照・保存と、パスワード変更メールの送信を行う。
+ * ログイン社員の個人情報(上司・勤務表特別送付先・証明写真)の参照・保存と、パスワード変更を行う。
  * 上司は標準項目 ReportsTo(勤務表作成時に勤務表の上長になる)で、管理職の社員から選ぶ。
  * 上司を変えた場合は、作成済みの勤務表の上長もすべて新しい上司に置き換える(元の上司は使わない)。
  * 写真は社員(Contact)に「photo.拡張子」の名前で添付する(ヘッダーの写真にも使う)。
@@ -143,16 +143,21 @@ public class PersonalSettingController {
     return '個人情報を保存しました。';
   }
 
-  // パスワード変更(登録メールアドレスへパスワード再設定用のメールを送る)
+  // パスワード変更(現在のパスワードを確認して新しいパスワードを設定する)
+  // 成功時は完了メッセージ、現在のパスワードの不一致・ロック中は null を返す
+  // (例外を投げると失敗回数の更新がロールバックされるため、ログインと同じく null で返す)
   @AuraEnabled
-  public static String requestPasswordChange(String sessionKey) {
+  public static String changePassword(String sessionKey, String currentPassword, String newPassword) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    Contact con = getContact(contactId);
-    if (String.isBlank(con.Email)) {
-      throw createException('メールアドレスが登録されていないため、パスワードを変更できません。上長へ連絡してください。');
+    PasswordResetController.validateNewPassword(newPassword);
+    if (newPassword == currentPassword) {
+      throw createException('現在のパスワードと異なるパスワードを入力してください。');
     }
-    PasswordResetController.requestReset(con.Email);
-    return '登録メールアドレス(' + con.Email + ')にパスワード変更用のメールを送信しました。メールをご確認ください。';
+    if (!LoginController.verifyPassword(contactId, currentPassword)) {
+      return null;
+    }
+    LoginController.setPassword(contactId, newPassword);
+    return 'パスワードを変更しました。';
   }
 
   // 上司の選択肢(管理職の社員。設定済みの上司が管理職でない場合も残す)

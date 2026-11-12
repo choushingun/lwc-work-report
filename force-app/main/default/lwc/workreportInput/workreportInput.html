@@ -5,20 +5,11 @@
     <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
     <lightning-card lwc:if={isAuthenticated} icon-name="standard:timesheet">
       <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">{pageTitle}</span>
-      <lightning-button
-        slot="actions"
-        label="キャンセル"
-        disabled={isLoading}
-        onclick={handleCancel}
-      ></lightning-button>
-      <lightning-button
-        slot="actions"
-        class="slds-m-left_x-small"
-        variant="brand"
-        label="保存"
-        disabled={saveDisabled}
-        onclick={handleSave}
-      ></lightning-button>
+      <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する(勤務表参照画面と同じ) -->
+      <lightning-button-group slot="actions">
+        <lightning-button label="保存" disabled={saveDisabled} onclick={handleSave}></lightning-button>
+        <lightning-button label="キャンセル" disabled={isLoading} onclick={handleCancel}></lightning-button>
+      </lightning-button-group>
 
       <div class="slds-p-horizontal_medium">
         <!-- 勤務条件 -->

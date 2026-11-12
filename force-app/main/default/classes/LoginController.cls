@@ -74,6 +74,25 @@ public class LoginController {
     );
   }
 
+  // 現在のパスワード確認(個人情報設定画面のパスワード変更で使う)
+  // ログインと同じく、不一致時は失敗回数を記録し、ロック中は一致していても false を返す
+  // 例外を投げると失敗回数の更新がロールバックされるため、結果は Boolean で返す
+  public static Boolean verifyPassword(Id contactId, String password) {
+    List<Contact> contacts = ContactDao.getLoginListById(contactId);
+    if (String.isBlank(password) || contacts.isEmpty() || contacts[0].PasswordHash__c == null) {
+      return false;
+    }
+    Contact con = contacts[0];
+    if (con.LockoutUntil__c != null && System.now() < con.LockoutUntil__c) {
+      return false;
+    }
+    if (!hashPassword(password, con.PasswordSalt__c).equals(con.PasswordHash__c)) {
+      recordFailure(con);
+      return false;
+    }
+    return true;
+  }
+
   private static void recordFailure(Contact con) {
     Integer failedCount = con.FailedLoginCount__c == null ? 1 : con.FailedLoginCount__c.intValue() + 1;
     if (failedCount >= MAX_FAILED_COUNT) {

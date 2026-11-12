@@ -2,10 +2,13 @@ import { LightningElement } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import getSetting from '@salesforce/apex/PersonalSettingController.getSetting';
 import saveSetting from '@salesforce/apex/PersonalSettingController.saveSetting';
-import requestPasswordChange from '@salesforce/apex/PersonalSettingController.requestPasswordChange';
+import changePassword from '@salesforce/apex/PersonalSettingController.changePassword';
 import { getSessionKey, isSessionInvalidError, notifyProfileChange, redirectToLogin } from 'c/auth';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
+// 現在のパスワードの不一致・ロック中(ログインと同じく、続けて5回間違えると15分間ロックされる)
+const CURRENT_PASSWORD_ERROR_MESSAGE =
+  '現在のパスワードが正しくありません。続けて5回間違えると、15分間ログイン・パスワード変更ができなくなります。';
 const WORK_LIST_PAGE = 'workreport_list__c';
 // 登録できる写真の形式と最大サイズ(Apex側と同じ)
 const PHOTO_CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
@@ -28,6 +31,10 @@ export default class PersonalSetting extends NavigationMixin(LightningElement) {
   // 表示中のダイアログ(共通ダイアログで表示する。null は非表示)
   // { title, messages, confirmLabel, cancelLabel, isError, onConfirm(確定時の処理) }
   dialog = null;
+  // パスワード変更ダイアログの表示・処理中・エラーメッセージ
+  showPasswordDialog = false;
+  isPasswordChanging = false;
+  passwordErrorMessage = '';
   photoAccept = PHOTO_CONTENT_TYPES.join(',');
 
   connectedCallback() {
@@ -165,22 +172,41 @@ export default class PersonalSetting extends NavigationMixin(LightningElement) {
     this[NavigationMixin.Navigate]({ type: 'comm__namedPage', attributes: { name: WORK_LIST_PAGE } });
   }
 
-  // パスワード変更確認ダイアログを開く
-  handlePasswordChange(event) {
-    event.preventDefault();
+  // パスワード変更ダイアログを開く
+  handlePasswordChange() {
     if (this.isLoading) {
       return;
     }
-    this.dialog = {
-      title: 'パスワード変更',
-      messages: [
-        `登録メールアドレス(${this.setting.email ?? ''})にパスワード変更用のメールを送信しますか？`,
-        'メールに記載されたURLから新しいパスワードを設定してください。'
-      ],
-      confirmLabel: '送信',
-      cancelLabel: 'キャンセル',
-      onConfirm: () => this.callApex(() => requestPasswordChange({ sessionKey: getSessionKey() }))
-    };
+    this.passwordErrorMessage = '';
+    this.showPasswordDialog = true;
+  }
+
+  // パスワード変更(エラーはパスワード変更ダイアログ内に表示し、成功したら閉じて完了ダイアログを表示する)
+  async handlePasswordSave(event) {
+    const { currentPassword, newPassword } = event.detail;
+    this.passwordErrorMessage = '';
+    this.isPasswordChanging = true;
+    try {
+      const message = await changePassword({ sessionKey: getSessionKey(), currentPassword, newPassword });
+      if (!message) {
+        this.passwordErrorMessage = CURRENT_PASSWORD_ERROR_MESSAGE;
+        return;
+      }
+      this.showPasswordDialog = false;
+      this.openResultDialog(message, false);
+    } catch (error) {
+      if (isSessionInvalidError(error)) {
+        redirectToLogin(this);
+        return;
+      }
+      this.passwordErrorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
+    } finally {
+      this.isPasswordChanging = false;
+    }
+  }
+
+  handlePasswordDialogClose() {
+    this.showPasswordDialog = false;
   }
 
   // 処理結果ダイアログを開く(OKボタンのみ)
