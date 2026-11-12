@@ -30,6 +30,41 @@
 /* チェックボックスの列は最小幅にする */
 .col-check {
   width: 2.5rem;
+  vertical-align: middle;
+}
+
+/* チェックボックスは行の上下中央に置く
+   データ行は勤務表一覧のアクションボタン(高さ2rem)と同じ高さにし、行の高さをそろえる */
+.check-cell {
+  display: flex;
+  align-items: center;
+  height: 2rem;
+}
+
+/* タイトル行は高さ0にして行の高さに影響させない(勤務表一覧と同じく文字の高さで決まる)
+   チェックボックスは上下にはみ出して中央に表示される */
+.check-cell_header {
+  height: 0;
+}
+
+/* チェックボックスは文字の行の高さで上にずれないよう、行の高さを使わずに並べる */
+.check-cell .slds-checkbox,
+.check-cell .slds-checkbox__label {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+/* 日本語の文字は上下中央より少し下に見えるため、チェックボックスも少し下げてそろえる */
+.check-cell .slds-checkbox_faux {
+  margin-right: 0;
+  position: relative;
+  top: 2px;
+}
+
+/* タイトル行(太字の見出し)はデータ行より1px上にする */
+.check-cell_header .slds-checkbox_faux {
+  top: 1px;
 }
 
 /* 画面タイトルは太字にする(勤務表一覧と同じ) */

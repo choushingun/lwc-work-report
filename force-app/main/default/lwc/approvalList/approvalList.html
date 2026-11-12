@@ -47,14 +47,21 @@
             <thead>
               <tr class="slds-line-height_reset">
                 <th scope="col" class="col-check">
-                  <lightning-input
-                    type="checkbox"
-                    label="すべて選択"
-                    variant="label-hidden"
-                    checked={isAllSelected}
-                    disabled={noReports}
-                    onchange={handleSelectAll}
-                  ></lightning-input>
+                  <div class="check-cell check-cell_header">
+                    <div class="slds-checkbox">
+                      <input
+                        type="checkbox"
+                        id="select-all"
+                        checked={isAllSelected}
+                        disabled={noReports}
+                        onchange={handleSelectAll}
+                      />
+                      <label class="slds-checkbox__label" for="select-all">
+                        <span class="slds-checkbox_faux"></span>
+                        <span class="slds-assistive-text">すべて選択</span>
+                      </label>
+                    </div>
+                  </div>
                 </th>
                 <th scope="col">勤務表名</th>
                 <th scope="col" class="slds-text-align_right slds-show_medium">勤務日数</th>
@@ -69,14 +76,21 @@
               <template for:each={displayReports} for:item="report">
                 <tr key={report.Id}>
                   <td class="col-check">
-                    <lightning-input
-                      type="checkbox"
-                      label="選択"
-                      variant="label-hidden"
-                      checked={report.isSelected}
-                      data-id={report.Id}
-                      onchange={handleSelect}
-                    ></lightning-input>
+                    <div class="check-cell">
+                      <div class="slds-checkbox">
+                        <input
+                          type="checkbox"
+                          id={report.Id}
+                          checked={report.isSelected}
+                          data-id={report.Id}
+                          onchange={handleSelect}
+                        />
+                        <label class="slds-checkbox__label" for={report.Id}>
+                          <span class="slds-checkbox_faux"></span>
+                          <span class="slds-assistive-text">選択</span>
+                        </label>
+                      </div>
+                    </div>
                   </td>
                   <td>
                     <a href="#" data-id={report.Id} onclick={handleViewReport}>{report.ReportName__c}勤務表</a>

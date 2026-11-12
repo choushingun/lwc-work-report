@@ -38,6 +38,7 @@ public without sharing class WorkreportDao {
   }
 
   // 上長(管理職)の部下の指定年月の勤務表一覧(勤務承認画面用、社員番号順)
+  // 上司が空白の管理職(上長のない自分の勤務表)は、自分の勤務表も含める
   public static List<Workreport__c> getListBySuperior(Id superiorId, String year, String month) {
     return [
       SELECT
@@ -51,7 +52,12 @@ public without sharing class WorkreportDao {
         Overtime__c,
         ApplicationApprovalDT__c
       FROM Workreport__c
-      WHERE Superior__c = :superiorId AND Year__c = :year AND Month__c = :month
+      WHERE
+        (Superior__c = :superiorId
+        OR (Contact__c = :superiorId
+        AND Superior__c = NULL))
+        AND Year__c = :year
+        AND Month__c = :month
       WITH SYSTEM_MODE
       ORDER BY EmployeeNo__c, ReportName__c
     ];

@@ -2,6 +2,7 @@
  * 機能名 : 勤務承認画面(approvalList)のコントローラー
  *
  * 管理職(Contact.Management__c)が、上長として担当する部下の勤務表を年月ごとに一覧表示する。
+ * 上司が空白の管理職は、自分の勤務表(上長が空白のもの)も一覧に含める。
  * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
 public class ApprovalListController {

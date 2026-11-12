@@ -15,6 +15,16 @@ public without sharing class ContactDao {
     ];
   }
 
+  // Idで取得する(ログイン中のパスワード変更で現在のパスワードを確認する用)
+  public static List<Contact> getLoginListById(Id contactId) {
+    return [
+      SELECT Id, PasswordHash__c, PasswordSalt__c, FailedLoginCount__c, LockoutUntil__c
+      FROM Contact
+      WHERE Id = :contactId
+      WITH SYSTEM_MODE
+    ];
+  }
+
   // メールアドレスで取得する(パスワード再設定用。退職済みは除く。重複判定のため最大2件)
   public static List<Contact> getResetListByEmail(String email) {
     Date today = Date.today();
