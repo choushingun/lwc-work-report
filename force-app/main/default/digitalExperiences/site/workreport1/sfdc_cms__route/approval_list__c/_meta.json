@@ -1,0 +1,6 @@
+{
+  "apiName" : "approval_list__c",
+  "type" : "sfdc_cms__route",
+  "path" : "routes",
+  "contentKey" : "MCVMHR3V646ZD7LBBLCZX5OAN2XM"
+}

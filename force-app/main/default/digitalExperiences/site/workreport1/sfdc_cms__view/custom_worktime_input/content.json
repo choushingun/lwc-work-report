@@ -1,0 +1,71 @@
+{
+  "type" : "sfdc_cms__view",
+  "title" : "勤務実績編集",
+  "contentBody" : {
+    "component" : {
+      "children" : [ {
+        "children" : [ {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,0)",
+            "componentSpacerSize" : "",
+            "dxpStyle" : { },
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"b82d6bd8-8b4e-4879-8170-157981c44e70\",\"columns\":[{\"UUID\":\"32e4a2b6-2a63-4752-813c-c46640977f3a\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":[]}]}",
+            "sectionMinHeight" : "",
+            "sectionVerticalAlign" : "flex-start"
+          },
+          "children" : [ {
+            "children" : [ {
+              "attributes" : {
+                "dxpStyle" : { }
+              },
+              "definition" : "c:worktimeInput",
+              "id" : "6ede80c2-0816-4bf7-830a-45c07ca7cb81",
+              "type" : "component"
+            } ],
+            "id" : "32e4a2b6-2a63-4752-813c-c46640977f3a",
+            "name" : "col1",
+            "title" : "列 1",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "b82d6bd8-8b4e-4879-8170-157981c44e70",
+          "type" : "component"
+        } ],
+        "id" : "6d1037d8-4716-4a46-a941-3fffe4ff8a8b",
+        "name" : "content",
+        "title" : "コンテンツ",
+        "type" : "region"
+      }, {
+        "children" : [ {
+          "attributes" : {
+            "customHeadTags" : "",
+            "description" : "",
+            "dxpStyle" : { },
+            "pageTitle" : "勤務実績編集",
+            "recordId" : "{!recordId}"
+          },
+          "definition" : "community_builder:seoAssistant",
+          "id" : "a420bfa0-1465-4311-af20-b5bfa10a9f3c",
+          "type" : "component"
+        } ],
+        "id" : "ac89a96e-b686-42d1-952f-155ec3a12e26",
+        "name" : "sfdcHiddenRegion",
+        "title" : "sfdcHiddenRegion",
+        "type" : "region"
+      } ],
+      "definition" : "community_layout:sldsFlexibleLayout",
+      "id" : "72adf25f-87c2-48eb-a8cf-8abb509d5f14",
+      "type" : "component"
+    },
+    "dataProviders" : [ ],
+    "themeLayoutType" : "Inner",
+    "viewType" : "custom-worktime-input"
+  },
+  "urlName" : "勤務実績編集"
+}

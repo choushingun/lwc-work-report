@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "勤務実績編集",
+  "contentBody" : {
+    "activeViewId" : "custom_worktime_input",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-worktime-input",
+    "urlPrefix" : "worktime-input"
+  },
+  "urlName" : "勤務実績編集"
+}

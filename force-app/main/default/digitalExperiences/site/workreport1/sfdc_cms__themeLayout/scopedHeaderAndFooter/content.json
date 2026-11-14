@@ -1,0 +1,84 @@
+{
+  "type" : "sfdc_cms__themeLayout",
+  "title" : "Scoped Header and Footer",
+  "contentBody" : {
+    "component" : {
+      "attributes" : {
+        "hideThemeFooter" : false,
+        "showThemeFooterAtBottom" : true,
+        "stickyThemeHeader" : true
+      },
+      "children" : [ {
+        "children" : [ {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,0)",
+            "componentSpacerSize" : "",
+            "dxpStyle" : { },
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"8c1fa781-c0e8-4f52-b3b0-560a6f80ae42\",\"columns\":[{\"UUID\":\"0541d03d-8a80-4a5f-b200-45ae37113db2\",\"columnName\":\"Column 1\",\"columnKey\":\"headerSection\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionMinHeight" : "",
+            "sectionVerticalAlign" : "flex-start"
+          },
+          "children" : [ {
+            "children" : [ {
+              "attributes" : { },
+              "definition" : "c:workreportNav",
+              "id" : "6efc0546-b9ea-4bde-9b8c-57145efffadb",
+              "type" : "component"
+            } ],
+            "id" : "0541d03d-8a80-4a5f-b200-45ae37113db2",
+            "name" : "headerSection",
+            "title" : "テーマのヘッダー",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "8c1fa781-c0e8-4f52-b3b0-560a6f80ae42",
+          "type" : "component"
+        } ],
+        "id" : "3c4c4a66-9ab1-4724-8690-21f100f9ec59",
+        "name" : "header",
+        "title" : "テーマのヘッダー",
+        "type" : "region"
+      }, {
+        "children" : [ {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,0)",
+            "componentSpacerSize" : "",
+            "dxpStyle" : { },
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"db04e5c9-797e-4e25-b482-d58cd54935b4\",\"columns\":[{\"UUID\":\"0ceddf31-9001-43db-a284-d900ac6113fe\",\"columnName\":\"Column 1\",\"columnKey\":\"footerSection\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionMinHeight" : "",
+            "sectionVerticalAlign" : "flex-start"
+          },
+          "children" : [ {
+            "id" : "0ceddf31-9001-43db-a284-d900ac6113fe",
+            "name" : "footerSection",
+            "title" : "テーマのフッター",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "db04e5c9-797e-4e25-b482-d58cd54935b4",
+          "type" : "component"
+        } ],
+        "id" : "f6c27c1c-8ba9-47fb-913b-a5edd5070d50",
+        "name" : "footer",
+        "title" : "テーマのフッター",
+        "type" : "region"
+      } ],
+      "definition" : "community_byo:scopedHeaderAndFooter",
+      "id" : "fc2679e4-c865-4177-8db0-e0b0b70ebb45",
+      "type" : "component"
+    }
+  },
+  "urlName" : "scoped-header-and-footer"
+}

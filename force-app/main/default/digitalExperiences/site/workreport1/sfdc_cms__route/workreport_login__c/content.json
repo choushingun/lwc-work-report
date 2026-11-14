@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "ログイン",
+  "contentBody" : {
+    "activeViewId" : "custom_workreport_login",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-workreport-login",
+    "urlPrefix" : "workreport-login"
+  },
+  "urlName" : "ログイン"
+}

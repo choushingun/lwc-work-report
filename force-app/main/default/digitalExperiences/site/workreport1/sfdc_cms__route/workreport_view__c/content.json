@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "勤務表参照",
+  "contentBody" : {
+    "activeViewId" : "custom_workreport_view",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-workreport-view",
+    "urlPrefix" : "workreport-view"
+  },
+  "urlName" : "勤務表参照"
+}

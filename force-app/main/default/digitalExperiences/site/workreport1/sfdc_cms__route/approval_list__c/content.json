@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "勤務承認一覧",
+  "contentBody" : {
+    "activeViewId" : "custom_approval_list",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-approval-list",
+    "urlPrefix" : "approval-list"
+  },
+  "urlName" : "勤務承認一覧"
+}

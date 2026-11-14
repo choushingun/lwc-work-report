@@ -1,0 +1,71 @@
+{
+  "type" : "sfdc_cms__view",
+  "title" : "勤務表編集",
+  "contentBody" : {
+    "component" : {
+      "children" : [ {
+        "children" : [ {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,0)",
+            "componentSpacerSize" : "",
+            "dxpStyle" : { },
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"0f1f364e-658d-47f2-a645-d6321b78d1bc\",\"columns\":[{\"UUID\":\"8eb6b69b-bcd5-4cf5-bcbf-85c8bbd65aeb\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":[]}]}",
+            "sectionMinHeight" : "",
+            "sectionVerticalAlign" : "flex-start"
+          },
+          "children" : [ {
+            "children" : [ {
+              "attributes" : {
+                "dxpStyle" : { }
+              },
+              "definition" : "c:workreportInput",
+              "id" : "6838b077-5566-488a-93f9-99fedafb98ef",
+              "type" : "component"
+            } ],
+            "id" : "8eb6b69b-bcd5-4cf5-bcbf-85c8bbd65aeb",
+            "name" : "col1",
+            "title" : "列 1",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "0f1f364e-658d-47f2-a645-d6321b78d1bc",
+          "type" : "component"
+        } ],
+        "id" : "30908eee-4b46-47d6-850c-f3cb72c59bda",
+        "name" : "content",
+        "title" : "コンテンツ",
+        "type" : "region"
+      }, {
+        "children" : [ {
+          "attributes" : {
+            "customHeadTags" : "",
+            "description" : "",
+            "dxpStyle" : { },
+            "pageTitle" : "勤務表編集",
+            "recordId" : "{!recordId}"
+          },
+          "definition" : "community_builder:seoAssistant",
+          "id" : "f2a7c4e1-bd61-4ff9-a212-4a51a78c25e5",
+          "type" : "component"
+        } ],
+        "id" : "d407adda-08c1-4d34-8f09-6719def5cc88",
+        "name" : "sfdcHiddenRegion",
+        "title" : "sfdcHiddenRegion",
+        "type" : "region"
+      } ],
+      "definition" : "community_layout:sldsFlexibleLayout",
+      "id" : "f99e5412-ac55-4f47-bcc1-fa12f84c222f",
+      "type" : "component"
+    },
+    "dataProviders" : [ ],
+    "themeLayoutType" : "Inner",
+    "viewType" : "custom-workreport-input"
+  },
+  "urlName" : "勤務表編集"
+}

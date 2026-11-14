@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "個人情報設定",
+  "contentBody" : {
+    "activeViewId" : "custom_personal_setting",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-personal-setting",
+    "urlPrefix" : "personal-setting"
+  },
+  "urlName" : "個人情報設定"
+}

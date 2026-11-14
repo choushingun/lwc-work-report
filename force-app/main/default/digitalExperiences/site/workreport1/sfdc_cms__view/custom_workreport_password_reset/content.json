@@ -1,0 +1,71 @@
+{
+  "type" : "sfdc_cms__view",
+  "title" : "パスワード再設定",
+  "contentBody" : {
+    "component" : {
+      "children" : [ {
+        "children" : [ {
+          "attributes" : {
+            "backgroundImageConfig" : "",
+            "backgroundImageOverlay" : "rgba(0,0,0,0)",
+            "componentSpacerSize" : "",
+            "dxpStyle" : { },
+            "layoutDirectionDesktop" : "row",
+            "layoutDirectionMobile" : "column",
+            "layoutDirectionTablet" : "column",
+            "maxContentWidth" : "",
+            "sectionColumnGutterWidth" : "",
+            "sectionConfig" : "{\"UUID\":\"1b473d6f-40e0-4c67-9498-37d28bac6471\",\"columns\":[{\"UUID\":\"2d592f81-8fbc-4b39-a55a-f801e057a3e1\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":[]}]}",
+            "sectionMinHeight" : "",
+            "sectionVerticalAlign" : "flex-start"
+          },
+          "children" : [ {
+            "children" : [ {
+              "attributes" : {
+                "dxpStyle" : { }
+              },
+              "definition" : "c:passwordReset",
+              "id" : "f46c81d3-b58a-43b5-8c41-86ff50c23600",
+              "type" : "component"
+            } ],
+            "id" : "2d592f81-8fbc-4b39-a55a-f801e057a3e1",
+            "name" : "col1",
+            "title" : "列 1",
+            "type" : "region"
+          } ],
+          "definition" : "community_layout:section",
+          "id" : "1b473d6f-40e0-4c67-9498-37d28bac6471",
+          "type" : "component"
+        } ],
+        "id" : "d0367f61-6c36-4b9c-8da2-96367b08281f",
+        "name" : "content",
+        "title" : "コンテンツ",
+        "type" : "region"
+      }, {
+        "children" : [ {
+          "attributes" : {
+            "customHeadTags" : "",
+            "description" : "",
+            "dxpStyle" : { },
+            "pageTitle" : "パスワード再設定",
+            "recordId" : "{!recordId}"
+          },
+          "definition" : "community_builder:seoAssistant",
+          "id" : "5ee28dd2-18a8-4246-ba7d-cb84adf8cb94",
+          "type" : "component"
+        } ],
+        "id" : "090cbd63-249e-4613-bf3e-7576458e1099",
+        "name" : "sfdcHiddenRegion",
+        "title" : "sfdcHiddenRegion",
+        "type" : "region"
+      } ],
+      "definition" : "community_layout:sldsFlexibleLayout",
+      "id" : "e83f7363-dcd3-4490-92a5-347bb9b5adae",
+      "type" : "component"
+    },
+    "dataProviders" : [ ],
+    "themeLayoutType" : "6h7Yhfk6MRrSbMp4AQ8aP6uQsbNpJT",
+    "viewType" : "custom-workreport-password-reset"
+  },
+  "urlName" : "パスワード再設定"
+}

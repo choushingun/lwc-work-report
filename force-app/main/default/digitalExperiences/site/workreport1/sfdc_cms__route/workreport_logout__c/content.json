@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "ログアウト",
+  "contentBody" : {
+    "activeViewId" : "custom_workreport_logout",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-workreport-logout",
+    "urlPrefix" : "workreport-logout"
+  },
+  "urlName" : "ログアウト"
+}

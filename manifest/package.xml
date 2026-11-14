@@ -97,5 +97,25 @@
         <members>XlsxPopulate</members>
         <name>StaticResource</name>
     </types>
+    <types>
+        <members>workreport</members>
+        <name>CustomSite</name>
+    </types>
+    <types>
+        <members>site/workreport1</members>
+        <name>DigitalExperienceBundle</name>
+    </types>
+    <types>
+        <members>workreport1</members>
+        <name>DigitalExperienceConfig</name>
+    </types>
+    <types>
+        <members>SFDC_Default_Navigation_workreport</members>
+        <name>NavigationMenu</name>
+    </types>
+    <types>
+        <members>workreport</members>
+        <name>Network</name>
+    </types>
     <version>68.0</version>
 </Package>
