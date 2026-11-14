@@ -6,7 +6,15 @@
       <!-- ロゴ画像(旧システムのログイン画面と同じ。クリックで会社のホームページを開く) -->
       <div class="logo">
         <a href="https://www.accenture.com/jp-ja" target="_blank" rel="noopener noreferrer">
-          <img src={logoUrl} class="logo-image" alt="アクセンチュア" title="アクセンチュア株式会社ホームページへ" />
+          <!-- width/height は読み込み前に表示領域を確保するため(実際の表示幅は CSS で決める) -->
+          <img
+            src={logoUrl}
+            class="logo-image"
+            width="750"
+            height="400"
+            alt="アクセンチュア"
+            title="アクセンチュア株式会社ホームページへ"
+          />
         </a>
       </div>
 
