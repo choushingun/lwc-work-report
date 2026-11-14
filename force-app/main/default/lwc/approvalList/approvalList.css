@@ -4,8 +4,7 @@
   padding: var(--lwc-spacingMedium, 1rem);
 }
 
-/* 前月・翌月ボタンと年月選択は上端をそろえて並べる(どちらも高さ2rem)
-   年月選択はコンポーネントの下に余白があり、上下中央でそろえると上にずれるため上端でそろえる */
+/* 前月・翌月ボタンと年月選択は上端をそろえて並べる(どちらも高さ2rem) */
 .month-nav {
   align-items: flex-start;
 }
@@ -18,6 +17,33 @@
 /* 年月選択(「2026年11月」が収まる幅) */
 .month-select {
   width: 8.5rem;
+}
+
+/* 選択中の年月の文字は左の余白を標準(0.5rem)より広げて少し右に表示する */
+.month-select select.slds-select {
+  padding-left: 0.75rem;
+}
+
+/* 選択欄の矢印は下向きの三角1つにし、上下中央に置く
+   (SLDS標準の上下2つの矢印は使わない) */
+.month-select.slds-select_container::before {
+  content: none;
+}
+
+.month-select.slds-select_container::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  bottom: auto;
+  right: 0.75rem;
+  width: 0;
+  height: 0;
+  margin-top: -3px;
+  border-top: 6px solid #747474;
+  border-right: 5px solid transparent;
+  border-bottom: 0;
+  border-left: 5px solid transparent;
+  pointer-events: none;
 }
 
 /* 一覧のタイトル行・データ行の上下余白(勤務表一覧と同じ) */

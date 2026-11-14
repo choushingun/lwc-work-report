@@ -87,7 +87,7 @@ export default class ApprovalList extends NavigationMixin(LightningElement) {
     const options = [];
     for (let ym = this.maxYearMonth; ym >= this.minYearMonth; ym = addMonths(ym, -1)) {
       const [year, month] = ym.split('-');
-      options.push({ label: `${year}年${month}月`, value: ym });
+      options.push({ label: `${year}年${month}月`, value: ym, selected: ym === this.yearMonth });
     }
     return options;
   }
@@ -250,7 +250,7 @@ export default class ApprovalList extends NavigationMixin(LightningElement) {
   }
 
   handleMonthChange(event) {
-    this.changeMonth(event.detail.value);
+    this.changeMonth(event.target.value);
   }
 
   // 年月をURLに設定する(ページ参照が変わると一覧を再取得する。履歴は置き換える)
