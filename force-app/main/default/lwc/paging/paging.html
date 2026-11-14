@@ -1,0 +1,21 @@
+<template>
+  <div lwc:if={showPaging} class="slds-grid slds-grid_vertical-align-center slds-m-top_small">
+    <div class="slds-col slds-grid slds-grid_vertical-align-center">
+      <span>{rangeLabel}</span>
+      <lightning-combobox
+        class="page-size slds-m-left_x-small"
+        label="表示件数"
+        variant="label-hidden"
+        value={pageSizeValue}
+        options={pageSizeOptions}
+        disabled={disabled}
+        onchange={handlePageSizeChange}
+      ></lightning-combobox>
+    </div>
+    <div lwc:if={hasPaging} class="slds-no-flex">
+      <lightning-button variant="base" label="前へ" disabled={isFirstPage} onclick={handlePrevious}></lightning-button>
+      <span class="slds-m-horizontal_small">{pageNumber}/{totalPages}</span>
+      <lightning-button variant="base" label="次へ" disabled={isLastPage} onclick={handleNext}></lightning-button>
+    </div>
+  </div>
+</template>

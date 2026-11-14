@@ -21,17 +21,6 @@ trigger Workreport on Workreport__c(before update, after update) {
         report.ApplicationDateTime__c = null;
         report.ApproveDateTime__c = null;
       }
-
-      // 特別送信は下記２パターンが考えられる
-      // 1. 申請中 ⇒ 承認済
-      // 2. クローズ ⇒ 承認済
-      if (report.Status__c == '承認済') {
-        if (oldReport.Status__c == '申請中' || oldReport.Status__c == 'クローズ') {
-          // 特別送付をおこなう(そこまで件数がないから、ガバナー制限を気にしなくてもよい)
-          // reportUtility.doSendSpecial(report.Id);
-          report.Status__c = 'クローズ';
-        }
-      }
     }
   }
 

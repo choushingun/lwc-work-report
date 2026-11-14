@@ -65,8 +65,10 @@
         <members>login</members>
         <members>logout</members>
         <members>passwordChangeDialog</members>
+        <members>paging</members>
         <members>passwordReset</members>
         <members>personalSetting</members>
+        <members>sendReportDialog</members>
         <members>spinner</members>
         <members>workreport</members>
         <members>workreportInput</members>

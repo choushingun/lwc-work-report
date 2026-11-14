@@ -27,6 +27,17 @@ public without sharing class AttachmentDao {
     ];
   }
 
+  // 複数の親レコードに添付された、指定したファイル名のいずれかに一致する添付ファイル(本文付き、新しい順)
+  public static List<Attachment> getBodyListByParents(Set<Id> parentIds, Set<String> names) {
+    return [
+      SELECT Id, ParentId, Name, ContentType, Body
+      FROM Attachment
+      WHERE ParentId IN :parentIds AND Name IN :names
+      WITH SYSTEM_MODE
+      ORDER BY CreatedDate DESC
+    ];
+  }
+
   // 親レコードに添付された、ファイル名が prefix で始まる画像(本文付き、最新の1件。maxBytes を超えるものは除く)
   public static List<Attachment> getLatestImageList(Id parentId, String prefix, Integer maxBytes) {
     String namePattern = prefix + '%';

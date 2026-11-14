@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>68.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>勤務表自社送付ダイアログ</masterLabel>
+    <description>勤務承認画面で、承認メール内容を入力して勤務表を自社へ送付(先行送付)するダイアログ</description>
+</LightningComponentBundle>

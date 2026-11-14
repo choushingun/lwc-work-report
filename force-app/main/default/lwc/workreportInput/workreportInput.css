@@ -50,3 +50,8 @@
 .page-title {
   font-weight: 700;
 }
+
+/* 参照のみの文字(勤務表自社送付先・上長)はSLDS既定(13px)で入力欄より小さくなるため、入力欄と同じ基本の文字サイズにする(個人情報設定と同じ) */
+.slds-form-element__static {
+  font-size: inherit;
+}

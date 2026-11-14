@@ -111,30 +111,12 @@
         </div>
 
         <!-- ページング -->
-        <div lwc:if={hasReports} class="slds-grid slds-grid_vertical-align-center slds-m-top_small">
-          <div class="slds-col slds-grid slds-grid_vertical-align-center">
-            <span>{rangeLabel}</span>
-            <lightning-combobox
-              lwc:if={showPageSize}
-              class="page-size slds-m-left_x-small"
-              label="表示件数"
-              variant="label-hidden"
-              value={pageSizeValue}
-              options={pageSizeOptions}
-              onchange={handlePageSizeChange}
-            ></lightning-combobox>
-          </div>
-          <div lwc:if={hasPaging} class="slds-no-flex">
-            <lightning-button
-              variant="base"
-              label="前へ"
-              disabled={isFirstPage}
-              onclick={handlePrevious}
-            ></lightning-button>
-            <span class="slds-m-horizontal_small">{pageNumber}/{totalPages}</span>
-            <lightning-button variant="base" label="次へ" disabled={isLastPage} onclick={handleNext}></lightning-button>
-          </div>
-        </div>
+        <c-paging
+          total-count={reports.length}
+          page-number={pageNumber}
+          page-size={pageSize}
+          onchange={handlePageChange}
+        ></c-paging>
       </div>
     </article>
     <!-- 共通ダイアログ(削除確認・処理結果を切り替えて表示する) -->

@@ -38,6 +38,23 @@
             disabled={isLastMonth}
             onclick={handleNextMonth}
           ></lightning-button-icon>
+          <lightning-button-group class="slds-m-left_small">
+            <lightning-button
+              label="承認"
+              title="選択した勤務表をまとめて承認する"
+              onclick={handleApprove}
+            ></lightning-button>
+            <lightning-button
+              label="却下"
+              title="選択した勤務表をまとめて却下する"
+              onclick={handleReject}
+            ></lightning-button>
+            <lightning-button
+              label="自社送付"
+              title="選択した勤務表をまとめて自社へ送付する"
+              onclick={handleSendReports}
+            ></lightning-button>
+          </lightning-button-group>
         </div>
       </div>
 
@@ -133,8 +150,35 @@
           </table>
         </div>
 
-        <p lwc:if={hasReports} class="slds-m-top_small">{countLabel}</p>
+        <!-- ページング -->
+        <c-paging
+          total-count={reports.length}
+          page-number={pageNumber}
+          page-size={pageSize}
+          disabled={isLoading}
+          onchange={handlePageChange}
+        ></c-paging>
       </div>
     </article>
+    <!-- 自社送付ダイアログ(承認メール内容を入力して先行送付・自社送付する) -->
+    <c-send-report-dialog
+      lwc:if={sendDialog}
+      info={sendDialog.info}
+      onsend={handleSendDialogSend}
+      onclose={handleSendDialogClose}
+    ></c-send-report-dialog>
+    <!-- 共通ダイアログ(承認・却下の確認、処理結果を切り替えて表示する) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      input-label={dialog.inputLabel}
+      input-max-length={dialog.inputMaxLength}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
   </main>
 </template>

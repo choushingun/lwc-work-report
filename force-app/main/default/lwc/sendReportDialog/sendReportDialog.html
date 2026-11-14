@@ -1,0 +1,78 @@
+<template>
+  <section
+    role="dialog"
+    tabindex="-1"
+    aria-modal="true"
+    aria-labelledby="send-dialog-heading"
+    class="slds-modal slds-fade-in-open slds-modal_medium"
+    onkeydown={handleKeyDown}
+  >
+    <div class="slds-modal__container">
+      <div class="slds-modal__header dialog-header">
+        <lightning-button-icon
+          class="dialog-close"
+          icon-name="utility:close"
+          variant="bare"
+          size="large"
+          alternative-text="閉じる"
+          title="閉じる"
+          onclick={handleClose}
+        ></lightning-button-icon>
+        <h1 id="send-dialog-heading" class="slds-modal__title">勤務表の自社送付</h1>
+      </div>
+      <div class="slds-modal__content slds-p-around_medium">
+        <p lwc:if={info.warning} class="text-red slds-m-bottom_small">{info.warning}</p>
+        <table class="slds-table slds-table_bordered slds-no-row-hover send-table">
+          <tbody>
+            <tr>
+              <th scope="row" class="send-label">勤務表名</th>
+              <td>
+                <template for:each={reportNames} for:item="name">
+                  <div key={name}>{name}</div>
+                </template>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row" class="send-label">プロジェクト名称</th>
+              <td>{projectNames}</td>
+            </tr>
+            <tr>
+              <th scope="row" class="send-label">勤務表送付先</th>
+              <td>
+                <template for:each={reportToMails} for:item="mail">
+                  <div key={mail}>{mail}</div>
+                </template>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row" class="send-label">勤務表送付先宛名</th>
+              <td>{info.reportTo}</td>
+            </tr>
+            <tr>
+              <th scope="row" class="send-label">承認メール内容</th>
+              <td>
+                <lightning-textarea
+                  class="reply-mail"
+                  label="承認メール内容"
+                  variant="label-hidden"
+                  value={info.replyMailContent}
+                  placeholder="現場承認者からの承認メールを貼り付けてください(自社送付の場合は必須)"
+                  oninput={handleInput}
+                ></lightning-textarea>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="slds-text-color_weak slds-m-top_small">
+          先行送付：勤務表を送付します(状況は変わりません)。自社送付：承認メール内容を添えて勤務表を送付し、承認済にします。
+        </p>
+      </div>
+      <div class="slds-modal__footer dialog-footer">
+        <button class="slds-button slds-button_neutral" onclick={handleClose}>キャンセル</button>
+        <button class="slds-button slds-button_neutral" onclick={handleAdvanceSend}>先行送付</button>
+        <button class="slds-button slds-button_brand" onclick={handleApprovalSend}>自社送付</button>
+      </div>
+    </div>
+  </section>
+  <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+</template>

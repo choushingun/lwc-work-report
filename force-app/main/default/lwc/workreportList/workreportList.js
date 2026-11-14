@@ -9,20 +9,18 @@ const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて�
 const MONTH_REPORT_PAGE = 'workreport_view__c';
 const CREATE_WORK_PAGE = 'workreport_input__c';
 const READONLY_STATUSES = ['申請中', '承認済'];
-const MIN_PAGE_SIZE = 10;
-const PAGE_SIZE_OPTIONS = [MIN_PAGE_SIZE, 20, 50].map((size) => ({ label: `${size}`, value: `${size}` }));
+const DEFAULT_PAGE_SIZE = 10;
 
 export default class WorkreportList extends NavigationMixin(LightningElement) {
   reports = [];
   pageNumber = 1;
-  pageSize = MIN_PAGE_SIZE;
+  pageSize = DEFAULT_PAGE_SIZE;
   isLoading = false;
   // ログイン確認済み(確認できるまで画面を表示しない)
   isAuthenticated = false;
   errorMessage = '';
   // 日時はSalesforce標準画面と同じ24時間表記(例：2026/11/09 0:15)にする
   hour12 = false;
-  pageSizeOptions = PAGE_SIZE_OPTIONS;
   // 削除確認中の勤務表Id(設定中は確認ダイアログを表示する)
   // 表示中のダイアログ(共通ダイアログで表示する。null は非表示)
   // { title, messages, confirmLabel, cancelLabel, isError, onConfirm(確定時の処理) }
@@ -55,32 +53,6 @@ export default class WorkreportList extends NavigationMixin(LightningElement) {
   get displayReports() {
     const start = (this.pageNumber - 1) * this.pageSize;
     return this.reports.slice(start, start + this.pageSize);
-  }
-
-  get rangeLabel() {
-    const start = (this.pageNumber - 1) * this.pageSize + 1;
-    const end = Math.min(this.pageNumber * this.pageSize, this.reports.length);
-    return `${start}-${end}/${this.reports.length}`;
-  }
-
-  get showPageSize() {
-    return this.reports.length > MIN_PAGE_SIZE;
-  }
-
-  get pageSizeValue() {
-    return `${this.pageSize}`;
-  }
-
-  get hasPaging() {
-    return this.totalPages > 1;
-  }
-
-  get isFirstPage() {
-    return this.pageNumber <= 1;
-  }
-
-  get isLastPage() {
-    return this.pageNumber >= this.totalPages;
   }
 
   loadReports() {
@@ -156,17 +128,10 @@ export default class WorkreportList extends NavigationMixin(LightningElement) {
     });
   }
 
-  handlePageSizeChange(event) {
-    this.pageSize = Number(event.detail.value);
-    this.pageNumber = 1;
-  }
-
-  handlePrevious() {
-    this.pageNumber = Math.max(1, this.pageNumber - 1);
-  }
-
-  handleNext() {
-    this.pageNumber = Math.min(this.totalPages, this.pageNumber + 1);
+  // ページング(ページ番号・ページサイズ)の変更
+  handlePageChange(event) {
+    this.pageNumber = event.detail.pageNumber;
+    this.pageSize = event.detail.pageSize;
   }
 
   // Apex呼び出し共通処理(ローディング表示・エラー処理・セッション切れ時のログイン画面遷移)

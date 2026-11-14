@@ -42,11 +42,6 @@
                 <default>false</default>
                 <label>承認済</label>
             </value>
-            <value>
-                <fullName>クローズ</fullName>
-                <default>false</default>
-                <label>クローズ</label>
-            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

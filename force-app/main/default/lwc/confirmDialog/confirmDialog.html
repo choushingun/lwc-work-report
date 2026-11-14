@@ -25,6 +25,14 @@
         <template for:each={messageLines} for:item="line">
           <p key={line.key} class={messageClass}>{line.text}</p>
         </template>
+        <lightning-textarea
+          lwc:if={inputLabel}
+          class="dialog-input slds-m-top_small"
+          label={inputLabel}
+          max-length={inputMaxLength}
+          required
+          message-when-value-missing="入力してください。"
+        ></lightning-textarea>
       </div>
       <div class="slds-modal__footer dialog-footer">
         <button lwc:if={cancelLabel} class="slds-button slds-button_neutral" onclick={handleClose}>{cancelLabel}</button>

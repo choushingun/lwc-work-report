@@ -1,9 +1,10 @@
 import { LightningElement } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
+import { navigateAfterLogin, setSessionKey } from 'c/auth';
+
+import LOGO from '@salesforce/resourceUrl/WorkreportLogo';
 import login from '@salesforce/apex/LoginController.login';
 import requestReset from '@salesforce/apex/PasswordResetController.requestReset';
-import { navigateAfterLogin, setSessionKey } from 'c/auth';
-import LOGO from '@salesforce/resourceUrl/WorkreportLogo';
 
 const LOGIN_FAILED_MESSAGE = 'メールアドレスまたはパスワードが正しくありません。';
 const SYSTEM_ERROR_MESSAGE = 'ログインに失敗しました。時間をおいて再度お試しください。';

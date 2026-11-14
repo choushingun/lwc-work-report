@@ -1,0 +1,38 @@
+.dialog-header {
+  position: relative;
+}
+
+/* 閉じるボタンはヘッダー内の右端に置く(共通ダイアログと同じ) */
+.dialog-close {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+}
+
+.dialog-footer {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+/* 項目名の列 */
+.send-label {
+  width: 10rem;
+  vertical-align: top;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.send-table td {
+  white-space: normal;
+  vertical-align: top;
+}
+
+/* 承認メール内容はメール本文を貼り付けるため高くする */
+.reply-mail {
+  --slds-c-textarea-sizing-min-height: 18rem;
+}
+
+.text-red {
+  color: #ea001e;
+}

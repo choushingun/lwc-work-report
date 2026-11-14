@@ -63,6 +63,36 @@ public without sharing class WorkreportDao {
     ];
   }
 
+  // 上長(管理職)の部下の勤務表(勤務承認画面の承認・却下・自社送付用)。条件は getListBySuperior と同じ
+  public static List<Workreport__c> getActionListBySuperior(Id superiorId, Set<Id> reportIds) {
+    return [
+      SELECT
+        Id,
+        ReportName__c,
+        ReportFileName__c,
+        Year__c,
+        Month__c,
+        Status__c,
+        StatusForOrder__c,
+        ProjectName__c,
+        ReplyMailContent__c,
+        Contact__r.Name,
+        Contact__r.Email,
+        Contact__r.AccountId,
+        Contact__r.Account.Name,
+        Contact__r.Account.ReportTo__c,
+        Contact__r.Account.ReportToMail__c
+      FROM Workreport__c
+      WHERE
+        Id IN :reportIds
+        AND (Superior__c = :superiorId
+        OR (Contact__c = :superiorId
+        AND Superior__c = NULL))
+      WITH SYSTEM_MODE
+      ORDER BY EmployeeNo__c, ReportName__c
+    ];
+  }
+
   // 社員の勤務表のうち、上長が superiorId と異なるもの(上司変更時に上長を置き換える用)
   public static List<Workreport__c> getListWithOtherSuperior(Id contactId, Id superiorId) {
     return [
