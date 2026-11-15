@@ -79,10 +79,10 @@
   border-bottom: 2px solid transparent;
 }
 
-/* マウスを乗せた項目は薄い下線で示す */
+/* マウスを乗せた項目は青い下線で示す(表示中の項目と同じ色) */
 .nav-list .nav-item:hover,
 .nav-list .nav-item:focus {
-  border-bottom-color: #c9c9c9;
+  border-bottom-color: #0176d3;
 }
 
 /* 表示中の画面の項目は青い下線で示す(文字は黒のまま) */
