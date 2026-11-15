@@ -4,6 +4,7 @@
         <members>ApprovalListController</members>
         <members>AttachmentDao</members>
         <members>ContactDao</members>
+        <members>EmailTemplateDao</members>
         <members>WorkreportInputController</members>
         <members>HeaderController</members>
         <members>HolidayDao</members>
@@ -51,6 +52,11 @@
         <members>SessionManagement__c</members>
         <members>Worktime__c</members>
         <name>CustomObject</name>
+    </types>
+    <types>
+        <members>unfiled$public/WorkreportAdvanceMail</members>
+        <members>unfiled$public/WorkreportApprovalMail</members>
+        <name>EmailTemplate</name>
     </types>
     <types>
         <members>EmploymentType</members>

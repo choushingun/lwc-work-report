@@ -43,6 +43,7 @@ public without sharing class WorkreportDao {
     return [
       SELECT
         Id,
+        Name,
         ReportName__c,
         Status__c,
         WorkDays__c,
@@ -68,6 +69,7 @@ public without sharing class WorkreportDao {
     return [
       SELECT
         Id,
+        Name,
         ReportName__c,
         ReportFileName__c,
         Year__c,

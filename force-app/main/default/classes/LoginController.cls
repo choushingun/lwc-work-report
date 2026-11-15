@@ -26,8 +26,6 @@ public class LoginController {
     }
 
     Contact con = contacts[0];
-    system.debug('con.PasswordHash__c' + con.PasswordHash__c);
-    system.debug('con.PasswordSalt__c' + con.PasswordSalt__c);
     Boolean isMatched = hashPassword(password, con.PasswordSalt__c).equals(con.PasswordHash__c);
     if (con.LockoutUntil__c != null && System.now() < con.LockoutUntil__c) {
       return null;

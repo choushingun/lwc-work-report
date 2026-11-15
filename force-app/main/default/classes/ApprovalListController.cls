@@ -18,6 +18,9 @@ public class ApprovalListController {
   private static final String STATUS_REJECTED = '却下';
   private static final Integer REJECT_COMMENT_MAX_LENGTH = 255;
   private static final String XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  // 自社送付・先行送付メールのLightningメールテンプレート(API参照名)
+  private static final String APPROVAL_MAIL_TEMPLATE = 'WorkreportApprovalMail';
+  private static final String ADVANCE_MAIL_TEMPLATE = 'WorkreportAdvanceMail';
 
   // 部下の指定年月の勤務表一覧取得(yyyy:年4桁、mm:月2桁)
   @AuraEnabled
@@ -252,6 +255,8 @@ public class ApprovalListController {
 
   // 自社の勤務表送付先へ勤務表を送信する
   // 宛先：会社の勤務表送付先、CC：送付した管理職・各社員
+  // 件名・本文はLightningメールテンプレート(自社送付・先行送付で別。文面は旧システムと同じ)の差し込み項目を置き換えて作る
+  // 先行送付のテンプレートには承認メール内容を入れない(旧システムと同じ)
   private static void sendReportMail(
     Contact manager,
     List<Workreport__c> reports,
@@ -259,6 +264,12 @@ public class ApprovalListController {
     String replyMailContent,
     Boolean isApproval
   ) {
+    EmailTemplate template = EmailTemplateDao.getByDeveloperName(
+      isApproval ? APPROVAL_MAIL_TEMPLATE : ADVANCE_MAIL_TEMPLATE
+    );
+    if (template == null) {
+      throw createException('勤務表送付メールのテンプレートが見つかりません。システム管理者に連絡してください。');
+    }
     Workreport__c first = reports[0];
     Account account = first.Contact__r.Account;
     Set<String> toMails = new Set<String>(splitMails(account.ReportToMail__c));
@@ -267,7 +278,7 @@ public class ApprovalListController {
     List<Messaging.EmailFileAttachment> emailFiles = new List<Messaging.EmailFileAttachment>();
     for (Workreport__c report : reports) {
       ccMails.addAll(splitMails(report.Contact__r.Email));
-      people.add('・' + report.Contact__r.Name);
+      people.add('・' + report.Contact__r.Name.escapeHtml4());
       Attachment file = files.get(report.Id);
       Messaging.EmailFileAttachment emailFile = new Messaging.EmailFileAttachment();
       emailFile.setFileName(file.Name);
@@ -278,7 +289,6 @@ public class ApprovalListController {
     }
     ccMails.removeAll(toMails);
 
-    String yearMonth = first.Year__c + '年' + first.Month__c + '月';
     Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
     mail.setToAddresses(new List<String>(toMails));
     mail.setCcAddresses(new List<String>(ccMails));
@@ -288,28 +298,19 @@ public class ApprovalListController {
     if (String.isNotBlank(manager.Email)) {
       mail.setReplyTo(manager.Email);
     }
-    mail.setSubject((isApproval ? '【勤務表送付】' : '【勤務表先行送付】') + yearMonth + '分 勤務表(' + reports.size() + '名)');
-    List<String> lines = new List<String>{
-      removeHonorific(account.ReportTo__c) + ' 様',
-      '',
-      'お疲れ様です。' + manager.Name + 'です。',
-      ''
-    };
-    if (isApproval) {
-      lines.add('下記' + reports.size() + '名の' + yearMonth + '分の勤務表について、現場承認者より承認をいただきましたので送付いたします。');
-    } else {
-      lines.add('下記' + reports.size() + '名の' + yearMonth + '分の勤務表を先行して送付いたします。');
-      lines.add('現場承認者の承認後、あらためて送付いたします。');
-    }
-    lines.add(String.join(people, '\n'));
-    lines.add('');
-    lines.add('ご確認のほど、よろしくお願いいたします。');
-    if (String.isNotBlank(replyMailContent)) {
-      lines.add('');
-      lines.add('---------- 承認メール ----------');
-      lines.add(replyMailContent);
-    }
-    mail.setPlainTextBody(String.join(lines, '\n'));
+    // 差し込み項目(Lightningの書式 {{{...}}}。項目は {{{オブジェクト.項目API名}}}、項目以外は旧システムと同じ名前の {{{NumberOfPeople}}} {{{Peoples}}})
+    // 本文はHTMLのため、本文用の値はエスケープし、改行は<br>にする(件名はテキストのためそのまま)
+    String reportName = first.ReportName__c ?? '';
+    mail.setSubject(template.Subject.replace('{{{Workreport__c.ReportName__c}}}', reportName));
+    mail.setHtmlBody(
+      template.HtmlValue
+        .replace('{{{Workreport__c.Contact__r.Account.ReportTo__c}}}', removeHonorific(account.ReportTo__c).escapeHtml4())
+        .replace('{{{Contact.Name}}}', (manager.Name ?? '').escapeHtml4())
+        .replace('{{{NumberOfPeople}}}', String.valueOf(reports.size()))
+        .replace('{{{Workreport__c.ReportName__c}}}', reportName.escapeHtml4())
+        .replace('{{{Peoples}}}', String.join(people, '<br>'))
+        .replace('{{{Workreport__c.ReplyMailContent__c}}}', toHtml(replyMailContent ?? ''))
+    );
     mail.setFileAttachments(emailFiles);
     Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
   }
@@ -328,6 +329,11 @@ public class ApprovalListController {
     return mails;
   }
 
+  // テキストをメール本文(HTML)用にする(エスケープし、改行を<br>にする)
+  private static String toHtml(String text) {
+    return text.escapeHtml4().replace('\r\n', '\n').replace('\n', '<br>');
+  }
+
   // 宛名の末尾の敬称(様・さん・殿)を除く
   private static String removeHonorific(String name) {
     return (name ?? '').trim().replaceAll('\\s*(様|さん|殿)$', '');
@@ -335,7 +341,7 @@ public class ApprovalListController {
 
   // 一覧に表示する勤務表名
   private static String getName(Workreport__c report) {
-    return report.ReportName__c + '勤務表';
+    return report.Name;
   }
 
   // 勤務表ファイル名(勤務表参照画面と同じ)

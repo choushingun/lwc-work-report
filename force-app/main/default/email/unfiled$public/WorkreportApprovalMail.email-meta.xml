@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>勤務承認画面の自社送付メール(旧システムの MultiApprovalEmailTemplate)。差し込み項目 {{{...}}} は ApprovalListController が送信時に置き換える。</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>【複数】自社送付テンプレート</name>
+    <style>none</style>
+    <subject>【Accenture】作業報告書{{{Workreport__c.ReportName__c}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>
