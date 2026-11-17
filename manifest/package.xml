@@ -115,6 +115,7 @@
         <name>RemoteSiteSetting</name>
     </types>
     <types>
+        <members>Resume</members>
         <members>Workreport</members>
         <members>WorkreportFavicon</members>
         <members>WorkreportLogo</members>
