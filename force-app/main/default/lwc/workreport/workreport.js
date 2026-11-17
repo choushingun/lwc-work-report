@@ -230,6 +230,23 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     return this.worktimeRows.slice(this.halfSize);
   }
 
+  // 日数が奇数の場合、右側の表が1行少なくなるため、来月1日の行(参考表示・グレー)を足して左右の高さをそろえる
+  get nextMonthRow() {
+    const lastDay = this.worktimes[this.worktimes.length - 1]?.workDay;
+    if (this.worktimes.length % 2 === 0 || !lastDay) {
+      return null;
+    }
+    // 月末の翌日 = 来月1日(タイムゾーンの影響を受けないようUTCで計算する)
+    const [yyyy, mm, dd] = lastDay.split('-').map(Number);
+    const next = new Date(Date.UTC(yyyy, mm - 1, dd + 1));
+    const nextMm = `${next.getUTCMonth() + 1}`.padStart(2, '0');
+    const nextDd = `${next.getUTCDate()}`.padStart(2, '0');
+    return {
+      dayLabel: `${next.getUTCFullYear()}/${nextMm}/${nextDd}`,
+      week: '日月火水木金土'[next.getUTCDay()]
+    };
+  }
+
   get halfSize() {
     return Math.ceil(this.worktimes.length / 2);
   }

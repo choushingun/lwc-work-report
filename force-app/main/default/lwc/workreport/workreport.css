@@ -92,3 +92,15 @@
 .download-link {
   word-break: break-all;
 }
+
+/* 日数が奇数の場合の来月1日の行(参考表示のためグレーにする。左右2列で表示する大きい画面(SLDSのlarge: 64em以上)のみ表示する) */
+.filler-row {
+  display: none;
+  color: #a0a0a0;
+}
+
+@media (min-width: 64em) {
+  .filler-row {
+    display: table-row;
+  }
+}

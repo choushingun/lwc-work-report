@@ -220,6 +220,15 @@
                       <td class="slds-text-align_right">{wt.workHoursLabel}</td>
                     </tr>
                   </template>
+                  <!-- 日数が奇数の場合の来月1日の行(参考表示。左右2列で表示する大きい画面のみ。縦に並ぶ画面では出さない) -->
+                  <tr lwc:if={nextMonthRow} class="filler-row" aria-hidden="true">
+                    <td class="col-day">{nextMonthRow.dayLabel}</td>
+                    <td class="slds-text-align_center">{nextMonthRow.week}</td>
+                    <td class="slds-text-align_right">00:00</td>
+                    <td class="slds-text-align_right">00:00</td>
+                    <td class="slds-text-align_right">0</td>
+                    <td class="slds-text-align_right">0.00</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
