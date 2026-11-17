@@ -24,8 +24,8 @@
     <referrerPolicyOriginWhenCrossOrigin>true</referrerPolicyOriginWhenCrossOrigin>
     <selfRegPage>CommunitiesSelfReg</selfRegPage>
     <serverIsDown>SNA_M2U3h_sf_default_cdn_workreport1</serverIsDown>
-    <siteAdmin>alfa@test.com</siteAdmin>
-    <siteGuestRecordDefaultOwner>alfa@test.com</siteGuestRecordDefaultOwner>
+    <siteAdmin>alfa@accenture.com</siteAdmin>
+    <siteGuestRecordDefaultOwner>alfa@accenture.com</siteGuestRecordDefaultOwner>
     <siteType>ChatterNetwork</siteType>
     <subdomain>choshingun-developer-edition</subdomain>
     <urlPathPrefix>workreportvforcesite</urlPathPrefix>

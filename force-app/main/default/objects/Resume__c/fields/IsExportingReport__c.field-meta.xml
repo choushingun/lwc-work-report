@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsExportingReport__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>非同期処理中</description>
+    <label>非同期処理中</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

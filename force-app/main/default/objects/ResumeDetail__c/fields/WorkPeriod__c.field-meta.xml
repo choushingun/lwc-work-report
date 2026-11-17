@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>WorkPeriod__c</fullName>
+    <externalId>false</externalId>
+    <formula>TEXT(YEAR(StartDate__c)) &amp; &apos;/&apos; &amp; LPAD(TEXT(MONTH(StartDate__c)),2,&apos;0&apos;)
+&amp; &apos;～&apos;
+&amp; IF(ISNULL(EndDate__c), &apos;現在&apos;, TEXT(YEAR(EndDate__c)) &amp; &apos;/&apos; &amp; LPAD(TEXT(MONTH(EndDate__c)),2,&apos;0&apos;))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>作業期間</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

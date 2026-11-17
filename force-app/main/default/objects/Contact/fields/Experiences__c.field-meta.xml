@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Experiences__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(ISNULL(GraduateDate__c), 0,
+  IF(OR(MONTH(today())-MONTH(GraduateDate__c)&gt;0,AND(MONTH(TODAY()) - MONTH(GraduateDate__c)&gt;=0,DAY(TODAY()) - DAY(GraduateDate__c)&gt;=0)),
+  YEAR(TODAY()) - YEAR(GraduateDate__c),
+  YEAR(TODAY()) - YEAR(GraduateDate__c)-1)
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>【履歴書】実務年数</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>
