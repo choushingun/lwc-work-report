@@ -51,7 +51,9 @@ export function isInBuilder() {
 
 // 表示中のURLを保存してログイン画面へ遷移する
 export function redirectToLogin(component) {
-  if (isInBuilder()) {
+  // 画面遷移で既に外れた画面(遷移前に呼んだApexの応答が後から返った場合など)からは何もしない
+  // ここで戻り先URLを保存すると、ログイン画面自身のURLで上書きしてしまうため
+  if (isInBuilder() || !component.isConnected) {
     return;
   }
   clearSessionKey();
@@ -86,7 +88,8 @@ export async function requireLogin(component) {
 export function navigateAfterLogin(component) {
   const returnUrl = sessionStorage.getItem(RETURN_URL_STORAGE_KEY);
   sessionStorage.removeItem(RETURN_URL_STORAGE_KEY);
-  if (isSafeReturnUrl(returnUrl)) {
+  // 戻り先が表示中の画面(ログイン画面)自身の場合は遷移しないため、ホームへ遷移する
+  if (isSafeReturnUrl(returnUrl) && returnUrl !== window.location.pathname + window.location.search) {
     component[NavigationMixin.Navigate]({
       type: 'standard__webPage',
       attributes: { url: returnUrl }
