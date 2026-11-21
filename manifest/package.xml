@@ -14,6 +14,8 @@
         <members>WorkreportDao</members>
         <members>WorkreportController</members>
         <members>ReportUtility</members>
+        <members>ResumeController</members>
+        <members>ResumeDetailDao</members>
         <members>SessionManagementDao</members>
         <members>WorkreportListController</members>
         <members>WorkreportSession</members>
@@ -88,6 +90,7 @@
         <members>paging</members>
         <members>passwordReset</members>
         <members>personalSetting</members>
+        <members>resume</members>
         <members>sendReportDialog</members>
         <members>spinner</members>
         <members>workreport</members>

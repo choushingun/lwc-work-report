@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "履歴書",
+  "contentBody" : {
+    "activeViewId" : "custom_resume",
+    "configurationTags" : [],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-resume",
+    "urlPrefix" : "resume"
+  },
+  "urlName" : "履歴書"
+}

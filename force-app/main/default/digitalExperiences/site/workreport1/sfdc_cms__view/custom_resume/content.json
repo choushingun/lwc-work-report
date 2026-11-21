@@ -1,0 +1,82 @@
+{
+  "type" : "sfdc_cms__view",
+  "title" : "履歴書",
+  "contentBody" : {
+    "component" : {
+      "children" : [
+        {
+          "children" : [
+            {
+              "attributes" : {
+                "backgroundImageConfig" : "",
+                "backgroundImageOverlay" : "rgba(0,0,0,0)",
+                "componentSpacerSize" : "",
+                "dxpStyle" : {},
+                "layoutDirectionDesktop" : "row",
+                "layoutDirectionMobile" : "column",
+                "layoutDirectionTablet" : "column",
+                "maxContentWidth" : "",
+                "sectionColumnGutterWidth" : "",
+                "sectionConfig" : "{\"UUID\":\"8d122970-ee68-4782-85ee-4f8290784cbf\",\"columns\":[{\"UUID\":\"e7635e37-0b3b-4cf2-9f7a-021dedb71d41\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":[]}]}",
+                "sectionMinHeight" : "",
+                "sectionVerticalAlign" : "flex-start"
+              },
+              "children" : [
+                {
+                  "children" : [
+                    {
+                      "attributes" : {
+                        "dxpStyle" : {}
+                      },
+                      "definition" : "c:resume",
+                      "id" : "2af28f50-47ad-42bf-ae65-072aab96a3f3",
+                      "type" : "component"
+                    }
+                  ],
+                  "id" : "e7635e37-0b3b-4cf2-9f7a-021dedb71d41",
+                  "name" : "col1",
+                  "title" : "列 1",
+                  "type" : "region"
+                }
+              ],
+              "definition" : "community_layout:section",
+              "id" : "8d122970-ee68-4782-85ee-4f8290784cbf",
+              "type" : "component"
+            }
+          ],
+          "id" : "0e2ee030-f001-469b-a44b-a9f8db3c1b57",
+          "name" : "content",
+          "title" : "コンテンツ",
+          "type" : "region"
+        },
+        {
+          "children" : [
+            {
+              "attributes" : {
+                "customHeadTags" : "",
+                "description" : "",
+                "dxpStyle" : {},
+                "pageTitle" : "履歴書",
+                "recordId" : "{!recordId}"
+              },
+              "definition" : "community_builder:seoAssistant",
+              "id" : "f65c4d21-cfad-4a1c-8cbf-2fe9ff616a56",
+              "type" : "component"
+            }
+          ],
+          "id" : "721ef919-d0c3-4928-a6f5-b7319b147c67",
+          "name" : "sfdcHiddenRegion",
+          "title" : "sfdcHiddenRegion",
+          "type" : "region"
+        }
+      ],
+      "definition" : "community_layout:sldsFlexibleLayout",
+      "id" : "fca8422f-ea4a-4811-bd2a-f6123e7b9801",
+      "type" : "component"
+    },
+    "dataProviders" : [],
+    "themeLayoutType" : "Inner",
+    "viewType" : "custom-resume"
+  },
+  "urlName" : "履歴書"
+}

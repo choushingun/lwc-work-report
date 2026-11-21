@@ -1,0 +1,125 @@
+<template>
+  <main class="resume-page">
+    <c-spinner lwc:if={isLoading}></c-spinner>
+    <!-- 初回読み込み失敗時(一覧を表示できない場合)もエラーが見えるよう、カードの外に出す -->
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
+    <article lwc:if={isAuthenticated} class="slds-card">
+      <div class="slds-card__header slds-grid slds-grid_vertical-align-center">
+        <header class="slds-media slds-media_center slds-col slds-has-flexi-truncate">
+          <div class="slds-media__figure">
+            <lightning-icon icon-name="standard:contact_list" size="small"></lightning-icon>
+          </div>
+          <div class="slds-media__body">
+            <h1 class="slds-card__header-title slds-truncate slds-text-heading_medium slds-text-color_default page-title">履歴書</h1>
+          </div>
+        </header>
+      </div>
+
+      <div class="slds-card__body slds-card__body_inner">
+        <!-- 履歴情報(各入力画面へのリンク) -->
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">履歴情報</span>
+          </h2>
+          <div class="slds-grid slds-wrap slds-gutters_x-small section-body">
+            <template for:each={resumeMenus} for:item="menu">
+              <div key={menu.page} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_x-small">
+                <button class="slds-button menu-button" data-page={menu.page} onclick={handleOpenMenu}>
+                  <lightning-icon icon-name={menu.icon} size="small" class="slds-m-right_small"></lightning-icon>
+                  <span class="slds-col slds-text-align_left">
+                    <span class="menu-label">{menu.label}</span>
+                    <span class="menu-description">{menu.description}</span>
+                  </span>
+                  <lightning-icon icon-name="utility:chevronright" size="x-small"></lightning-icon>
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- 履歴詳細 -->
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade section-title-with-button">
+            <span class="slds-truncate section-title-text">履歴詳細</span>
+            <lightning-button label="新規作成" disabled={isLoading} onclick={handleCreateDetail}></lightning-button>
+          </h2>
+          <div class="section-body">
+            <div class="slds-scrollable_x">
+              <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer detail-table">
+                <thead>
+                  <tr class="slds-line-height_reset">
+                    <th scope="col" class="col-action">アクション</th>
+                    <th scope="col">作業期間</th>
+                    <th scope="col">担当</th>
+                    <th scope="col">業種</th>
+                    <th scope="col" class="slds-show_medium">システム名</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template for:each={displayDetails} for:item="detail">
+                    <tr key={detail.Id}>
+                      <td>
+                        <div class="slds-button-group" role="group">
+                          <button
+                            class="slds-button slds-button_icon slds-button_icon-border-filled action-button"
+                            title="参照"
+                            data-id={detail.Id}
+                            onclick={handleEditDetail}
+                          >
+                            <lightning-icon icon-name="utility:edit" size="x-small" class="icon-view"></lightning-icon>
+                            <span class="slds-assistive-text">参照</span>
+                          </button>
+                          <button
+                            class="slds-button slds-button_icon slds-button_icon-border-filled action-button"
+                            title="複製"
+                            data-id={detail.Id}
+                            onclick={handleCopyDetail}
+                          >
+                            <lightning-icon icon-name="utility:copy" size="x-small" class="icon-copy"></lightning-icon>
+                            <span class="slds-assistive-text">複製</span>
+                          </button>
+                          <button
+                            class="slds-button slds-button_icon slds-button_icon-border-filled action-button"
+                            title="削除"
+                            data-id={detail.Id}
+                            onclick={handleDeleteDetail}
+                          >
+                            <lightning-icon icon-name="utility:delete" size="x-small" class="icon-delete"></lightning-icon>
+                            <span class="slds-assistive-text">削除</span>
+                          </button>
+                        </div>
+                      </td>
+                      <td>{detail.WorkPeriod__c}</td>
+                      <td>{detail.Role__c}</td>
+                      <td>{detail.IndustryType__c}</td>
+                      <td class="slds-show_medium subject-cell">{detail.Subject__c}</td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- ページング -->
+            <c-paging
+              total-count={details.length}
+              page-number={pageNumber}
+              page-size={pageSize}
+              onchange={handlePageChange}
+            ></c-paging>
+          </div>
+        </div>
+      </div>
+    </article>
+    <!-- 共通ダイアログ(削除確認・処理結果を切り替えて表示する) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
+  </main>
+</template>

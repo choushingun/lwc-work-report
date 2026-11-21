@@ -15,6 +15,7 @@ const MENU_ITEMS = [
     subPaths: ['/workreport-view', '/workreport-input', '/worktime-input']
   },
   { label: '勤務承認', path: '/approval-list', managerOnly: true },
+  { label: '履歴書', path: '/resume' },
   // イベント・ナレッジは未作成のため、標準のナビゲーションメニューと同じ仮のリンクにしている
   { label: 'イベント', path: '/CheckPasswordResetEmail' },
   { label: 'ナレッジ', path: '/CheckPasswordResetEmail' },
