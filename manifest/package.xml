@@ -14,8 +14,11 @@
         <members>WorkreportDao</members>
         <members>WorkreportController</members>
         <members>ReportUtility</members>
+        <members>ResumeContactInfoController</members>
         <members>ResumeController</members>
+        <members>ResumeDao</members>
         <members>ResumeDetailDao</members>
+        <members>ResumeSkillController</members>
         <members>SessionManagementDao</members>
         <members>WorkreportListController</members>
         <members>WorkreportSession</members>
@@ -91,6 +94,8 @@
         <members>passwordReset</members>
         <members>personalSetting</members>
         <members>resume</members>
+        <members>resumeContactInfo</members>
+        <members>resumeSkill</members>
         <members>sendReportDialog</members>
         <members>spinner</members>
         <members>workreport</members>

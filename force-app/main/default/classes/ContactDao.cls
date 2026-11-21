@@ -88,6 +88,29 @@ public without sharing class ContactDao {
     ];
   }
 
+  // 社員の履歴書の基本情報(履歴書の基本情報画面用)
+  public static List<Contact> getResumeInfoListById(Id contactId) {
+    return [
+      SELECT
+        Name,
+        Shimei__c,
+        Furigana__c,
+        Gender__c,
+        GraduatedSchool__c,
+        AcademicBackground__c,
+        Major__c,
+        GraduateDate__c,
+        ComingJapanDate__c,
+        Birthdate,
+        Age__c,
+        Experiences__c,
+        NearestStation__c
+      FROM Contact
+      WHERE Id = :contactId
+      WITH SYSTEM_MODE
+    ];
+  }
+
   // 上司の候補(管理職で退職していない社員。本人を除く。名前順)
   public static List<Contact> getSuperiorCandidateList(Id excludeId) {
     Date today = Date.today();

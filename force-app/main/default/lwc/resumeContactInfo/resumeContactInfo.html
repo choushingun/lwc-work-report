@@ -1,0 +1,150 @@
+<template>
+  <main class="contact-info-page">
+    <c-spinner lwc:if={isLoading}></c-spinner>
+    <!-- 初期表示失敗時(画面を表示できない場合)もエラーが見えるよう、カードの外に出す -->
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
+    <lightning-card lwc:if={isAuthenticated} icon-name="standard:avatar">
+      <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">基本情報</span>
+      <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する(個人情報設定画面と同じ) -->
+      <lightning-button-group slot="actions">
+        <lightning-button label="保存" disabled={isLoading} onclick={handleSave}></lightning-button>
+        <lightning-button label="キャンセル" disabled={isLoading} onclick={handleCancel}></lightning-button>
+      </lightning-button-group>
+
+      <div class="slds-p-horizontal_medium">
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">基本情報</span>
+          </h2>
+          <lightning-layout multiple-rows class="section-body">
+            <lightning-layout-item size="12" padding="horizontal-small">
+              <lightning-input
+                class="form-row"
+                label="氏名"
+                variant="label-inline"
+                data-field="shimei"
+                value={info.shimei}
+                required
+                max-length="40"
+                field-level-help="姓と名の間にスペースを入れてください。"
+                onchange={handleInputChange}
+              ></lightning-input>
+              <lightning-input
+                class="form-row"
+                label="フリガナ"
+                variant="label-inline"
+                data-field="furigana"
+                value={info.furigana}
+                required
+                max-length="40"
+                field-level-help="姓と名の間にスペースを入れてください。"
+                onchange={handleInputChange}
+              ></lightning-input>
+              <lightning-combobox
+                class="form-row"
+                label="性別"
+                variant="label-inline"
+                data-field="gender"
+                value={info.gender}
+                options={genderOptions}
+                onchange={handleInputChange}
+              ></lightning-combobox>
+              <lightning-input
+                class="form-row"
+                label="出身"
+                variant="label-inline"
+                data-field="graduatedSchool"
+                value={info.graduatedSchool}
+                max-length="30"
+                field-level-help="出身校を入力してください。"
+                onchange={handleInputChange}
+              ></lightning-input>
+              <lightning-combobox
+                class="form-row"
+                label="最終学歴"
+                variant="label-inline"
+                data-field="academicBackground"
+                value={info.academicBackground}
+                options={academicBackgroundOptions}
+                onchange={handleInputChange}
+              ></lightning-combobox>
+              <lightning-input
+                class="form-row"
+                label="専攻"
+                variant="label-inline"
+                data-field="major"
+                value={info.major}
+                max-length="30"
+                onchange={handleInputChange}
+              ></lightning-input>
+              <lightning-input
+                class="form-row"
+                type="date"
+                label="卒業年月"
+                variant="label-inline"
+                data-field="graduateDate"
+                value={info.graduateDate}
+                field-level-help="実務年数は卒業年月から計算します。"
+                onchange={handleInputChange}
+              ></lightning-input>
+              <lightning-input
+                class="form-row"
+                type="date"
+                label="来日年月"
+                variant="label-inline"
+                data-field="comingJapanDate"
+                value={info.comingJapanDate}
+                onchange={handleInputChange}
+              ></lightning-input>
+              <lightning-input
+                class="form-row"
+                type="date"
+                label="誕生日"
+                variant="label-inline"
+                data-field="birthdate"
+                value={info.birthdate}
+                max={today}
+                message-when-range-overflow="今日以前の日付を入力してください。"
+                onchange={handleInputChange}
+              ></lightning-input>
+              <!-- 年齢・実務年数は数式項目のため参照のみ(誕生日・卒業年月から計算する) -->
+              <div class="slds-form-element slds-form-element_horizontal form-row">
+                <span class="slds-form-element__label">年齢</span>
+                <div class="slds-form-element__control">
+                  <div class="slds-form-element__static">{ageLabel}</div>
+                </div>
+              </div>
+              <div class="slds-form-element slds-form-element_horizontal form-row">
+                <span class="slds-form-element__label">実務年数</span>
+                <div class="slds-form-element__control">
+                  <div class="slds-form-element__static">{experiencesLabel}</div>
+                </div>
+              </div>
+              <lightning-input
+                class="form-row"
+                label="最寄駅"
+                variant="label-inline"
+                data-field="nearestStation"
+                value={info.nearestStation}
+                max-length="30"
+                onchange={handleInputChange}
+              ></lightning-input>
+            </lightning-layout-item>
+          </lightning-layout>
+        </div>
+      </div>
+    </lightning-card>
+
+    <!-- 共通ダイアログ(キャンセル確認・処理結果を切り替えて表示する) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
+  </main>
+</template>

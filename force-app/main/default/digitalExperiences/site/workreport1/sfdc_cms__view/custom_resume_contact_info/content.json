@@ -1,0 +1,82 @@
+{
+  "type" : "sfdc_cms__view",
+  "title" : "履歴書基本情報",
+  "contentBody" : {
+    "component" : {
+      "children" : [
+        {
+          "children" : [
+            {
+              "attributes" : {
+                "backgroundImageConfig" : "",
+                "backgroundImageOverlay" : "rgba(0,0,0,0)",
+                "componentSpacerSize" : "",
+                "dxpStyle" : {},
+                "layoutDirectionDesktop" : "row",
+                "layoutDirectionMobile" : "column",
+                "layoutDirectionTablet" : "column",
+                "maxContentWidth" : "",
+                "sectionColumnGutterWidth" : "",
+                "sectionConfig" : "{\"UUID\":\"747f92cd-0040-4904-8f8c-aafae8f016e5\",\"columns\":[{\"UUID\":\"1d5d0ce9-6a20-4cff-b205-cbda5c9a5d17\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":[]}]}",
+                "sectionMinHeight" : "",
+                "sectionVerticalAlign" : "flex-start"
+              },
+              "children" : [
+                {
+                  "children" : [
+                    {
+                      "attributes" : {
+                        "dxpStyle" : {}
+                      },
+                      "definition" : "c:resumeContactInfo",
+                      "id" : "d9889ce5-09c9-41c0-9af2-a70083f16c79",
+                      "type" : "component"
+                    }
+                  ],
+                  "id" : "1d5d0ce9-6a20-4cff-b205-cbda5c9a5d17",
+                  "name" : "col1",
+                  "title" : "列 1",
+                  "type" : "region"
+                }
+              ],
+              "definition" : "community_layout:section",
+              "id" : "747f92cd-0040-4904-8f8c-aafae8f016e5",
+              "type" : "component"
+            }
+          ],
+          "id" : "cf4472df-e529-45d5-bfc8-5c3a90947fd2",
+          "name" : "content",
+          "title" : "コンテンツ",
+          "type" : "region"
+        },
+        {
+          "children" : [
+            {
+              "attributes" : {
+                "customHeadTags" : "",
+                "description" : "",
+                "dxpStyle" : {},
+                "pageTitle" : "履歴書基本情報",
+                "recordId" : "{!recordId}"
+              },
+              "definition" : "community_builder:seoAssistant",
+              "id" : "e677e838-619a-4444-9123-f8a69f39d4a2",
+              "type" : "component"
+            }
+          ],
+          "id" : "407306d2-37b8-415b-8067-7df80e4b95ba",
+          "name" : "sfdcHiddenRegion",
+          "title" : "sfdcHiddenRegion",
+          "type" : "region"
+        }
+      ],
+      "definition" : "community_layout:sldsFlexibleLayout",
+      "id" : "9ff374cf-9d8b-4c34-8f61-c475173d2e21",
+      "type" : "component"
+    },
+    "dataProviders" : [],
+    "themeLayoutType" : "Inner",
+    "viewType" : "custom-resume-contact-info"
+  },
+  "urlName" : "履歴書基本情報"
+}

@@ -1,0 +1,76 @@
+<template>
+  <main class="skill-page">
+    <c-spinner lwc:if={isLoading}></c-spinner>
+    <!-- 初期表示失敗時(画面を表示できない場合)もエラーが見えるよう、カードの外に出す -->
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
+    <lightning-card lwc:if={isAuthenticated} icon-name="standard:skill">
+      <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">技術経験</span>
+      <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する(基本情報画面と同じ) -->
+      <lightning-button-group slot="actions">
+        <lightning-button label="保存" disabled={isLoading} onclick={handleSave}></lightning-button>
+        <lightning-button label="キャンセル" disabled={isLoading} onclick={handleCancel}></lightning-button>
+      </lightning-button-group>
+
+      <div class="slds-p-horizontal_medium">
+        <!-- 分類ごとに、経験レベルの選択欄を画面幅に合わせて1～3列で並べる -->
+        <template for:each={sections} for:item="section">
+          <div key={section.label} class="slds-section slds-is-open">
+            <h2 class="slds-section__title slds-theme_shade">
+              <span class="slds-truncate section-title-text">{section.label}</span>
+            </h2>
+            <lightning-layout multiple-rows class="section-body">
+              <template for:each={section.items} for:item="item">
+                <lightning-layout-item
+                  key={item.field}
+                  size="12"
+                  small-device-size="6"
+                  large-device-size="4"
+                  padding="horizontal-small"
+                >
+                  <lightning-combobox
+                    class="form-row"
+                    label={item.label}
+                    variant="label-inline"
+                    data-field={item.field}
+                    value={item.value}
+                    options={options}
+                    onchange={handleSkillChange}
+                  ></lightning-combobox>
+                </lightning-layout-item>
+              </template>
+            </lightning-layout>
+          </div>
+        </template>
+
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">備考</span>
+          </h2>
+          <div class="section-body slds-p-horizontal_small">
+            <lightning-textarea
+              class="comment"
+              label="備考"
+              variant="label-hidden"
+              value={comment}
+              max-length="255"
+              field-level-help="1行60文字以内で入力してください。"
+              onchange={handleCommentChange}
+            ></lightning-textarea>
+          </div>
+        </div>
+      </div>
+    </lightning-card>
+
+    <!-- 共通ダイアログ(キャンセル確認・エラーを切り替えて表示する) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
+  </main>
+</template>

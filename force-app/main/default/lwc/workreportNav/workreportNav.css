@@ -85,6 +85,16 @@
   border-bottom-color: #0176d3;
 }
 
+/* 作成中の項目はグレーにし、マウスを乗せても下線を出さない(通知アイコンと同じグレー) */
+.nav-list .nav-item_disabled {
+  display: inline-block;
+  padding: 0.25rem 0;
+  color: #919191;
+  font-size: 1rem;
+  border-bottom: 2px solid transparent;
+  cursor: default;
+}
+
 /* 表示中の画面の項目は青い下線で示す(文字は黒のまま) */
 .nav-list .nav-item_active,
 .nav-list .nav-item_active:link,

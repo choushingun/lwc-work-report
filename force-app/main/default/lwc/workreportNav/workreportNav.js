@@ -15,10 +15,10 @@ const MENU_ITEMS = [
     subPaths: ['/workreport-view', '/workreport-input', '/worktime-input']
   },
   { label: '勤務承認', path: '/approval-list', managerOnly: true },
-  { label: '履歴書', path: '/resume' },
-  // イベント・ナレッジは未作成のため、標準のナビゲーションメニューと同じ仮のリンクにしている
-  { label: 'イベント', path: '/CheckPasswordResetEmail' },
-  { label: 'ナレッジ', path: '/CheckPasswordResetEmail' },
+  { label: '履歴書', path: '/resume', subPaths: ['/resume-contact-info', '/resume-skill'] },
+  // イベント・ナレッジは作成中のため、グレーで表示してクリックできないようにする(通知アイコンと同じ)
+  { label: 'イベント', disabled: true },
+  { label: 'ナレッジ', disabled: true },
   { label: 'ログアウト', path: '/workreport-logout' }
 ];
 
@@ -94,6 +94,9 @@ export default class WorkreportNav extends NavigationMixin(LightningElement) {
 
   get menuItems() {
     return MENU_ITEMS.filter((item) => !item.managerOnly || this.isManager).map((item) => {
+      if (item.disabled) {
+        return { ...item, key: item.label, disabledTitle: `${item.label}機能は作成中...` };
+      }
       const url = `${basePath}${item.path}`;
       const isActive = [item.path, ...(item.subPaths ?? [])].some((path) => this.currentPath === `${basePath}${path}`);
       return {

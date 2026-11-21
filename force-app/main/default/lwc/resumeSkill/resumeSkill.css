@@ -1,0 +1,50 @@
+.skill-page {
+  position: relative;
+  min-height: 10rem;
+  padding: var(--lwc-spacingMedium, 1rem);
+}
+
+/* 画面タイトルは太字にする(基本情報画面と同じ) */
+.page-title {
+  font-weight: 700;
+}
+
+/* セクションの上下の余白・見出し(基本情報画面と同じ) */
+.slds-section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.slds-section__title {
+  min-height: 3.25rem;
+  padding-left: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.section-title-text {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.section-body {
+  padding-top: 0.75rem;
+}
+
+/* 項目の行は同じ高さにそろえ、選択欄を上下中央に置いて下線を引く(基本情報画面と同じ) */
+.form-row {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 3rem;
+  margin: 0;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+/* 備考は数行分の高さで表示する */
+.comment {
+  --slds-c-textarea-sizing-min-height: 5rem;
+}

@@ -18,7 +18,12 @@
     <ul class="nav-list">
       <template for:each={menuItems} for:item="item">
         <li key={item.key}>
+          <!-- 作成中の項目はグレーで表示し、クリックできないようにする -->
+          <span lwc:if={item.disabled} class="nav-item nav-item_disabled" title={item.disabledTitle} aria-disabled="true"
+            >{item.label}</span
+          >
           <a
+            lwc:else
             href={item.url}
             class={item.itemClass}
             aria-current={item.ariaCurrent}

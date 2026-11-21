@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "履歴書基本情報",
+  "contentBody" : {
+    "activeViewId" : "custom_resume_contact_info",
+    "configurationTags" : [],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-resume-contact-info",
+    "urlPrefix" : "resume-contact-info"
+  },
+  "urlName" : "履歴書基本情報"
+}
