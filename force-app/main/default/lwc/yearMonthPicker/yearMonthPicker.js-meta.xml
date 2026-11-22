@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>68.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>年月選択</masterLabel>
+    <description>年・月を選択する共通部品(値は月初日の yyyy-MM-dd)</description>
+</LightningComponentBundle>

@@ -1,0 +1,133 @@
+<template>
+  <main class="project-page">
+    <c-spinner lwc:if={isLoading}></c-spinner>
+    <!-- 初期表示失敗時(画面を表示できない場合)もエラーが見えるよう、カードの外に出す -->
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
+    <lightning-card lwc:if={isAuthenticated} icon-name="standard:work_type">
+      <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">仕事経験</span>
+      <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する(技術経験画面と同じ) -->
+      <lightning-button-group slot="actions">
+        <lightning-button label="保存" disabled={isLoading} onclick={handleSave}></lightning-button>
+        <lightning-button label="キャンセル" disabled={isLoading} onclick={handleCancel}></lightning-button>
+      </lightning-button-group>
+
+      <div class="slds-p-horizontal_medium">
+        <!-- 管理経験(人数の区分ごとに管理・期間(月)を入力する。履歴書テンプレートの管理経験欄と同じ) -->
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">管理経験</span>
+          </h2>
+          <div class="section-body slds-p-horizontal_small">
+            <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer input-table">
+              <thead>
+                <tr class="slds-line-height_reset">
+                  <th scope="col" class="col-people">人数</th>
+                  <th scope="col">管理</th>
+                  <th scope="col" class="col-months">期間(月)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template for:each={managements} for:item="management">
+                  <tr key={management.key}>
+                    <th scope="row" class="col-people">{management.label}</th>
+                    <td>
+                      <lightning-input
+                        label={management.manageLabel}
+                        variant="label-hidden"
+                        data-key={management.key}
+                        data-field="manage"
+                        value={management.manage}
+                        max-length="10"
+                        onchange={handleManagementChange}
+                      ></lightning-input>
+                    </td>
+                    <td class="col-months">
+                      <lightning-input
+                        type="number"
+                        label={management.monthsLabel}
+                        variant="label-hidden"
+                        data-key={management.key}
+                        data-field="months"
+                        value={management.months}
+                        min="0"
+                        max="999"
+                        step="1"
+                        message-when-step-mismatch="整数で入力してください。"
+                        onchange={handleManagementChange}
+                      ></lightning-input>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">作業経験</span>
+          </h2>
+          <div class="section-body slds-p-horizontal_small">
+            <!-- 選択肢を画面幅に合わせて2～5列で並べる -->
+            <lightning-layout multiple-rows>
+              <template for:each={workExperienceItems} for:item="item">
+                <lightning-layout-item key={item.value} size="6" small-device-size="4" large-device-size="2">
+                  <lightning-input
+                    type="checkbox"
+                    class="work-experience"
+                    label={item.label}
+                    data-value={item.value}
+                    checked={item.checked}
+                    onchange={handleWorkExperienceChange}
+                  ></lightning-input>
+                </lightning-layout-item>
+              </template>
+            </lightning-layout>
+          </div>
+        </div>
+
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">得意分野</span>
+          </h2>
+          <lightning-layout multiple-rows class="section-body">
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <lightning-textarea
+                class="enjoying"
+                label="得意業務"
+                data-field="enjoyingBusiness"
+                value={enjoyingBusiness}
+                max-length="255"
+                field-level-help="2行×18文字以内で入力してください。"
+                onchange={handleTextChange}
+              ></lightning-textarea>
+            </lightning-layout-item>
+            <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
+              <lightning-textarea
+                class="enjoying"
+                label="得意技術"
+                data-field="enjoyingSkills"
+                value={enjoyingSkills}
+                max-length="255"
+                field-level-help="2行×18文字以内で入力してください。"
+                onchange={handleTextChange}
+              ></lightning-textarea>
+            </lightning-layout-item>
+          </lightning-layout>
+        </div>
+      </div>
+    </lightning-card>
+
+    <!-- 共通ダイアログ(キャンセル確認・エラーを切り替えて表示する) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
+  </main>
+</template>

@@ -104,6 +104,7 @@ public without sharing class ContactDao {
         Birthdate,
         Age__c,
         Experiences__c,
+        NearestLine__c,
         NearestStation__c
       FROM Contact
       WHERE Id = :contactId

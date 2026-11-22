@@ -1,0 +1,71 @@
+/* 親の行の中で上下中央に置けるよう、ブロック要素にする(インラインだと下に余白ができる) */
+:host {
+  display: block;
+}
+
+/* 入力欄は年月が収まる幅にする */
+.picker {
+  display: block;
+  max-width: 12rem;
+}
+
+.picker-input {
+  cursor: pointer;
+}
+
+.picker-input:disabled {
+  cursor: default;
+}
+
+/* カレンダー(日付選択と同じく入力欄の下に表示する) */
+.month-panel {
+  width: 16rem;
+  padding: 0.5rem;
+}
+
+.year-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* 12か月を4行×3列で並べる */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  padding: 0.5rem 0;
+}
+
+.month-button {
+  justify-content: center;
+  height: 2.25rem;
+  margin: 0;
+  border-radius: 0.25rem;
+  color: #181818;
+}
+
+.month-button:hover:not(:disabled) {
+  background-color: #f3f3f3;
+}
+
+.month-button:disabled {
+  color: #c9c9c9;
+}
+
+/* 選択中の月は青背景、今月は青文字(日付選択と同じ) */
+.month-button_selected,
+.month-button_selected:hover:not(:disabled) {
+  background-color: #0176d3;
+  color: #fff;
+}
+
+.month-button_today {
+  color: #0176d3;
+  font-weight: 700;
+}
+
+.panel-footer {
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e5e5;
+}

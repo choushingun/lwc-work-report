@@ -2,6 +2,7 @@
  * 機能名 : 履歴書の基本情報画面(resumeContactInfo)のコントローラー
  *
  * ログイン社員(Contact)の履歴書用の基本情報(氏名・フリガナ・性別・学歴・最寄駅など)の参照・保存を行う。
+ * 卒業年月・来日年月は年月のみ入力し、日付項目には月初日で保存する。
  * 保存時は履歴情報(Resume__c)も更新する(社員の履歴情報がない場合は作成する)。
  * 履歴書の出力時に、出力済みの履歴書が最新かを履歴情報の最終更新日時で判断するため。
  * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
@@ -34,6 +35,9 @@ public class ResumeContactInfoController {
     public Integer age { get; set; }
     @AuraEnabled
     public Integer experiences { get; set; }
+    // 最寄駅の路線名・駅名(「線」「駅」は付けない)
+    @AuraEnabled
+    public String nearestLine { get; set; }
     @AuraEnabled
     public String nearestStation { get; set; }
     // 性別・最終学歴の選択肢(選択リスト項目の値)
@@ -74,6 +78,7 @@ public class ResumeContactInfoController {
     // 誕生日・卒業年月が未入力の場合は表示しない
     info.age = con.Birthdate == null ? null : con.Age__c?.intValue();
     info.experiences = con.GraduateDate__c == null ? null : con.Experiences__c?.intValue();
+    info.nearestLine = con.NearestLine__c;
     info.nearestStation = con.NearestStation__c;
     info.genderOptions = getOptions(Contact.Gender__c);
     info.academicBackgroundOptions = getOptions(Contact.AcademicBackground__c);
@@ -92,7 +97,8 @@ public class ResumeContactInfoController {
     String furigana = requireText(info.furigana, 'フリガナ', NAME_MAX_LENGTH);
     String graduatedSchool = optionalText(info.graduatedSchool, '出身', TEXT_MAX_LENGTH);
     String major = optionalText(info.major, '専攻', TEXT_MAX_LENGTH);
-    String nearestStation = optionalText(info.nearestStation, '最寄駅', TEXT_MAX_LENGTH);
+    String nearestLine = removeSuffix(optionalText(info.nearestLine, '最寄駅の路線', TEXT_MAX_LENGTH), '線');
+    String nearestStation = removeSuffix(optionalText(info.nearestStation, '最寄駅', TEXT_MAX_LENGTH), '駅');
     String gender = optionalOption(info.gender, '性別', Contact.Gender__c);
     String academicBackground = optionalOption(info.academicBackground, '最終学歴', Contact.AcademicBackground__c);
     if (info.birthdate != null && info.birthdate > Date.today()) {
@@ -111,9 +117,11 @@ public class ResumeContactInfoController {
           GraduatedSchool__c = graduatedSchool,
           AcademicBackground__c = academicBackground,
           Major__c = major,
-          GraduateDate__c = info.graduateDate,
-          ComingJapanDate__c = info.comingJapanDate,
+          // 卒業年月・来日年月は年月のみ入力するため、月初日で保存する
+          GraduateDate__c = info.graduateDate?.toStartOfMonth(),
+          ComingJapanDate__c = info.comingJapanDate?.toStartOfMonth(),
           Birthdate = info.birthdate,
+          NearestLine__c = nearestLine,
           NearestStation__c = nearestStation
         )
       );
@@ -144,6 +152,14 @@ public class ResumeContactInfoController {
       throw createException(label + 'は' + maxLength + '文字以内で入力してください。');
     }
     return text;
+  }
+
+  // 末尾の「線」「駅」を除く(画面で入力欄の後ろに表示するため、二重にならないようにする)
+  private static String removeSuffix(String value, String suffix) {
+    if (value == null || !value.endsWith(suffix) || value.length() == suffix.length()) {
+      return value;
+    }
+    return value.removeEnd(suffix).trim();
   }
 
   // 任意の選択値(選択リスト項目の有効な値のみ。未選択は null)

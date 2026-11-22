@@ -31,50 +31,81 @@
   padding-top: 0.75rem;
 }
 
-/* 項目の行(参照のみ・入力欄とも)は同じ高さにそろえ、中身を上下中央に置いて下線を引く
-   高さは入力欄(2rem)が収まる高さにする(入力欄のない行も同じ高さになる) */
+/* 項目の行：項目名(左1/3)と入力欄を横に並べ、どちらも上下中央に置いて下線を引く
+   全行同じ形にして、入力部品の種類によらず項目名の位置・行の高さをそろえる */
 .form-row {
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
   min-height: 3rem;
-  margin: 0;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   border-bottom: 1px solid #e5e5e5;
 }
 
-/* 入力欄の行：入力欄を横幅いっぱいにしたまま、上下中央に置く */
-lightning-input.form-row,
-lightning-combobox.form-row {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-/* 参照のみの行：項目名(左1/3)と値を横に並べ、上下中央に置く(入力欄の行と項目名の幅をそろえる) */
-div.form-row {
+.form-label {
   display: flex;
   align-items: center;
-}
-
-div.form-row > .slds-form-element__label {
-  float: none;
   flex: 0 0 33%;
   max-width: 33%;
-  margin: 0;
-  padding-top: 0;
+  padding-right: 0.75rem;
+  color: var(--slds-g-color-neutral-base-30, #444);
 }
 
-div.form-row > .slds-form-element__control {
+/* 必須マークは項目名の後ろに置く */
+.required-mark {
+  margin: 0 0 0 0.125rem;
+}
+
+.form-label lightning-helptext {
+  margin-left: 0.25rem;
+}
+
+.form-label,
+.form-control {
+  min-height: 2rem;
+}
+
+/* 入力欄・ボタン・参照のみの文字を上下中央に置く
+   (部品はインライン要素だと文字のベースラインに合わせて下に余白ができ、中央からずれるため flex で並べる) */
+.form-control {
+  display: flex;
+  align-items: center;
   flex: 1 1 auto;
   min-width: 0;
-  padding-left: 0;
 }
 
-div.form-row .slds-form-element__static {
-  padding: 0;
+.form-control > lightning-input,
+.form-control > lightning-combobox,
+.form-control > c-year-month-picker {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-/* 参照のみの文字はSLDS既定(13px)で入力欄より小さくなるため、入力欄と同じ基本の文字サイズにする */
-.slds-form-element__static {
-  font-size: inherit;
+/* 誕生日は日付の幅で表示する */
+.date-input {
+  max-width: 12rem;
+}
+
+/* 参照のみの値は入力欄の文字と左端をそろえる */
+.form-static {
+  padding-left: 0.75rem;
+  line-height: 1.5;
+}
+
+/* 最寄駅：路線・駅の入力欄と「線」「駅」を横に並べる */
+.station {
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.station-input {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.unit {
+  flex: 0 0 auto;
+  margin-right: 0.5rem;
 }

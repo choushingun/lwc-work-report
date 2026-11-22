@@ -16,121 +16,181 @@
           <h2 class="slds-section__title slds-theme_shade">
             <span class="slds-truncate section-title-text">基本情報</span>
           </h2>
-          <lightning-layout multiple-rows class="section-body">
-            <lightning-layout-item size="12" padding="horizontal-small">
-              <lightning-input
-                class="form-row"
-                label="氏名"
-                variant="label-inline"
-                data-field="shimei"
-                value={info.shimei}
-                required
-                max-length="40"
-                field-level-help="姓と名の間にスペースを入れてください。"
-                onchange={handleInputChange}
-              ></lightning-input>
-              <lightning-input
-                class="form-row"
-                label="フリガナ"
-                variant="label-inline"
-                data-field="furigana"
-                value={info.furigana}
-                required
-                max-length="40"
-                field-level-help="姓と名の間にスペースを入れてください。"
-                onchange={handleInputChange}
-              ></lightning-input>
-              <lightning-combobox
-                class="form-row"
-                label="性別"
-                variant="label-inline"
-                data-field="gender"
-                value={info.gender}
-                options={genderOptions}
-                onchange={handleInputChange}
-              ></lightning-combobox>
-              <lightning-input
-                class="form-row"
-                label="出身"
-                variant="label-inline"
-                data-field="graduatedSchool"
-                value={info.graduatedSchool}
-                max-length="30"
-                field-level-help="出身校を入力してください。"
-                onchange={handleInputChange}
-              ></lightning-input>
-              <lightning-combobox
-                class="form-row"
-                label="最終学歴"
-                variant="label-inline"
-                data-field="academicBackground"
-                value={info.academicBackground}
-                options={academicBackgroundOptions}
-                onchange={handleInputChange}
-              ></lightning-combobox>
-              <lightning-input
-                class="form-row"
-                label="専攻"
-                variant="label-inline"
-                data-field="major"
-                value={info.major}
-                max-length="30"
-                onchange={handleInputChange}
-              ></lightning-input>
-              <lightning-input
-                class="form-row"
-                type="date"
-                label="卒業年月"
-                variant="label-inline"
-                data-field="graduateDate"
-                value={info.graduateDate}
-                field-level-help="実務年数は卒業年月から計算します。"
-                onchange={handleInputChange}
-              ></lightning-input>
-              <lightning-input
-                class="form-row"
-                type="date"
-                label="来日年月"
-                variant="label-inline"
-                data-field="comingJapanDate"
-                value={info.comingJapanDate}
-                onchange={handleInputChange}
-              ></lightning-input>
-              <lightning-input
-                class="form-row"
-                type="date"
-                label="誕生日"
-                variant="label-inline"
-                data-field="birthdate"
-                value={info.birthdate}
-                max={today}
-                message-when-range-overflow="今日以前の日付を入力してください。"
-                onchange={handleInputChange}
-              ></lightning-input>
-              <!-- 年齢・実務年数は数式項目のため参照のみ(誕生日・卒業年月から計算する) -->
-              <div class="slds-form-element slds-form-element_horizontal form-row">
-                <span class="slds-form-element__label">年齢</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static">{ageLabel}</div>
-                </div>
+          <!-- 項目名の位置をそろえるため、全行を「項目名(左)・入力欄(右)」の同じ形で並べる。
+               項目名は入力部品の外に表示し、必須マーク・ヘルプは項目名の後ろに置く -->
+          <div class="section-body slds-p-horizontal_small">
+            <div class="form-row">
+              <div class="form-label">
+                氏名<abbr class="slds-required required-mark" title="必須">*</abbr>
+                <lightning-helptext content="姓と名の間にスペースを入れてください。"></lightning-helptext>
               </div>
-              <div class="slds-form-element slds-form-element_horizontal form-row">
-                <span class="slds-form-element__label">実務年数</span>
-                <div class="slds-form-element__control">
-                  <div class="slds-form-element__static">{experiencesLabel}</div>
-                </div>
+              <div class="form-control">
+                <lightning-input
+                  label="氏名"
+                  variant="label-hidden"
+                  data-field="shimei"
+                  value={info.shimei}
+                  required
+                  max-length="40"
+                  onchange={handleInputChange}
+                ></lightning-input>
               </div>
-              <lightning-input
-                class="form-row"
-                label="最寄駅"
-                variant="label-inline"
-                data-field="nearestStation"
-                value={info.nearestStation}
-                max-length="30"
-                onchange={handleInputChange}
-              ></lightning-input>
-            </lightning-layout-item>
-          </lightning-layout>
+            </div>
+            <div class="form-row">
+              <div class="form-label">
+                フリガナ<abbr class="slds-required required-mark" title="必須">*</abbr>
+                <lightning-helptext content="姓と名の間にスペースを入れてください。"></lightning-helptext>
+              </div>
+              <div class="form-control">
+                <lightning-input
+                  label="フリガナ"
+                  variant="label-hidden"
+                  data-field="furigana"
+                  value={info.furigana}
+                  required
+                  max-length="40"
+                  onchange={handleInputChange}
+                ></lightning-input>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">性別</div>
+              <div class="form-control">
+                <!-- 性別はトグルボタンで選ぶ(選択中のボタンをもう一度押すと未選択に戻す) -->
+                <lightning-button-group>
+                  <template for:each={genderButtons} for:item="button">
+                    <lightning-button
+                      key={button.value}
+                      label={button.label}
+                      variant={button.variant}
+                      data-value={button.value}
+                      onclick={handleGenderClick}
+                    ></lightning-button>
+                  </template>
+                </lightning-button-group>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">
+                出身
+                <lightning-helptext content="出身校を入力してください。"></lightning-helptext>
+              </div>
+              <div class="form-control">
+                <lightning-input
+                  label="出身"
+                  variant="label-hidden"
+                  data-field="graduatedSchool"
+                  value={info.graduatedSchool}
+                  max-length="30"
+                  onchange={handleInputChange}
+                ></lightning-input>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">最終学歴</div>
+              <div class="form-control">
+                <lightning-combobox
+                  label="最終学歴"
+                  variant="label-hidden"
+                  data-field="academicBackground"
+                  value={info.academicBackground}
+                  options={academicBackgroundOptions}
+                  onchange={handleInputChange}
+                ></lightning-combobox>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">専攻</div>
+              <div class="form-control">
+                <lightning-input
+                  label="専攻"
+                  variant="label-hidden"
+                  data-field="major"
+                  value={info.major}
+                  max-length="30"
+                  onchange={handleInputChange}
+                ></lightning-input>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">
+                卒業年月
+                <lightning-helptext content="実務年数は卒業年月から計算します。"></lightning-helptext>
+              </div>
+              <div class="form-control">
+                <c-year-month-picker
+                  label="卒業年月"
+                  data-field="graduateDate"
+                  value={info.graduateDate}
+                  onchange={handleInputChange}
+                ></c-year-month-picker>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">来日年月</div>
+              <div class="form-control">
+                <c-year-month-picker
+                  label="来日年月"
+                  data-field="comingJapanDate"
+                  value={info.comingJapanDate}
+                  onchange={handleInputChange}
+                ></c-year-month-picker>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">誕生日</div>
+              <div class="form-control">
+                <lightning-input
+                  type="date"
+                  class="date-input"
+                  label="誕生日"
+                  variant="label-hidden"
+                  data-field="birthdate"
+                  value={info.birthdate}
+                  max={today}
+                  message-when-range-overflow="今日以前の日付を入力してください。"
+                  onchange={handleInputChange}
+                ></lightning-input>
+              </div>
+            </div>
+            <!-- 年齢・実務年数は数式項目のため参照のみ(誕生日・卒業年月から計算する) -->
+            <div class="form-row">
+              <div class="form-label">年齢</div>
+              <div class="form-control form-static">{ageLabel}</div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">実務年数</div>
+              <div class="form-control form-static">{experiencesLabel}</div>
+            </div>
+            <!-- 最寄駅は路線と駅に分けて入力する(「線」「駅」は入力欄の後ろに表示する) -->
+            <div class="form-row">
+              <div class="form-label">最寄駅</div>
+              <div class="form-control station">
+                <lightning-input
+                  class="station-input"
+                  label="最寄駅の路線"
+                  variant="label-hidden"
+                  data-field="nearestLine"
+                  value={info.nearestLine}
+                  max-length="30"
+                  placeholder="例：山手"
+                  onchange={handleInputChange}
+                ></lightning-input>
+                <span class="unit">線</span>
+                <lightning-input
+                  class="station-input"
+                  label="最寄駅"
+                  variant="label-hidden"
+                  data-field="nearestStation"
+                  value={info.nearestStation}
+                  max-length="30"
+                  placeholder="例：品川"
+                  onchange={handleInputChange}
+                ></lightning-input>
+                <span class="unit">駅</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </lightning-card>

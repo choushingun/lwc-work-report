@@ -1,0 +1,77 @@
+.education-page {
+  position: relative;
+  min-height: 10rem;
+  padding: var(--lwc-spacingMedium, 1rem);
+}
+
+/* 画面タイトルは太字にする(技術経験画面と同じ) */
+.page-title {
+  font-weight: 700;
+}
+
+/* セクションの上下の余白・見出し(技術経験画面と同じ) */
+.slds-section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.slds-section__title {
+  min-height: 3.25rem;
+  padding-left: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.section-title-text {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.section-body {
+  padding-top: 0.75rem;
+}
+
+/* 語学能力は1件ごとに枠で囲み、件の間を空ける */
+.language-row {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0 0.75rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.25rem;
+}
+
+.language-title {
+  margin-left: 0.75rem;
+  padding: 0 0.25rem;
+  font-weight: 600;
+}
+
+/* 語学能力の入力欄は行の間を少し空ける */
+.language-row lightning-input,
+.language-row lightning-combobox {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* 資格/トレーニングの表：№・時間・備考は固定幅、内容は残りの幅にする(狭い画面は横スクロール) */
+.input-table {
+  table-layout: fixed;
+  min-width: 36rem;
+}
+
+.input-table .col-no {
+  width: 3rem;
+}
+
+.input-table .col-date {
+  width: 11rem;
+}
+
+.input-table .col-memo {
+  width: 14rem;
+}
+
+.input-table td,
+.input-table th {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}

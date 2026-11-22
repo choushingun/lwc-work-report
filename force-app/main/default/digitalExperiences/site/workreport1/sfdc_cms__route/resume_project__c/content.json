@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "履歴書仕事経験",
+  "contentBody" : {
+    "activeViewId" : "custom_resume_project",
+    "configurationTags" : [],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-resume-project",
+    "urlPrefix" : "resume-project"
+  },
+  "urlName" : "履歴書仕事経験"
+}

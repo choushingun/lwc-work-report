@@ -1,0 +1,75 @@
+<template>
+  <!-- 年月カレンダー(SLDSの日付選択と同じ見た目。年を ‹ › で切り替え、12か月から選ぶ) -->
+  <div class={triggerClass} onfocusout={handleFocusOut} onkeydown={handleKeyDown}>
+    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
+      <input
+        type="text"
+        class="slds-input picker-input"
+        readonly
+        placeholder="年月を選択"
+        value={displayValue}
+        aria-label={label}
+        aria-haspopup="dialog"
+        aria-expanded={ariaExpanded}
+        disabled={disabled}
+        onclick={handleToggle}
+      />
+      <button
+        class="slds-button slds-button_icon slds-input__icon slds-input__icon_right"
+        title="年月を選択"
+        disabled={disabled}
+        onclick={handleToggle}
+      >
+        <lightning-icon icon-name="utility:event" size="x-small" alternative-text="年月を選択"></lightning-icon>
+      </button>
+    </div>
+
+    <div
+      lwc:if={isOpen}
+      class="slds-dropdown slds-dropdown_left slds-datepicker month-panel"
+      role="dialog"
+      aria-label={label}
+      tabindex="-1"
+    >
+      <div class="slds-datepicker__filter slds-grid">
+        <div class="slds-datepicker__filter_month slds-grid slds-grid_align-spread slds-grow">
+          <lightning-button-icon
+            icon-name="utility:left"
+            variant="container"
+            alternative-text="前の年"
+            disabled={isMinYear}
+            onclick={handlePrevYear}
+          ></lightning-button-icon>
+          <h2 class="slds-align-middle year-title" aria-live="assertive">{viewYear}年</h2>
+          <lightning-button-icon
+            icon-name="utility:right"
+            variant="container"
+            alternative-text="次の年"
+            disabled={isMaxYear}
+            onclick={handleNextYear}
+          ></lightning-button-icon>
+        </div>
+      </div>
+
+      <div class="month-grid" role="grid">
+        <template for:each={months} for:item="month">
+          <button
+            key={month.value}
+            class={month.className}
+            aria-pressed={month.pressed}
+            disabled={month.disabled}
+            data-month={month.value}
+            onclick={handleSelectMonth}
+          >
+            {month.label}
+          </button>
+        </template>
+      </div>
+
+      <div class="slds-grid slds-grid_align-spread panel-footer">
+        <button class="slds-button" onclick={handleClear}>クリア</button>
+        <button class="slds-button" disabled={isThisMonthDisabled} onclick={handleThisMonth}>今月</button>
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,0 +1,250 @@
+<template>
+  <main class="education-page">
+    <c-spinner lwc:if={isLoading}></c-spinner>
+    <!-- 初期表示失敗時(画面を表示できない場合)もエラーが見えるよう、カードの外に出す -->
+    <div lwc:if={showPageError} class="slds-notify slds-notify_alert slds-alert_error" role="alert">{errorMessage}</div>
+    <lightning-card lwc:if={isAuthenticated} icon-name="standard:education">
+      <span slot="title" class="slds-text-heading_medium slds-text-color_default page-title">語学資格</span>
+      <!-- ボタンはSalesforce標準画面と同じく右上にまとめて表示する(技術経験画面と同じ) -->
+      <lightning-button-group slot="actions">
+        <lightning-button label="保存" disabled={isLoading} onclick={handleSave}></lightning-button>
+        <lightning-button label="キャンセル" disabled={isLoading} onclick={handleCancel}></lightning-button>
+      </lightning-button-group>
+
+      <div class="slds-p-horizontal_medium">
+        <!-- 語学能力(1件の項目が多いため、件ごとにまとめて画面幅に合わせて1～3列で並べる) -->
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">語学能力</span>
+          </h2>
+          <div class="section-body">
+            <template for:each={languages} for:item="language">
+              <fieldset key={language.no} class="language-row">
+                <legend class="language-title">語学能力{language.no}</legend>
+                <lightning-layout multiple-rows>
+                  <lightning-layout-item
+                    size="12"
+                    small-device-size="6"
+                    large-device-size="4"
+                    padding="horizontal-small"
+                  >
+                    <lightning-input
+                      label="外国語類別"
+                      data-no={language.no}
+                      data-field="name"
+                      value={language.name}
+                      max-length="15"
+                      placeholder="例：英語"
+                      onchange={handleLanguageChange}
+                    ></lightning-input>
+                  </lightning-layout-item>
+                  <lightning-layout-item
+                    size="12"
+                    small-device-size="6"
+                    large-device-size="4"
+                    padding="horizontal-small"
+                  >
+                    <lightning-input
+                      label="学習方法"
+                      data-no={language.no}
+                      data-field="studyMethod"
+                      value={language.studyMethod}
+                      max-length="15"
+                      placeholder="例：独学"
+                      onchange={handleLanguageChange}
+                    ></lightning-input>
+                  </lightning-layout-item>
+                  <lightning-layout-item
+                    size="12"
+                    small-device-size="6"
+                    large-device-size="4"
+                    padding="horizontal-small"
+                  >
+                    <lightning-input
+                      type="number"
+                      label="通算年数"
+                      data-no={language.no}
+                      data-field="studyYears"
+                      value={language.studyYears}
+                      min="0"
+                      max="99"
+                      step="1"
+                      message-when-step-mismatch="整数で入力してください。"
+                      onchange={handleLanguageChange}
+                    ></lightning-input>
+                  </lightning-layout-item>
+                  <lightning-layout-item
+                    size="12"
+                    small-device-size="6"
+                    large-device-size="4"
+                    padding="horizontal-small"
+                  >
+                    <lightning-combobox
+                      label="読む"
+                      data-no={language.no}
+                      data-field="read"
+                      value={language.read}
+                      options={levelOptions}
+                      onchange={handleLanguageChange}
+                    ></lightning-combobox>
+                  </lightning-layout-item>
+                  <lightning-layout-item
+                    size="12"
+                    small-device-size="6"
+                    large-device-size="4"
+                    padding="horizontal-small"
+                  >
+                    <lightning-combobox
+                      label="書く"
+                      data-no={language.no}
+                      data-field="write"
+                      value={language.write}
+                      options={levelOptions}
+                      onchange={handleLanguageChange}
+                    ></lightning-combobox>
+                  </lightning-layout-item>
+                  <lightning-layout-item
+                    size="12"
+                    small-device-size="6"
+                    large-device-size="4"
+                    padding="horizontal-small"
+                  >
+                    <lightning-combobox
+                      label="会話"
+                      data-no={language.no}
+                      data-field="speak"
+                      value={language.speak}
+                      options={levelOptions}
+                      onchange={handleLanguageChange}
+                    ></lightning-combobox>
+                  </lightning-layout-item>
+                  <lightning-layout-item
+                    size="12"
+                    small-device-size="6"
+                    large-device-size="4"
+                    padding="horizontal-small"
+                  >
+                    <lightning-input
+                      label="資格名"
+                      data-no={language.no}
+                      data-field="qualification"
+                      value={language.qualification}
+                      max-length="15"
+                      placeholder="例：TOEIC"
+                      onchange={handleLanguageChange}
+                    ></lightning-input>
+                  </lightning-layout-item>
+                  <lightning-layout-item
+                    size="12"
+                    small-device-size="6"
+                    large-device-size="4"
+                    padding="horizontal-small"
+                  >
+                    <lightning-input
+                      type="date"
+                      label="資格獲得年月"
+                      data-no={language.no}
+                      data-field="qualifiedDate"
+                      value={language.qualifiedDate}
+                      onchange={handleLanguageChange}
+                    ></lightning-input>
+                  </lightning-layout-item>
+                  <lightning-layout-item
+                    size="12"
+                    small-device-size="6"
+                    large-device-size="4"
+                    padding="horizontal-small"
+                  >
+                    <lightning-input
+                      type="number"
+                      label="総点数"
+                      data-no={language.no}
+                      data-field="score"
+                      value={language.score}
+                      min="0"
+                      max="9999"
+                      step="1"
+                      message-when-step-mismatch="整数で入力してください。"
+                      onchange={handleLanguageChange}
+                    ></lightning-input>
+                  </lightning-layout-item>
+                </lightning-layout>
+              </fieldset>
+            </template>
+          </div>
+        </div>
+
+        <!-- 資格/トレーニング(履歴書テンプレートと同じく 時間・内容・備考 の表で入力する) -->
+        <div class="slds-section slds-is-open">
+          <h2 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate section-title-text">資格/トレーニング</span>
+          </h2>
+          <div class="section-body slds-p-horizontal_small slds-scrollable_x">
+            <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer input-table">
+              <thead>
+                <tr class="slds-line-height_reset">
+                  <th scope="col" class="col-no">№</th>
+                  <th scope="col" class="col-date">時間</th>
+                  <th scope="col">内容</th>
+                  <th scope="col" class="col-memo">備考</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template for:each={trainings} for:item="training">
+                  <tr key={training.no}>
+                    <th scope="row" class="col-no">{training.no}</th>
+                    <td class="col-date">
+                      <lightning-input
+                        type="date"
+                        label={training.dateLabel}
+                        variant="label-hidden"
+                        data-no={training.no}
+                        data-field="trainingDate"
+                        value={training.trainingDate}
+                        onchange={handleTrainingChange}
+                      ></lightning-input>
+                    </td>
+                    <td>
+                      <lightning-input
+                        label={training.contentLabel}
+                        variant="label-hidden"
+                        data-no={training.no}
+                        data-field="content"
+                        value={training.content}
+                        max-length="30"
+                        onchange={handleTrainingChange}
+                      ></lightning-input>
+                    </td>
+                    <td class="col-memo">
+                      <lightning-input
+                        label={training.memoLabel}
+                        variant="label-hidden"
+                        data-no={training.no}
+                        data-field="memo"
+                        value={training.memo}
+                        max-length="25"
+                        onchange={handleTrainingChange}
+                      ></lightning-input>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </lightning-card>
+
+    <!-- 共通ダイアログ(キャンセル確認・エラーを切り替えて表示する) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      cancel-label={dialog.cancelLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogConfirm}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
+  </main>
+</template>

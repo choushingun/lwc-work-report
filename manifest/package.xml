@@ -18,6 +18,8 @@
         <members>ResumeController</members>
         <members>ResumeDao</members>
         <members>ResumeDetailDao</members>
+        <members>ResumeEducationController</members>
+        <members>ResumeProjectController</members>
         <members>ResumeSkillController</members>
         <members>SessionManagementDao</members>
         <members>WorkreportListController</members>
@@ -50,6 +52,7 @@
         <members>Contact.LockoutUntil__c</members>
         <members>Contact.Major__c</members>
         <members>Contact.Management__c</members>
+        <members>Contact.NearestLine__c</members>
         <members>Contact.NearestStation__c</members>
         <members>Contact.PasswordHash__c</members>
         <members>Contact.PasswordResetExpires__c</members>
@@ -95,6 +98,8 @@
         <members>personalSetting</members>
         <members>resume</members>
         <members>resumeContactInfo</members>
+        <members>resumeEducation</members>
+        <members>resumeProject</members>
         <members>resumeSkill</members>
         <members>sendReportDialog</members>
         <members>spinner</members>
@@ -103,6 +108,7 @@
         <members>workreportList</members>
         <members>workreportNav</members>
         <members>worktimeInput</members>
+        <members>yearMonthPicker</members>
         <name>LightningComponentBundle</name>
     </types>
     <types>

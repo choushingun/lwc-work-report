@@ -17,6 +17,7 @@ const INPUT_FIELDS = [
   'graduateDate',
   'comingJapanDate',
   'birthdate',
+  'nearestLine',
   'nearestStation'
 ];
 
@@ -73,10 +74,25 @@ export default class ResumeContactInfo extends NavigationMixin(LightningElement)
     });
     this.savedInfo = { ...info, age: data.age, experiences: data.experiences };
     this.info = info;
-    // 性別・最終学歴は未選択に戻せるよう、先頭に「なし」を加える
-    this.genderOptions = [{ label: '--なし--', value: '' }, ...(data.genderOptions ?? [])];
+    // 性別はトグルボタンで選ぶ(選択中のボタンを押すと未選択に戻す)
+    this.genderOptions = data.genderOptions ?? [];
+    // 最終学歴は未選択に戻せるよう、先頭に「なし」を加える
     this.academicBackgroundOptions = [{ label: '--なし--', value: '' }, ...(data.academicBackgroundOptions ?? [])];
     this.isAuthenticated = true;
+  }
+
+  // 性別のトグルボタン(選択中のボタンは強調表示する)
+  get genderButtons() {
+    return this.genderOptions.map((option) => ({
+      ...option,
+      variant: option.value === this.info.gender ? 'brand' : 'neutral'
+    }));
+  }
+
+  // 性別のボタンを押したら選択する(選択中のボタンをもう一度押すと未選択に戻す)
+  handleGenderClick(event) {
+    const value = event.currentTarget.dataset.value;
+    this.info = { ...this.info, gender: this.info.gender === value ? '' : value };
   }
 
   handleInputChange(event) {
@@ -85,7 +101,7 @@ export default class ResumeContactInfo extends NavigationMixin(LightningElement)
   }
 
   handleSave() {
-    const inputs = [...this.template.querySelectorAll('lightning-input, lightning-combobox')];
+    const inputs = [...this.template.querySelectorAll('lightning-input, lightning-combobox, c-year-month-picker')];
     const isValid = inputs.reduce((valid, input) => input.reportValidity() && valid, true);
     if (!isValid) {
       return;

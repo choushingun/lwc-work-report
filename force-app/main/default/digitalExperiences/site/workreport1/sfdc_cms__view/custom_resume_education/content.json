@@ -1,0 +1,82 @@
+{
+  "type" : "sfdc_cms__view",
+  "title" : "履歴書語学資格",
+  "contentBody" : {
+    "component" : {
+      "children" : [
+        {
+          "children" : [
+            {
+              "attributes" : {
+                "backgroundImageConfig" : "",
+                "backgroundImageOverlay" : "rgba(0,0,0,0)",
+                "componentSpacerSize" : "",
+                "dxpStyle" : {},
+                "layoutDirectionDesktop" : "row",
+                "layoutDirectionMobile" : "column",
+                "layoutDirectionTablet" : "column",
+                "maxContentWidth" : "",
+                "sectionColumnGutterWidth" : "",
+                "sectionConfig" : "{\"UUID\":\"44acb8e0-8dbe-4166-9389-21877fe1df0a\",\"columns\":[{\"UUID\":\"793e5daa-7196-4716-841f-116083227b63\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":[]}]}",
+                "sectionMinHeight" : "",
+                "sectionVerticalAlign" : "flex-start"
+              },
+              "children" : [
+                {
+                  "children" : [
+                    {
+                      "attributes" : {
+                        "dxpStyle" : {}
+                      },
+                      "definition" : "c:resumeEducation",
+                      "id" : "bdf920d8-3d2a-42f9-8a78-0c1c4955f09f",
+                      "type" : "component"
+                    }
+                  ],
+                  "id" : "793e5daa-7196-4716-841f-116083227b63",
+                  "name" : "col1",
+                  "title" : "列 1",
+                  "type" : "region"
+                }
+              ],
+              "definition" : "community_layout:section",
+              "id" : "44acb8e0-8dbe-4166-9389-21877fe1df0a",
+              "type" : "component"
+            }
+          ],
+          "id" : "749a7681-4803-4184-87c4-a1324ce680ae",
+          "name" : "content",
+          "title" : "コンテンツ",
+          "type" : "region"
+        },
+        {
+          "children" : [
+            {
+              "attributes" : {
+                "customHeadTags" : "",
+                "description" : "",
+                "dxpStyle" : {},
+                "pageTitle" : "履歴書語学資格",
+                "recordId" : "{!recordId}"
+              },
+              "definition" : "community_builder:seoAssistant",
+              "id" : "ce6e9d6a-a1ce-4246-818e-a238a6bd6cfc",
+              "type" : "component"
+            }
+          ],
+          "id" : "96338b8e-ba4f-4972-a549-875013ff14a2",
+          "name" : "sfdcHiddenRegion",
+          "title" : "sfdcHiddenRegion",
+          "type" : "region"
+        }
+      ],
+      "definition" : "community_layout:sldsFlexibleLayout",
+      "id" : "867ff4be-ecf8-4336-8023-2c5b89af8c6b",
+      "type" : "component"
+    },
+    "dataProviders" : [],
+    "themeLayoutType" : "Inner",
+    "viewType" : "custom-resume-education"
+  },
+  "urlName" : "履歴書語学資格"
+}

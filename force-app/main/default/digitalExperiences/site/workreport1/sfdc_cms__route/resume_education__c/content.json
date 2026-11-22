@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "履歴書語学資格",
+  "contentBody" : {
+    "activeViewId" : "custom_resume_education",
+    "configurationTags" : [],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-resume-education",
+    "urlPrefix" : "resume-education"
+  },
+  "urlName" : "履歴書語学資格"
+}

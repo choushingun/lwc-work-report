@@ -15,7 +15,7 @@ const MENU_ITEMS = [
     subPaths: ['/workreport-view', '/workreport-input', '/worktime-input']
   },
   { label: '勤務承認', path: '/approval-list', managerOnly: true },
-  { label: '履歴書', path: '/resume', subPaths: ['/resume-contact-info', '/resume-skill'] },
+  { label: '履歴書', path: '/resume', subPaths: ['/resume-contact-info', '/resume-skill', '/resume-project', '/resume-education'] },
   // イベント・ナレッジは作成中のため、グレーで表示してクリックできないようにする(通知アイコンと同じ)
   { label: 'イベント', disabled: true },
   { label: 'ナレッジ', disabled: true },

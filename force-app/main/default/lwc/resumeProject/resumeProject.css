@@ -1,0 +1,63 @@
+.project-page {
+  position: relative;
+  min-height: 10rem;
+  padding: var(--lwc-spacingMedium, 1rem);
+}
+
+/* 画面タイトルは太字にする(技術経験画面と同じ) */
+.page-title {
+  font-weight: 700;
+}
+
+/* セクションの上下の余白・見出し(技術経験画面と同じ) */
+.slds-section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.slds-section__title {
+  min-height: 3.25rem;
+  padding-left: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.section-title-text {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.section-body {
+  padding-top: 0.75rem;
+}
+
+/* 管理経験の表：人数・期間(月)は固定幅、管理は残りの幅にする */
+.input-table {
+  table-layout: fixed;
+}
+
+.input-table .col-people {
+  width: 7rem;
+}
+
+.input-table .col-months {
+  width: 9rem;
+}
+
+.input-table td,
+.input-table th {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+/* 作業経験のチェックボックスは行の間を少し空ける */
+.work-experience {
+  display: block;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+/* 得意業務・得意技術は数行分の高さで表示する */
+.enjoying {
+  --slds-c-textarea-sizing-min-height: 4rem;
+}

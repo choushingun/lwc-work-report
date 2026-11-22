@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>NearestLine__c</fullName>
+    <description>最寄駅の路線名(「線」は付けない)</description>
+    <externalId>false</externalId>
+    <label>【履歴書】最寄路線</label>
+    <length>30</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
