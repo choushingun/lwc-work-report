@@ -7,7 +7,7 @@ const DEFAULT_MIN_YEAR = 1950;
  *
  * 入力欄を押すとカレンダーを開き、年を ‹ › で切り替えて12か月から選ぶ。
  * value は月初日の日付文字列(yyyy-MM-dd)。日付が入っている場合も年月だけを表示する。
- * 選択・クリアしたら change イベントの detail.value に月初日(クリアは空文字)を渡す。
+ * 選択・クリア(Delete・BackSpace キー)したら change イベントの detail.value に月初日(クリアは空文字)を渡す。
  */
 export default class YearMonthPicker extends LightningElement {
   // 項目名(読み上げ用。画面には表示しない)
@@ -50,13 +50,9 @@ export default class YearMonthPicker extends LightningElement {
     return Number(this.maxYear) || new Date().getFullYear();
   }
 
+  // 表示する年月(月は2桁。例：1992年06月)
   get displayValue() {
-    return this.year && this.month ? `${this.year}年${this.month}月` : '';
-  }
-
-  // カレンダーを開いている間は slds-is-open を付ける(SLDSのドロップダウンの表示条件)
-  get triggerClass() {
-    return `slds-dropdown-trigger slds-dropdown-trigger_click picker${this.isOpen ? ' slds-is-open' : ''}`;
+    return this.year && this.month ? `${this.year}年${String(this.month).padStart(2, '0')}月` : '';
   }
 
   get ariaExpanded() {
@@ -77,6 +73,15 @@ export default class YearMonthPicker extends LightningElement {
     return thisYear < this.minYearValue || thisYear > this.maxYearValue;
   }
 
+  // 年のプルダウンの選択肢(新しい年から。表示中の年を選択状態にする)
+  get yearOptions() {
+    const options = [];
+    for (let year = this.maxYearValue; year >= this.minYearValue; year--) {
+      options.push({ value: String(year), label: String(year), selected: year === this.viewYear });
+    }
+    return options;
+  }
+
   // 表示中の年の12か月(選択中の月は強調し、今年の先の月は選べなくする)
   get months() {
     const now = new Date();
@@ -87,13 +92,19 @@ export default class YearMonthPicker extends LightningElement {
       const isThisMonth = this.viewYear === now.getFullYear() && month === now.getMonth() + 1;
       // 上限を指定しない場合(今年まで)は、未来の月も選べないようにする
       const disabled = isMaxDefault && this.viewYear === now.getFullYear() && month > now.getMonth() + 1;
-      let className = 'slds-button month-button';
+      let className = 'month-button';
       if (selected) {
         className += ' month-button_selected';
       } else if (isThisMonth) {
         className += ' month-button_today';
       }
-      return { value: String(month), label: `${month}月`, pressed: String(selected), disabled, className };
+      return {
+        value: String(month),
+        label: `${String(month).padStart(2, '0')}月`,
+        pressed: String(selected),
+        disabled,
+        className
+      };
     });
   }
 
@@ -116,6 +127,11 @@ export default class YearMonthPicker extends LightningElement {
     this.viewYear = Math.min(this.viewYear + 1, this.maxYearValue);
   }
 
+  // 年のプルダウンで表示する年を切り替える(標準の日付カレンダーと同じ)
+  handleYearSelect(event) {
+    this.viewYear = Number(event.target.value);
+  }
+
   handleSelectMonth(event) {
     this.select(this.viewYear, Number(event.currentTarget.dataset.month));
   }
@@ -125,15 +141,27 @@ export default class YearMonthPicker extends LightningElement {
     this.select(now.getFullYear(), now.getMonth() + 1);
   }
 
-  handleClear() {
-    this.select(null, null);
+  // 入力欄で Delete・BackSpace キーを押したら未選択に戻す(標準の日付入力欄で消すのと同じ)
+  handleInputKeyDown(event) {
+    if ((event.key === 'Delete' || event.key === 'Backspace') && this.year) {
+      event.preventDefault();
+      this.select(null, null);
+    } else if (event.key === 'Enter' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      if (!this.isOpen) {
+        this.handleToggle();
+      }
+    }
   }
 
   select(year, month) {
     this.year = year;
     this.month = month;
+    const wasOpen = this.isOpen;
     this.isOpen = false;
-    this.template.querySelector('.picker-input')?.focus();
+    if (wasOpen) {
+      this.template.querySelector('.picker-input')?.focus();
+    }
     this.dispatchEvent(new CustomEvent('change', { detail: { value: this.value } }));
   }
 

@@ -3,69 +3,217 @@
   display: block;
 }
 
-/* 入力欄は年月が収まる幅にする */
+/* LWRサイトではSLDSのCSSが部品の中に効かないため、枠・色はサイトのテーマ(--dxp-…)に合わせてこの部品で指定する
+   (サイトの日付入力欄と同じ見た目にする) */
 .picker {
-  display: block;
+  position: relative;
   max-width: 12rem;
 }
 
+.input-wrapper {
+  position: relative;
+}
+
 .picker-input {
-  cursor: pointer;
+  box-sizing: border-box;
+  width: 100%;
+  /* 高さは標準の日付入力欄と同じ 32px(2rem)にする */
+  height: 2rem;
+  margin: 0;
+  padding: 0 2.25rem 0 var(--dxp-s-form-element-spacing-inline-start, 0.75rem);
+  border: 1px solid var(--dxp-s-form-element-color-border, var(--dxp-g-neutral-3, #747474));
+  border-radius: 4px;
+  background-color: var(--dxp-s-form-element-color-background, var(--dxp-g-root, #fff));
+  color: var(--dxp-g-root-contrast, #181818);
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  /* マウスカーソルは標準の日付入力欄と同じく、入力欄の上は文字入力用(I字) */
+  cursor: text;
+}
+
+.picker-input::placeholder {
+  color: var(--dxp-g-neutral-3, #747474);
+}
+
+.picker-input:focus {
+  outline: none;
+  border-color: var(--dxp-g-brand, #0176d3);
+  box-shadow: 0 0 0 1px var(--dxp-g-brand, #0176d3);
 }
 
 .picker-input:disabled {
+  background-color: #f3f3f3;
   cursor: default;
 }
 
-/* カレンダー(日付選択と同じく入力欄の下に表示する) */
+/* カレンダーアイコンは標準の入力欄のアイコンと同じ大きさ(0.875rem)で、入力欄の右端に置く
+   (標準の日付入力欄に合わせて、上下中央より少し下・右寄りにする) */
+.icon-button {
+  position: absolute;
+  top: calc(50% + 2px);
+  right: calc(0.375rem + 3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  transform: translateY(-50%);
+  /* マウスカーソルは標準の日付入力欄のアイコンと同じくポインター */
+  cursor: pointer;
+}
+
+/* アイコンの絵はクリックを受けず、ボタン全体でポインターを表示する(絵の上でカーソルが変わらないようにする) */
+.icon-button lightning-icon {
+  pointer-events: none;
+}
+
+.icon-button:disabled {
+  cursor: default;
+}
+
+/* カレンダー(標準の日付カレンダーと同じ大きさ・枠・影で、入力欄の下に重ねて表示する) */
 .month-panel {
-  width: 16rem;
-  padding: 0.5rem;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 7000;
+  box-sizing: border-box;
+  width: 20rem;
+  margin-top: 0.125rem;
+  padding: 0.25rem 0.5rem 0.5rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+  color: #181818;
+  outline: none;
+}
+
+/* 上段：左に「‹ 年 ›」、右に年のプルダウン */
+.panel-header {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.year-nav {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
 }
 
 .year-title {
   margin: 0;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 400;
 }
 
-/* 12か月を4行×3列で並べる */
+.year-select-wrapper {
+  flex: 0 0 auto;
+  margin-left: 0.5rem;
+}
+
+.year-select {
+  box-sizing: border-box;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--dxp-g-neutral-3, #c9c9c9);
+  border-radius: 4px;
+  background-color: #fff;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.year-select:focus {
+  outline: none;
+  border-color: var(--dxp-g-brand, #0176d3);
+  box-shadow: 0 0 0 1px var(--dxp-g-brand, #0176d3);
+}
+
+/* 中段：12か月を4行×3列で並べる(日付のセルと同じく丸で強調する) */
 .month-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.25rem;
+  row-gap: 0.25rem;
   padding: 0.5rem 0;
 }
 
-.month-button {
+.month-cell {
+  display: flex;
   justify-content: center;
-  height: 2.25rem;
+}
+
+.month-button {
+  width: 4rem;
+  height: 2rem;
   margin: 0;
-  border-radius: 0.25rem;
-  color: #181818;
+  padding: 0;
+  border: none;
+  border-radius: 1rem;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
 }
 
 .month-button:hover:not(:disabled) {
   background-color: #f3f3f3;
 }
 
+.month-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--dxp-g-brand, #0176d3);
+}
+
 .month-button:disabled {
   color: #c9c9c9;
+  cursor: default;
 }
 
-/* 選択中の月は青背景、今月は青文字(日付選択と同じ) */
-.month-button_selected,
-.month-button_selected:hover:not(:disabled) {
-  background-color: #0176d3;
-  color: #fff;
-}
-
+/* 今月はグレーの丸、選択中の月は青い丸(標準の日付カレンダーの今日・選択中の日と同じ) */
 .month-button_today {
-  color: #0176d3;
+  background-color: #e5e5e5;
   font-weight: 700;
 }
 
+.month-button_selected,
+.month-button_selected:hover:not(:disabled) {
+  background-color: var(--dxp-g-brand, #0176d3);
+  color: #fff;
+}
+
+/* 下段：中央に「今月」(標準の日付カレンダーの「今日」と同じ) */
 .panel-footer {
-  padding-top: 0.5rem;
-  border-top: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: center;
+  padding-top: 0.25rem;
+}
+
+.link-button {
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  border: none;
+  background: none;
+  color: var(--dxp-g-brand, #0176d3);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.link-button:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.link-button:disabled {
+  color: #c9c9c9;
+  cursor: default;
 }

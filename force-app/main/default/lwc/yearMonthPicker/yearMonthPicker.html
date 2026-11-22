@@ -1,10 +1,11 @@
 <template>
-  <!-- 年月カレンダー(SLDSの日付選択と同じ見た目。年を ‹ › で切り替え、12か月から選ぶ) -->
-  <div class={triggerClass} onfocusout={handleFocusOut} onkeydown={handleKeyDown}>
-    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
+  <!-- 年月カレンダー(日付入力と同じ見た目。年を ‹ › で切り替え、12か月から選ぶ)
+       LWRサイトではSLDSのCSSが部品の中に効かないため、SLDSのクラスは使わずこの部品のCSSで表示する -->
+  <div class="picker" onfocusout={handleFocusOut} onkeydown={handleKeyDown}>
+    <div class="input-wrapper">
       <input
         type="text"
-        class="slds-input picker-input"
+        class="picker-input"
         readonly
         placeholder="年月を選択"
         value={displayValue}
@@ -13,26 +14,17 @@
         aria-expanded={ariaExpanded}
         disabled={disabled}
         onclick={handleToggle}
+        onkeydown={handleInputKeyDown}
       />
-      <button
-        class="slds-button slds-button_icon slds-input__icon slds-input__icon_right"
-        title="年月を選択"
-        disabled={disabled}
-        onclick={handleToggle}
-      >
-        <lightning-icon icon-name="utility:event" size="x-small" alternative-text="年月を選択"></lightning-icon>
+      <button class="icon-button" title="年月を選択" disabled={disabled} onclick={handleToggle}>
+        <lightning-icon icon-name="utility:event" size="xx-small" alternative-text="年月を選択"></lightning-icon>
       </button>
     </div>
 
-    <div
-      lwc:if={isOpen}
-      class="slds-dropdown slds-dropdown_left slds-datepicker month-panel"
-      role="dialog"
-      aria-label={label}
-      tabindex="-1"
-    >
-      <div class="slds-datepicker__filter slds-grid">
-        <div class="slds-datepicker__filter_month slds-grid slds-grid_align-spread slds-grow">
+    <!-- 標準の日付カレンダーと同じ配置：上段は「‹ 年 ›」と年のプルダウン、中段は12か月、下段は中央に「今月」 -->
+    <div lwc:if={isOpen} class="month-panel" role="dialog" aria-label={label} tabindex="-1">
+      <div class="panel-header">
+        <div class="year-nav">
           <lightning-button-icon
             icon-name="utility:left"
             variant="container"
@@ -40,7 +32,7 @@
             disabled={isMinYear}
             onclick={handlePrevYear}
           ></lightning-button-icon>
-          <h2 class="slds-align-middle year-title" aria-live="assertive">{viewYear}年</h2>
+          <h2 class="year-title" aria-live="assertive">{viewYear}年</h2>
           <lightning-button-icon
             icon-name="utility:right"
             variant="container"
@@ -49,26 +41,33 @@
             onclick={handleNextYear}
           ></lightning-button-icon>
         </div>
+        <div class="year-select-wrapper">
+          <select class="year-select" aria-label="年を選択" onchange={handleYearSelect}>
+            <template for:each={yearOptions} for:item="option">
+              <option key={option.value} value={option.value} selected={option.selected}>{option.label}</option>
+            </template>
+          </select>
+        </div>
       </div>
 
       <div class="month-grid" role="grid">
         <template for:each={months} for:item="month">
-          <button
-            key={month.value}
-            class={month.className}
-            aria-pressed={month.pressed}
-            disabled={month.disabled}
-            data-month={month.value}
-            onclick={handleSelectMonth}
-          >
-            {month.label}
-          </button>
+          <div key={month.value} class="month-cell">
+            <button
+              class={month.className}
+              aria-pressed={month.pressed}
+              disabled={month.disabled}
+              data-month={month.value}
+              onclick={handleSelectMonth}
+            >
+              {month.label}
+            </button>
+          </div>
         </template>
       </div>
 
-      <div class="slds-grid slds-grid_align-spread panel-footer">
-        <button class="slds-button" onclick={handleClear}>クリア</button>
-        <button class="slds-button" disabled={isThisMonthDisabled} onclick={handleThisMonth}>今月</button>
+      <div class="panel-footer">
+        <button class="link-button" disabled={isThisMonthDisabled} onclick={handleThisMonth}>今月</button>
       </div>
     </div>
   </div>

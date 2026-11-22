@@ -37,9 +37,8 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  min-height: 3rem;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid #e5e5e5;
 }
 
@@ -52,9 +51,13 @@
   color: var(--slds-g-color-neutral-base-30, #444);
 }
 
-/* 必須マークは項目名の後ろに置く */
+/* 必須マークは項目名の後ろに赤で置く(SLDSのCSSが効かない場合もあるため色をここで指定する) */
 .required-mark {
   margin: 0 0 0 0.125rem;
+  color: #ba0517;
+  text-decoration: none;
+  border: none;
+  cursor: help;
 }
 
 .form-label lightning-helptext {
@@ -81,6 +84,15 @@
   display: block;
   flex: 1 1 auto;
   min-width: 0;
+}
+
+/* サイトのテーマが入力部品の外側に付ける余白を消す(入力欄の下に空白ができ、上下中央からずれるため) */
+.form-control lightning-input,
+.form-control lightning-combobox,
+.form-control lightning-button-group,
+.form-control c-year-month-picker {
+  margin: 0;
+  padding: 0;
 }
 
 /* 誕生日は日付の幅で表示する */
