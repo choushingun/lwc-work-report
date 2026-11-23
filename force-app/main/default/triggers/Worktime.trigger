@@ -25,8 +25,7 @@ trigger Worktime on Worktime__c(before insert, before update, after insert, afte
       // 年月チェック
       if (
         report == null ||
-        Integer.valueOf(report.Year__c) != w.WorkDay__c.year() ||
-        Integer.valueOf(report.Month__c) != w.WorkDay__c.month()
+        report.YearMonth__c != WorkreportController.toYearMonth(w.WorkDay__c)
       ) {
         w.addError('勤務表と同月以外の勤務実績を作成することができません。');
         continue;

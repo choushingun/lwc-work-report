@@ -10,12 +10,9 @@ const WORK_LIST_PAGE = 'workreport_list__c';
 const MONTH_REPORT_PAGE = 'workreport_view__c';
 const NUMBER_FIELDS = ['RestTime__c', 'UndertimeWork__c', 'OvertimeWork__c'];
 const INPUT_FIELDS = [
-  'Year__c',
-  'Month__c',
-  'StartHour__c',
-  'StartTime__c',
-  'EndHour__c',
-  'EndTime__c',
+  'YearMonth__c',
+  'WorkStart__c',
+  'WorkEnd__c',
   'LunchTime__c',
   'Workplace__c',
   'Approver__c',
@@ -37,7 +34,9 @@ const PROJECTS = [
 
 export default class WorkreportInput extends NavigationMixin(LightningElement) {
   report = {};
-  yearOptions = [];
+  // 作業年月で選べる範囲(yyyyMM)
+  minYearMonth;
+  maxYearMonth;
   picklistOptions = {};
   reportTo = '';
   reportToMail = '';
@@ -84,7 +83,8 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
       this.report = { ...data.report };
       this.isReadonly = data.isReadonly;
       this.initialInput = JSON.stringify(this.toInput());
-      this.yearOptions = data.yearOptions;
+      this.minYearMonth = data.minYearMonth;
+      this.maxYearMonth = data.maxYearMonth;
       this.picklistOptions = data.picklistOptions;
       this.reportTo = data.reportTo;
       this.reportToMail = data.reportToMail;
@@ -122,26 +122,6 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
     return !this.isAuthenticated && this.errorMessage;
   }
 
-  get monthOptions() {
-    return this.picklistOptions.Month__c ?? [];
-  }
-
-  get startHourOptions() {
-    return this.picklistOptions.StartHour__c ?? [];
-  }
-
-  get startTimeOptions() {
-    return this.picklistOptions.StartTime__c ?? [];
-  }
-
-  get endHourOptions() {
-    return this.picklistOptions.EndHour__c ?? [];
-  }
-
-  get endTimeOptions() {
-    return this.picklistOptions.EndTime__c ?? [];
-  }
-
   get lunchTimeOptions() {
     return this.picklistOptions.LunchTime__c ?? [];
   }
@@ -161,8 +141,14 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
     this.report = { ...this.report, [field]: event.target.value };
   }
 
+  // 年月部品・時刻部品は選んだ値(yyyyMM・HHmm)を detail.value で渡す
+  handlePickerChange(event) {
+    const { field } = event.target.dataset;
+    this.report = { ...this.report, [field]: event.detail.value };
+  }
+
   handleSave() {
-    const inputs = [...this.template.querySelectorAll('lightning-input, lightning-combobox')];
+    const inputs = [...this.template.querySelectorAll('lightning-input, lightning-combobox, c-year-month-picker, c-time-picker')];
     const isValid = inputs.reduce((valid, input) => input.reportValidity() && valid, true);
     if (!isValid) {
       return;

@@ -29,7 +29,7 @@ public class ApprovalListController {
     if (!Pattern.matches('\\d{4}', yyyy ?? '') || !Pattern.matches('(0[1-9]|1[0-2])', mm ?? '')) {
       throw createException('年月の指定が正しくありません。');
     }
-    return WorkreportDao.getListBySuperior(contactId, yyyy, mm);
+    return WorkreportDao.getListBySuperior(contactId, yyyy + mm);
   }
 
   // ---------------------------------------------------------------- 承認

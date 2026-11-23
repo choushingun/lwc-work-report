@@ -3,8 +3,8 @@
     <fullName>StartTime__c</fullName>
     <externalId>false</externalId>
     <inlineHelpText>実績作成時デフォルト値としてコピーされます。</inlineHelpText>
-    <label>勤務開始（分）</label>
-    <required>true</required>
+    <label>(旧)勤務開始（分）</label>
+    <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

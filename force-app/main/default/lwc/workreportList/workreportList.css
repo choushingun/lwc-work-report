@@ -62,3 +62,8 @@
 .text-red {
   color: #ea001e;
 }
+
+/* 一覧の最後の行とカードの下端の間に余白を空ける(基本情報画面と同じ) */
+.card-body {
+  padding-bottom: 1.5rem;
+}

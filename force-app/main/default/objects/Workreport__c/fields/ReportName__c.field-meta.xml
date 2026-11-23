@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ReportName__c</fullName>
     <externalId>false</externalId>
-    <formula>TEXT(Year__c) &amp; &quot;年&quot; &amp; TEXT(Month__c) &amp; &quot;月&quot;</formula>
+    <formula>LEFT(YearMonth__c, 4) &amp; &quot;年&quot; &amp; RIGHT(YearMonth__c, 2) &amp; &quot;月&quot;</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>勤務表略名</label>
     <required>false</required>

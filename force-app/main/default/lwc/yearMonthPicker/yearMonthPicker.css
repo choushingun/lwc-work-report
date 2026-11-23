@@ -42,6 +42,19 @@
   box-shadow: 0 0 0 1px var(--dxp-g-brand, #0176d3);
 }
 
+/* 入力エラー(標準の入力欄のエラーと同じ赤枠・赤字) */
+.picker-input_error,
+.picker-input_error:focus {
+  border-color: #ea001e;
+  box-shadow: 0 0 0 1px #ea001e;
+}
+
+.error-message {
+  margin-top: 0.125rem;
+  color: #ea001e;
+  font-size: 0.75rem;
+}
+
 .picker-input:disabled {
   background-color: #f3f3f3;
   cursor: default;

@@ -7,15 +7,17 @@
  */
 public class WorkreportInputController {
   private static final String STATUS_DRAFT = 'ドラフト';
+  // 作業年月の形式(yyyyMM)
+  private static final Pattern YEAR_MONTH_PATTERN = Pattern.compile('^[0-9]{4}(0[1-9]|1[0-2])$');
+  // 勤務開始・終了時間の形式(HHmm。分は15分単位)
+  private static final Pattern TIME_PATTERN = Pattern.compile('^([01][0-9]|2[0-3])(00|15|30|45)$');
   // 曜日判定の基準日(日曜日)
   private static final Date BASE_SUNDAY = Date.newInstance(1900, 1, 7);
   private static final String GOOGLE_HOLIDAY_URL = 'https://www.googleapis.com/calendar/v3/calendars/ja.japanese%23holiday%40group.v.calendar.google.com/events';
   // 画面で入力できる項目(複製元から引き継ぐ項目)
   private static final List<String> INPUT_FIELDS = new List<String>{
-    'StartHour__c',
-    'StartTime__c',
-    'EndHour__c',
-    'EndTime__c',
+    'WorkStart__c',
+    'WorkEnd__c',
     'LunchTime__c',
     'RestTime__c',
     'UndertimeWork__c',
@@ -35,8 +37,11 @@ public class WorkreportInputController {
   public class InitData {
     @AuraEnabled
     public Workreport__c report;
+    // 作業年月で選べる範囲(yyyyMM)
     @AuraEnabled
-    public List<Option> yearOptions;
+    public String minYearMonth;
+    @AuraEnabled
+    public String maxYearMonth;
     @AuraEnabled
     public Map<String, List<Option>> picklistOptions;
     // 勤務表自社送付先
@@ -81,19 +86,13 @@ public class WorkreportInputController {
       report = (Workreport__c) Workreport__c.SObjectType.newSObject(null, true);
     }
     Date today = Date.today();
-    report.Year__c = String.valueOf(today.year());
-    report.Month__c = String.valueOf(today.month()).leftPad(2, '0');
+    report.YearMonth__c = WorkreportController.toYearMonth(today);
     report.Status__c = STATUS_DRAFT;
 
     InitData data = new InitData();
     data.report = report;
-    data.yearOptions = getYearOptions(today);
+    setYearMonthRange(data, today);
     data.picklistOptions = new Map<String, List<Option>>{
-      'Month__c' => getPicklistOptions(Workreport__c.Month__c),
-      'StartHour__c' => getPicklistOptions(Workreport__c.StartHour__c),
-      'StartTime__c' => getPicklistOptions(Workreport__c.StartTime__c),
-      'EndHour__c' => getPicklistOptions(Workreport__c.EndHour__c),
-      'EndTime__c' => getPicklistOptions(Workreport__c.EndTime__c),
       'LunchTime__c' => getPicklistOptions(Workreport__c.LunchTime__c)
     };
     data.reportTo = con.Account?.ReportTo__c;
@@ -105,9 +104,11 @@ public class WorkreportInputController {
   // 勤務表保存(新規・複製の場合は勤務実績も一括作成し、勤務表Idを返す。Idがある場合は編集として更新する)
   @AuraEnabled
   public static Id saveReport(String sessionKey, Workreport__c input) {
-    if (input == null || String.isBlank(input.Year__c) || String.isBlank(input.Month__c)) {
-      throw createException('作業年月を選択してください。');
+    if (input == null || String.isBlank(input.YearMonth__c)) {
+      throw createException('作業年月を入力してください。');
     }
+    checkTime(input.WorkStart__c, '勤務開始時間');
+    checkTime(input.WorkEnd__c, '勤務終了時間');
     if (
       input.UndertimeWork__c != null &&
       input.OvertimeWork__c != null &&
@@ -118,14 +119,17 @@ public class WorkreportInputController {
     if (input.Id != null) {
       return updateReport(sessionKey, input);
     }
-    if (isOutOfRange(input.Year__c, input.Month__c)) {
+    if (!YEAR_MONTH_PATTERN.matcher(input.YearMonth__c).matches()) {
+      throw createException('作業年月を入力し直してください。');
+    }
+    if (isOutOfRange(input.YearMonth__c)) {
       throw createException('先月以前来月以降の勤務表を作成することができません。');
     }
     // コールアウトはDMLより前に行う必要があるため、セッション認証(最終アクセス日時の更新)より先に祝日を取得する
-    List<Holiday__c> newHolidays = fetchHolidaysIfMissing(Integer.valueOf(input.Year__c));
+    List<Holiday__c> newHolidays = fetchHolidaysIfMissing(WorkreportController.toFirstDay(input.YearMonth__c).year());
 
     Id contactId = WorkreportSession.getContactId(sessionKey);
-    Integer duplicates = WorkreportDao.countByYearMonth(contactId, input.Year__c, input.Month__c);
+    Integer duplicates = WorkreportDao.countByYearMonth(contactId, input.YearMonth__c);
     if (duplicates > 0) {
       throw createException('勤務表がすでに存在しています。');
     }
@@ -133,21 +137,18 @@ public class WorkreportInputController {
     Contact con = ContactDao.getWithAccountById(contactId);
     // 画面から受け取るのは入力項目のみとし、それ以外はサーバー側で設定する
     Workreport__c report = copyInputFields(input);
-    report.Year__c = input.Year__c;
-    report.Month__c = input.Month__c;
+    report.YearMonth__c = input.YearMonth__c;
     report.Contact__c = contactId;
     report.Status__c = STATUS_DRAFT;
     report.Superior__c = con.ReportsToId;
-    Integer year = Integer.valueOf(report.Year__c);
-    Integer month = Integer.valueOf(report.Month__c);
     // 提出日(月末)
-    report.SubmitDate__c = Date.newInstance(year, month, 1).addMonths(1).addDays(-1);
+    report.SubmitDate__c = WorkreportController.toFirstDay(report.YearMonth__c).addMonths(1).addDays(-1);
     String contactName = removeSpace(con.Name);
     report.Name = String.format(
       '{0}{1}年{2}月勤務表',
-      new List<String>{ contactName, report.Year__c, report.Month__c }
+      new List<String>{ contactName, report.YearMonth__c.left(4), report.YearMonth__c.right(2) }
     );
-    report.ReportFileName__c = buildReportFileName(report.Year__c, report.Month__c, con.Account, con.Name);
+    report.ReportFileName__c = buildReportFileName(report.YearMonth__c, con.Account, con.Name);
     Datetime now = System.now();
     report.CreatedBy__c = contactId;
     report.Created__c = now;
@@ -169,7 +170,7 @@ public class WorkreportInputController {
   // 編集モードの初期表示データ(年月は変更不可。上長は勤務表に設定済みの上長を表示する)
   private static InitData getEditData(Id reportId, Id contactId, Contact con) {
     List<String> fields = new List<String>(INPUT_FIELDS);
-    fields.addAll(new List<String>{ 'Id', 'Year__c', 'Month__c', 'Status__c', 'ReportName__c', 'Superior__r.Name' });
+    fields.addAll(new List<String>{ 'Id', 'YearMonth__c', 'Status__c', 'ReportName__c', 'Superior__r.Name' });
     List<Workreport__c> reports = reportId == null
       ? new List<Workreport__c>()
       : WorkreportDao.getFieldListById(reportId, contactId, fields);
@@ -181,14 +182,10 @@ public class WorkreportInputController {
     InitData data = new InitData();
     data.report = report;
     data.isReadonly = WorkreportController.isReadonly(report);
-    // 勤務表の年が選択肢にない場合(前年など)も表示できるよう、その年だけを選択肢にする
-    data.yearOptions = new List<Option>{ new Option(report.Year__c, report.Year__c) };
+    // 年月は変更不可のため、選べる範囲は勤務表の年月だけにする
+    data.minYearMonth = report.YearMonth__c;
+    data.maxYearMonth = report.YearMonth__c;
     data.picklistOptions = new Map<String, List<Option>>{
-      'Month__c' => getPicklistOptions(Workreport__c.Month__c),
-      'StartHour__c' => getPicklistOptions(Workreport__c.StartHour__c),
-      'StartTime__c' => getPicklistOptions(Workreport__c.StartTime__c),
-      'EndHour__c' => getPicklistOptions(Workreport__c.EndHour__c),
-      'EndTime__c' => getPicklistOptions(Workreport__c.EndTime__c),
       'LunchTime__c' => getPicklistOptions(Workreport__c.LunchTime__c)
     };
     data.reportTo = con.Account?.ReportTo__c;
@@ -203,7 +200,7 @@ public class WorkreportInputController {
     List<Workreport__c> reports = WorkreportDao.getFieldListById(
       input.Id,
       contactId,
-      new List<String>{ 'Id', 'Year__c', 'Month__c', 'Status__c' }
+      new List<String>{ 'Id', 'YearMonth__c', 'Status__c' }
     );
     if (reports.isEmpty()) {
       throw createException('勤務表が見つかりません。');
@@ -247,16 +244,12 @@ public class WorkreportInputController {
     return report;
   }
 
-  // 作業年の選択肢(1月15日の締め日前は前年も選択可能)
-  private static List<Option> getYearOptions(Date today) {
-    List<Option> options = new List<Option>();
-    Integer thisYear = today.year();
-    if (today.month() == 1 && today.day() < 15) {
-      options.add(new Option(String.valueOf(thisYear - 1), String.valueOf(thisYear - 1)));
-    }
-    options.add(new Option(String.valueOf(thisYear), String.valueOf(thisYear)));
-    options.add(new Option(String.valueOf(thisYear + 1), String.valueOf(thisYear + 1)));
-    return options;
+  // 作業年月で選べる範囲(isOutOfRange と同じく先々月～再来月。1月15日以降は前年分を除く)
+  private static void setYearMonthRange(InitData data, Date today) {
+    Date thisMonth = today.toStartOfMonth();
+    Boolean isLastYearClosed = today.month() == 1 && today.day() >= 15;
+    data.minYearMonth = WorkreportController.toYearMonth(thisMonth.addMonths(isLastYearClosed ? 0 : -2));
+    data.maxYearMonth = WorkreportController.toYearMonth(thisMonth.addMonths(2));
   }
 
   private static List<Option> getPicklistOptions(Schema.SObjectField field) {
@@ -271,9 +264,9 @@ public class WorkreportInputController {
 
   // 先々月～再来月以外の勤務表は作成不可(1月15日以降は締め済みのため前年分も不可)
   @TestVisible
-  private static Boolean isOutOfRange(String y, String m) {
+  private static Boolean isOutOfRange(String yearMonth) {
     Date today = Date.today();
-    Integer months = today.monthsBetween(Date.newInstance(Integer.valueOf(y), Integer.valueOf(m), 1));
+    Integer months = today.monthsBetween(WorkreportController.toFirstDay(yearMonth));
     if (months >= 3 || months <= -3) {
       return true;
     }
@@ -322,9 +315,7 @@ public class WorkreportInputController {
 
   // 当月分の勤務実績作成(土日・祝日は休みとする)
   private static List<Worktime__c> createWorktimes(Workreport__c report) {
-    Integer year = Integer.valueOf(report.Year__c);
-    Integer month = Integer.valueOf(report.Month__c);
-    Date firstDay = Date.newInstance(year, month, 1);
+    Date firstDay = WorkreportController.toFirstDay(report.YearMonth__c);
     Date lastDay = firstDay.addMonths(1).addDays(-1);
 
     Map<Date, String> holidays = new Map<Date, String>();
@@ -334,8 +325,9 @@ public class WorkreportInputController {
 
     String projectName = String.isNotBlank(report.ProjectName__c) ? report.ProjectName__c.split(',')[0] : null;
     String workplace = String.isNotBlank(report.Workplace__c) ? report.Workplace__c.split(';')[0] : null;
-    Boolean hasStart = report.StartHour__c != null && report.StartTime__c != null;
-    Boolean hasEnd = report.EndHour__c != null && report.EndTime__c != null;
+    // 勤務実績の時刻は時・分の項目に分けて設定する(勤務表は HHmm の1項目)
+    Boolean hasStart = String.isNotBlank(report.WorkStart__c);
+    Boolean hasEnd = String.isNotBlank(report.WorkEnd__c);
 
     List<Worktime__c> works = new List<Worktime__c>();
     for (Date day = firstDay; day <= lastDay; day = day.addDays(1)) {
@@ -345,10 +337,10 @@ public class WorkreportInputController {
         ProjectName__c = projectName,
         Workplace__c = workplace,
         RestTime__c = report.RestTime__c,
-        StartHour__c = hasStart ? report.StartHour__c : '09',
-        StartTime__c = hasStart ? report.StartTime__c : '00',
-        EndHour__c = hasEnd ? report.EndHour__c : '17',
-        EndTime__c = hasEnd ? report.EndTime__c : '30'
+        StartHour__c = hasStart ? report.WorkStart__c.left(2) : '09',
+        StartTime__c = hasStart ? report.WorkStart__c.right(2) : '00',
+        EndHour__c = hasEnd ? report.WorkEnd__c.left(2) : '17',
+        EndTime__c = hasEnd ? report.WorkEnd__c.right(2) : '30'
       );
 
       if (holidays.containsKey(day)) {
@@ -379,12 +371,22 @@ public class WorkreportInputController {
 
   // 勤務表ファイル名(作業報告書_YYYY年MM月_会社略名_氏名.xlsx。略名がなければ会社名を使う)
   // 月末締め(WorkreportController.completeReport)でも、その時点の略名で作り直すために使う
-  public static String buildReportFileName(String year, String month, Account acc, String contactName) {
+  public static String buildReportFileName(String yearMonth, Account acc, String contactName) {
     String accountName = String.isNotBlank(acc?.Abbreviation__c) ? acc.Abbreviation__c : acc?.Name;
     return String.format(
       '作業報告書_{0}年{1}月_{2}_{3}.xlsx',
-      new List<String>{ year, month, removeSpace(accountName), removeSpace(contactName) }
+      new List<String>{ yearMonth.left(4), yearMonth.right(2), removeSpace(accountName), removeSpace(contactName) }
     );
+  }
+
+  // 勤務開始・終了時間のチェック(必須。HHmm で分は15分単位)
+  private static void checkTime(String value, String label) {
+    if (String.isBlank(value)) {
+      throw createException(label + 'を入力してください。');
+    }
+    if (!TIME_PATTERN.matcher(value).matches()) {
+      throw createException(label + 'を入力し直してください。');
+    }
   }
 
   // 全角半角スペース削除

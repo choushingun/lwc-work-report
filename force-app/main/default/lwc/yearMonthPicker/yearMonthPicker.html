@@ -3,23 +3,28 @@
        LWRサイトではSLDSのCSSが部品の中に効かないため、SLDSのクラスは使わずこの部品のCSSで表示する -->
   <div class="picker" onfocusout={handleFocusOut} onkeydown={handleKeyDown}>
     <div class="input-wrapper">
+      <!-- 年月を直接入力できる(フォーカスが外れたとき・Enter キーで確定する) -->
       <input
         type="text"
-        class="picker-input"
-        readonly
-        placeholder="年月を選択"
-        value={displayValue}
+        class={inputClass}
+        placeholder="例：2020/04"
+        maxlength="10"
+        value={inputText}
         aria-label={label}
         aria-haspopup="dialog"
         aria-expanded={ariaExpanded}
+        aria-invalid={hasError}
         disabled={disabled}
-        onclick={handleToggle}
+        onclick={handleInputClick}
+        oninput={handleInput}
+        onchange={handleInputChange}
         onkeydown={handleInputKeyDown}
       />
       <button class="icon-button" title="年月を選択" disabled={disabled} onclick={handleToggle}>
         <lightning-icon icon-name="utility:event" size="xx-small" alternative-text="年月を選択"></lightning-icon>
       </button>
     </div>
+    <div lwc:if={hasError} class="error-message" role="alert">{errorMessage}</div>
 
     <!-- 標準の日付カレンダーと同じ配置：上段は「‹ 年 ›」と年のプルダウン、中段は12か月、下段は中央に「今月」 -->
     <div lwc:if={isOpen} class="month-panel" role="dialog" aria-label={label} tabindex="-1">

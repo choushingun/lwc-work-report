@@ -108,7 +108,9 @@ export default class Workreport extends NavigationMixin(LightningElement) {
 
   get workHours() {
     const r = this.report;
-    return `${r.StartHour__c ?? ''}時${r.StartTime__c ?? ''}分～${r.EndHour__c ?? ''}時${r.EndTime__c ?? ''}分`;
+    // 勤務開始・終了時間は HHmm
+    const format = (time) => (time ? `${time.slice(0, 2)}時${time.slice(2, 4)}分` : '');
+    return `${format(r.WorkStart__c)}～${format(r.WorkEnd__c)}`;
   }
 
   get standardHours() {
@@ -270,15 +272,18 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     return `${now.getFullYear()}-${mm}-${dd}`;
   }
 
-  // 月末締め確認ダイアログを開く
+  // 月末締め(先に入力内容をチェックし、問題がなければ確認ダイアログを開く。エラーはダイアログで表示する)
   handleComplete() {
-    this.dialog = {
-      title: '月末締め',
-      messages: ['勤務表を締めて作成完了にしますか？', '月末締めをすると、勤務表・勤務実績の編集ができなくなります。'],
-      confirmLabel: 'はい',
-      cancelLabel: 'いいえ',
-      onConfirm: () => this.completeReport()
-    };
+    this.callApex(async () => {
+      const data = await getCompleteData({ sessionKey: getSessionKey(), reportId: this.reportId });
+      this.dialog = {
+        title: '月末締め',
+        messages: ['勤務表を締めて作成完了にしますか？', '月末締めをすると、勤務表・勤務実績の編集ができなくなります。'],
+        confirmLabel: 'はい',
+        cancelLabel: 'いいえ',
+        onConfirm: () => this.completeReport(data)
+      };
+    });
   }
 
   // 処理結果ダイアログを開く(OKボタンのみ)
@@ -316,13 +321,12 @@ export default class Workreport extends NavigationMixin(LightningElement) {
     });
   }
 
-  // 月末締め(入力内容のチェック後、勤務表ファイルを作成して添付する。成功後は勤務表を再取得し、編集不可の状態で表示する)
-  completeReport() {
+  // 月末締め(チェック済みのデータで勤務表ファイルを作成して添付する。成功後は勤務表を再取得し、編集不可の状態で表示する)
+  // 確認中に他の画面で変更された場合に備え、completeReport でもサーバー側で再度チェックする
+  completeReport(data) {
     this.callApex(async () => {
-      const sessionKey = getSessionKey();
-      const data = await getCompleteData({ sessionKey, reportId: this.reportId });
       const fileContent = await createWorkreportFile(this, data);
-      const message = await completeReport({ sessionKey, reportId: this.reportId, fileContent });
+      const message = await completeReport({ sessionKey: getSessionKey(), reportId: this.reportId, fileContent });
       await this.fetchReport();
       return message;
     });

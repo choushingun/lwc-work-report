@@ -170,14 +170,12 @@
         <customTabListAdditionalFields>Overtime__c</customTabListAdditionalFields>
         <excludedStandardButtons>Accept</excludedStandardButtons>
         <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
-        <lookupDialogsAdditionalFields>Month__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>YearMonth__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>ProjectName__c</lookupDialogsAdditionalFields>
         <lookupFilterFields>NAME</lookupFilterFields>
-        <lookupFilterFields>Month__c</lookupFilterFields>
-        <lookupFilterFields>Year__c</lookupFilterFields>
+        <lookupFilterFields>YearMonth__c</lookupFilterFields>
         <searchFilterFields>NAME</searchFilterFields>
-        <searchFilterFields>Month__c</searchFilterFields>
-        <searchFilterFields>Year__c</searchFilterFields>
+        <searchFilterFields>YearMonth__c</searchFilterFields>
         <searchResultsAdditionalFields>Contact__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>WorkDays__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>StandardWorktime__c</searchResultsAdditionalFields>

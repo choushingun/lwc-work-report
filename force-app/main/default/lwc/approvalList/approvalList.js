@@ -82,14 +82,17 @@ export default class ApprovalList extends NavigationMixin(LightningElement) {
     return addMonths(currentYearMonth(), FUTURE_MONTHS);
   }
 
-  // 年月の選択肢(新しい月順。桁をそろえるため月は2桁で表示する)
-  get monthOptions() {
-    const options = [];
-    for (let ym = this.maxYearMonth; ym >= this.minYearMonth; ym = addMonths(ym, -1)) {
-      const [year, month] = ym.split('-');
-      options.push({ label: `${year}年${month}月`, value: ym, selected: ym === this.yearMonth });
-    }
-    return options;
+  // 年月部品に渡す値・範囲(yyyyMM。この画面の年月は YYYY-MM で持つ)
+  get pickerValue() {
+    return this.yearMonth?.replace('-', '') ?? '';
+  }
+
+  get pickerMin() {
+    return this.minYearMonth.replace('-', '');
+  }
+
+  get pickerMax() {
+    return this.maxYearMonth.replace('-', '');
   }
 
   get isFirstMonth() {
@@ -249,8 +252,13 @@ export default class ApprovalList extends NavigationMixin(LightningElement) {
     this.changeMonth(addMonths(this.yearMonth, 1));
   }
 
+  // 年月部品で選んだ年月(yyyyMM)を YYYY-MM にして切り替える(空にした場合は切り替えない)
   handleMonthChange(event) {
-    this.changeMonth(event.target.value);
+    const value = event.detail.value;
+    if (!value) {
+      return;
+    }
+    this.changeMonth(`${value.slice(0, 4)}-${value.slice(4, 6)}`);
   }
 
   // 年月をURLに設定する(ページ参照が変わると一覧を再取得する。履歴は置き換える)

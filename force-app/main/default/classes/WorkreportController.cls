@@ -89,11 +89,11 @@ public class WorkreportController {
     data.report = report;
     data.isOwner = isOwner;
     data.worktimes = toRows(report.WorkreportRelation__r);
-    data.isCurrentMonth = isCurrentMonth(report.Year__c, report.Month__c);
+    data.isCurrentMonth = report.YearMonth__c == toYearMonth(Date.today());
     // 部下の勤務表は参照のみ(締め取消などの操作はできない)
     data.isReadonly = !isOwner || isReadonly(report);
     data.canCancelComplete = isOwner && canCancelComplete(report);
-    data.isClosableMonth = isClosableMonth(report.Year__c, report.Month__c);
+    data.isClosableMonth = isClosableMonth(report.YearMonth__c);
     // お知らせは社員本人向けの内容のため、部下の勤務表では表示しない
     data.messages = isOwner ? getMessages(report) : new List<String>();
     String fileName = getReportFileName(report);
@@ -160,8 +160,7 @@ public class WorkreportController {
 
     // ファイル名は勤務表作成時に決まるが、その後に会社の略名が登録・変更されることがあるため、締めの時点で作り直す
     String fileName = WorkreportInputController.buildReportFileName(
-      report.Year__c,
-      report.Month__c,
+      report.YearMonth__c,
       report.Contact__r?.Account,
       report.Contact__r?.Name
     );
@@ -218,8 +217,8 @@ public class WorkreportController {
     if (isReadonly(report)) {
       throw createException('この勤務表は締めることができません。');
     }
-    if (!isClosableMonth(report.Year__c, report.Month__c)) {
-      throw createException('月末締めは' + Integer.valueOf(report.Month__c) + '月になってから行ってください。');
+    if (!isClosableMonth(report.YearMonth__c)) {
+      throw createException('月末締めは' + toFirstDay(report.YearMonth__c).month() + '月になってから行ってください。');
     }
     // 現場承認者
     if (String.isBlank(report.Approver__c) || String.isBlank(report.ApproverMail__c)) {
@@ -279,7 +278,7 @@ public class WorkreportController {
   }
 
   private static Boolean canCancelComplete(Workreport__c report) {
-    return report.Status__c == STATUS_COMPLETED && !isReadonlyMonth(report.Year__c, report.Month__c);
+    return report.Status__c == STATUS_COMPLETED && !isReadonlyMonth(report.YearMonth__c);
   }
 
   // 会社提出分の実績を表示用に変換する(客先提出分の備考と時間は備考にまとめる)
@@ -343,26 +342,30 @@ public class WorkreportController {
     return messages;
   }
 
-  // 月末締めできる年月(当月以前)
-  private static Boolean isClosableMonth(String yyyy, String mm) {
-    Date today = Date.today();
-    return Date.newInstance(Integer.valueOf(yyyy), Integer.valueOf(mm), 1) <= today.toStartOfMonth();
+  // 日付の年月(yyyyMM。作業年月と比べる用)
+  public static String toYearMonth(Date day) {
+    return String.valueOf(day.year()) + String.valueOf(day.month()).leftPad(2, '0');
   }
 
-  private static Boolean isCurrentMonth(String yyyy, String mm) {
-    Date today = Date.today();
-    return yyyy == String.valueOf(today.year()) && mm == String.valueOf(today.month()).leftPad(2, '0');
+  // 作業年月(yyyyMM)の1日
+  public static Date toFirstDay(String yearMonth) {
+    return Date.newInstance(Integer.valueOf(yearMonth.left(4)), Integer.valueOf(yearMonth.right(2)), 1);
+  }
+
+  // 月末締めできる年月(当月以前)
+  private static Boolean isClosableMonth(String yearMonth) {
+    return toFirstDay(yearMonth) <= Date.today().toStartOfMonth();
   }
 
   // 編集不可(状況または年月による)の判定。実績入力画面(WorktimeInputController)からも使う
   public static Boolean isReadonly(Workreport__c report) {
-    return READONLY_STATUSES.contains(report.Status__c) || isReadonlyMonth(report.Year__c, report.Month__c);
+    return READONLY_STATUSES.contains(report.Status__c) || isReadonlyMonth(report.YearMonth__c);
   }
 
   // 先々月～再来月以外の勤務表は編集不可とする
-  private static Boolean isReadonlyMonth(String yyyy, String mm) {
+  private static Boolean isReadonlyMonth(String yearMonth) {
     Date today = Date.today();
-    Integer months = today.monthsBetween(Date.newInstance(Integer.valueOf(yyyy), Integer.valueOf(mm), 1));
+    Integer months = today.monthsBetween(toFirstDay(yearMonth));
     Boolean isReadonly = months >= 3 || months <= -3;
     // 1月15日以降は締め済みのため、去年12月以前の勤務表は編集不可
     if (today.month() == 1 && today.day() >= 15 && months <= -1) {

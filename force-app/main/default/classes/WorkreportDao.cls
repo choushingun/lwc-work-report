@@ -9,7 +9,7 @@ public without sharing class WorkreportDao {
   public static Map<Id, Workreport__c> getMapByIds(Set<Id> reportIds) {
     return new Map<Id, Workreport__c>(
       [
-        SELECT Id, Year__c, Month__c, LastModified__c
+        SELECT Id, YearMonth__c, LastModified__c
         FROM Workreport__c
         WHERE Id IN :reportIds
         WITH SYSTEM_MODE
@@ -33,13 +33,13 @@ public without sharing class WorkreportDao {
       FROM Workreport__c
       WHERE Contact__c = :contactId
       WITH SYSTEM_MODE
-      ORDER BY Year__c DESC, Month__c DESC
+      ORDER BY YearMonth__c DESC
     ];
   }
 
   // 上長(管理職)の部下の指定年月の勤務表一覧(勤務承認画面用、社員番号順)
   // 上司が空白の管理職(上長のない自分の勤務表)は、自分の勤務表も含める
-  public static List<Workreport__c> getListBySuperior(Id superiorId, String year, String month) {
+  public static List<Workreport__c> getListBySuperior(Id superiorId, String yearMonth) {
     return [
       SELECT
         Id,
@@ -57,8 +57,7 @@ public without sharing class WorkreportDao {
         (Superior__c = :superiorId
         OR (Contact__c = :superiorId
         AND Superior__c = NULL))
-        AND Year__c = :year
-        AND Month__c = :month
+        AND YearMonth__c = :yearMonth
       WITH SYSTEM_MODE
       ORDER BY EmployeeNo__c, ReportName__c
     ];
@@ -72,8 +71,7 @@ public without sharing class WorkreportDao {
         Name,
         ReportName__c,
         ReportFileName__c,
-        Year__c,
-        Month__c,
+        YearMonth__c,
         Status__c,
         StatusForOrder__c,
         ProjectName__c,
@@ -105,22 +103,22 @@ public without sharing class WorkreportDao {
     ];
   }
 
-  // 社員の指定年月の勤務表件数
-  public static Integer countByYearMonth(Id contactId, String year, String month) {
+  // 社員の指定年月(yyyyMM)の勤務表件数
+  public static Integer countByYearMonth(Id contactId, String yearMonth) {
     return [
       SELECT COUNT()
       FROM Workreport__c
-      WHERE Contact__c = :contactId AND Year__c = :year AND Month__c = :month
+      WHERE Contact__c = :contactId AND YearMonth__c = :yearMonth
       WITH SYSTEM_MODE
     ];
   }
 
-  // 社員の指定年月の勤務表(打刻用)
-  public static List<Workreport__c> getListByYearMonth(Id contactId, String year, String month) {
+  // 社員の指定年月(yyyyMM)の勤務表(打刻用)
+  public static List<Workreport__c> getListByYearMonth(Id contactId, String yearMonth) {
     return [
-      SELECT Id, Status__c, StartHour__c, StartTime__c, EndHour__c, EndTime__c, RestTime__c, ProjectName__c
+      SELECT Id, Status__c, WorkStart__c, WorkEnd__c, RestTime__c, ProjectName__c
       FROM Workreport__c
-      WHERE Year__c = :year AND Month__c = :month AND Contact__c = :contactId
+      WHERE YearMonth__c = :yearMonth AND Contact__c = :contactId
       WITH SYSTEM_MODE
       LIMIT 1
     ];
@@ -151,13 +149,10 @@ public without sharing class WorkreportDao {
       SELECT
         Id,
         ReportName__c,
-        Year__c,
-        Month__c,
+        YearMonth__c,
         Status__c,
-        StartHour__c,
-        StartTime__c,
-        EndHour__c,
-        EndTime__c,
+        WorkStart__c,
+        WorkEnd__c,
         RestTime__c,
         ProjectName__c,
         ProjectName2__c,
@@ -182,13 +177,10 @@ public without sharing class WorkreportDao {
         Id,
         ReportName__c,
         UserName__c,
-        Year__c,
-        Month__c,
+        YearMonth__c,
         Status__c,
-        StartHour__c,
-        StartTime__c,
-        EndHour__c,
-        EndTime__c,
+        WorkStart__c,
+        WorkEnd__c,
         UndertimeWork__c,
         OvertimeWork__c,
         WorkDays__c,

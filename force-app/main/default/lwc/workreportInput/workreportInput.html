@@ -19,39 +19,24 @@
           </h2>
           <lightning-layout multiple-rows class="section-body">
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
-              <fieldset class="slds-form-element slds-form-element_horizontal">
-                <legend class="slds-form-element__legend slds-form-element__label">
-                  作業年月<abbr class="slds-required" title="必須">*</abbr>
-                </legend>
+              <div class="slds-form-element slds-form-element_horizontal">
+                <span class="slds-form-element__label"
+                  >作業年月<abbr class="slds-required" title="必須">*</abbr></span
+                >
                 <div class="slds-form-element__control">
-                  <div class="slds-grid slds-grid_vertical-align-center">
-                    <lightning-combobox
-                      class="compound-item"
-                      label="作業年"
-                      variant="label-hidden"
-                      required
-                      value={report.Year__c}
-                      options={yearOptions}
-                      disabled={yearMonthDisabled}
-                      data-field="Year__c"
-                      onchange={handleChange}
-                    ></lightning-combobox>
-                    <span class="slds-p-horizontal_xx-small">年</span>
-                    <lightning-combobox
-                      class="compound-item"
-                      label="作業月"
-                      variant="label-hidden"
-                      required
-                      value={report.Month__c}
-                      options={monthOptions}
-                      disabled={yearMonthDisabled}
-                      data-field="Month__c"
-                      onchange={handleChange}
-                    ></lightning-combobox>
-                    <span class="slds-p-left_xx-small">月</span>
-                  </div>
+                  <!-- 選べる範囲は先々月～再来月(編集モードは変更不可) -->
+                  <c-year-month-picker
+                    label="作業年月"
+                    required
+                    value={report.YearMonth__c}
+                    min={minYearMonth}
+                    max={maxYearMonth}
+                    disabled={yearMonthDisabled}
+                    data-field="YearMonth__c"
+                    onchange={handlePickerChange}
+                  ></c-year-month-picker>
                 </div>
-              </fieldset>
+              </div>
             </lightning-layout-item>
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
               <div class="slds-form-element slds-form-element_horizontal">
@@ -74,74 +59,42 @@
             </lightning-layout-item>
 
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
-              <fieldset class="slds-form-element slds-form-element_horizontal">
-                <legend class="slds-form-element__legend slds-form-element__label">
-                  勤務開始時間<abbr class="slds-required" title="必須">*</abbr>
-                </legend>
+              <div class="slds-form-element slds-form-element_horizontal">
+                <span class="slds-form-element__label"
+                  >勤務開始時間<abbr class="slds-required" title="必須">*</abbr></span
+                >
                 <div class="slds-form-element__control">
-                  <div class="slds-grid slds-grid_vertical-align-center">
-                    <lightning-combobox
-                      class="compound-item"
-                      label="勤務開始(時)"
-                      variant="label-hidden"
-                      required
-                      value={report.StartHour__c}
-                      options={startHourOptions}
-                      disabled={isReadonly}
-                      data-field="StartHour__c"
-                      onchange={handleChange}
-                    ></lightning-combobox>
-                    <span class="slds-p-horizontal_xx-small">時</span>
-                    <lightning-combobox
-                      class="compound-item"
-                      label="勤務開始(分)"
-                      variant="label-hidden"
-                      required
-                      value={report.StartTime__c}
-                      options={startTimeOptions}
-                      disabled={isReadonly}
-                      data-field="StartTime__c"
-                      onchange={handleChange}
-                    ></lightning-combobox>
-                    <span class="slds-p-left_xx-small">分</span>
-                  </div>
+                  <!-- 時は 08 時から並べる(勤務時間の選択リストと同じ順) -->
+                  <c-time-picker
+                    label="勤務開始時間"
+                    required
+                    first-hour="8"
+                    value={report.WorkStart__c}
+                    disabled={isReadonly}
+                    data-field="WorkStart__c"
+                    onchange={handlePickerChange}
+                  ></c-time-picker>
                 </div>
-              </fieldset>
+              </div>
             </lightning-layout-item>
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">
-              <fieldset class="slds-form-element slds-form-element_horizontal">
-                <legend class="slds-form-element__legend slds-form-element__label">
-                  勤務終了時間<abbr class="slds-required" title="必須">*</abbr>
-                </legend>
+              <div class="slds-form-element slds-form-element_horizontal">
+                <span class="slds-form-element__label"
+                  >勤務終了時間<abbr class="slds-required" title="必須">*</abbr></span
+                >
                 <div class="slds-form-element__control">
-                  <div class="slds-grid slds-grid_vertical-align-center">
-                    <lightning-combobox
-                      class="compound-item"
-                      label="勤務終了(時)"
-                      variant="label-hidden"
-                      required
-                      value={report.EndHour__c}
-                      options={endHourOptions}
-                      disabled={isReadonly}
-                      data-field="EndHour__c"
-                      onchange={handleChange}
-                    ></lightning-combobox>
-                    <span class="slds-p-horizontal_xx-small">時</span>
-                    <lightning-combobox
-                      class="compound-item"
-                      label="勤務終了(分)"
-                      variant="label-hidden"
-                      required
-                      value={report.EndTime__c}
-                      options={endTimeOptions}
-                      disabled={isReadonly}
-                      data-field="EndTime__c"
-                      onchange={handleChange}
-                    ></lightning-combobox>
-                    <span class="slds-p-left_xx-small">分</span>
-                  </div>
+                  <!-- 時は 08 時から並べる(勤務時間の選択リストと同じ順) -->
+                  <c-time-picker
+                    label="勤務終了時間"
+                    required
+                    first-hour="8"
+                    value={report.WorkEnd__c}
+                    disabled={isReadonly}
+                    data-field="WorkEnd__c"
+                    onchange={handlePickerChange}
+                  ></c-time-picker>
                 </div>
-              </fieldset>
+              </div>
             </lightning-layout-item>
 
             <lightning-layout-item size="12" medium-device-size="6" padding="horizontal-small">

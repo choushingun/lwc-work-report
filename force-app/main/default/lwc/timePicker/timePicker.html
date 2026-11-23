@@ -1,0 +1,67 @@
+<template>
+  <!-- 時刻選択(日付入力と同じ見た目。左の列で時、右の列で分を選ぶ)
+       LWRサイトではSLDSのCSSが部品の中に効かないため、SLDSのクラスは使わずこの部品のCSSで表示する(年月部品と同じ) -->
+  <div class="picker" onfocusout={handleFocusOut} onkeydown={handleKeyDown}>
+    <div class="input-wrapper">
+      <!-- 時刻を直接入力できる(フォーカスが外れたとき・Enter キーで確定する) -->
+      <input
+        type="text"
+        class={inputClass}
+        placeholder="例：09:00"
+        maxlength="8"
+        value={inputText}
+        aria-label={label}
+        aria-haspopup="dialog"
+        aria-expanded={ariaExpanded}
+        aria-invalid={hasError}
+        disabled={disabled}
+        onclick={handleInputClick}
+        oninput={handleInput}
+        onchange={handleInputChange}
+        onkeydown={handleInputKeyDown}
+      />
+      <button class="icon-button" title="時刻を選択" disabled={disabled} onclick={handleToggle}>
+        <lightning-icon icon-name="utility:clock" size="xx-small" alternative-text="時刻を選択"></lightning-icon>
+      </button>
+    </div>
+    <div lwc:if={hasError} class="error-message" role="alert">{errorMessage}</div>
+
+    <!-- 左：時(スクロールして選ぶ)、右：分 -->
+    <div lwc:if={isOpen} class="time-panel" role="dialog" aria-label={label} tabindex="-1">
+      <div class="time-column">
+        <div class="column-title">時</div>
+        <ul class="time-list hour-list" role="listbox" aria-label="時">
+          <template for:each={hours} for:item="item">
+            <li key={item.value} class="time-cell">
+              <button
+                class={item.className}
+                aria-pressed={item.pressed}
+                data-value={item.value}
+                onclick={handleSelectHour}
+              >
+                {item.label}
+              </button>
+            </li>
+          </template>
+        </ul>
+      </div>
+      <div class="time-column">
+        <div class="column-title">分</div>
+        <ul class="time-list" role="listbox" aria-label="分">
+          <template for:each={minutes} for:item="item">
+            <li key={item.value} class="time-cell">
+              <button
+                class={item.className}
+                aria-pressed={item.pressed}
+                data-value={item.value}
+                onclick={handleSelectMinute}
+              >
+                {item.label}
+              </button>
+            </li>
+          </template>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>

@@ -19,10 +19,7 @@ public class WorkreportListController {
   public static String clockInOut(String sessionKey) {
     Id contactId = WorkreportSession.getContactId(sessionKey);
     Date today = Date.today();
-    String yyyy = String.valueOf(today.year());
-    String mm = String.valueOf(today.month()).leftPad(2, '0');
-
-    List<Workreport__c> reports = WorkreportDao.getListByYearMonth(contactId, yyyy, mm);
+    List<Workreport__c> reports = WorkreportDao.getListByYearMonth(contactId, WorkreportController.toYearMonth(today));
     if (reports.isEmpty()) {
       throw createException('当月の勤務表がありません。当月の勤務表を作成してください。');
     }
@@ -50,10 +47,15 @@ public class WorkreportListController {
       if (current.Memo__c == '全休') {
         wt.Memo__c = '';
       }
-      wt.StartHour__c = report.StartHour__c;
-      wt.StartTime__c = report.StartTime__c;
-      wt.EndHour__c = report.EndHour__c;
-      wt.EndTime__c = report.EndTime__c;
+      // 勤務表の時刻(HHmm)を勤務実績の時・分に分けて設定する
+      if (String.isNotBlank(report.WorkStart__c)) {
+        wt.StartHour__c = report.WorkStart__c.left(2);
+        wt.StartTime__c = report.WorkStart__c.right(2);
+      }
+      if (String.isNotBlank(report.WorkEnd__c)) {
+        wt.EndHour__c = report.WorkEnd__c.left(2);
+        wt.EndTime__c = report.WorkEnd__c.right(2);
+      }
       wt.RestTime__c = report.RestTime__c;
       if (String.isNotBlank(report.ProjectName__c)) {
         wt.ProjectName__c = report.ProjectName__c.split(',')[0];

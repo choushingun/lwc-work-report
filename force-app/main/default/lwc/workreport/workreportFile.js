@@ -30,9 +30,18 @@ export async function createWorkreportFile(component, { report, worktimes }) {
 
   writeWorktimes(sheet, report, worktimes);
   writeReportInfo(sheet, report);
-  sheet.name(`作業報告(${report.Month__c}月)`);
+  sheet.name(`作業報告(${getMonth(report)}月)`);
 
   return workbook.outputAsync({ type: 'base64' });
+}
+
+// 作業年月(yyyyMM)の年(4桁)・月(2桁)
+function getYear(report) {
+  return report.YearMonth__c.slice(0, 4);
+}
+
+function getMonth(report) {
+  return report.YearMonth__c.slice(4, 6);
 }
 
 // 勤務実績(1日～月末)と合計稼働時間を書き込む
@@ -50,7 +59,7 @@ function writeWorktimes(sheet, report, worktimes) {
     { name: report.ProjectName3__c, column: 'H', total: 0 }
   ].filter((project) => project.name);
 
-  const daysInMonth = new Date(Number(report.Year__c), Number(report.Month__c), 0).getDate();
+  const daysInMonth = new Date(Number(getYear(report)), Number(getMonth(report)), 0).getDate();
   const worktimesByDay = new Map(worktimes.map((wt) => [Number(wt.WorkDay__c.slice(8, 10)), wt]));
 
   for (let day = 1; day <= daysInMonth; day++) {
@@ -100,7 +109,7 @@ function writeReportInfo(sheet, report) {
   sheet.cell('D7').value(joinFields(report, ['ProjectCode__c', 'ProjectCode2__c', 'ProjectCode3__c']));
   sheet.cell('J8').value(report.Contact__r?.Account?.Name ?? '');
   sheet.cell('J10').value(report.Contact__r?.Name ?? '');
-  sheet.cell('C12').value(`${report.Year__c}年${report.Month__c}月度`);
+  sheet.cell('C12').value(`${getYear(report)}年${getMonth(report)}月度`);
   if (report.Approver__c) {
     let approverInfo = `承認者：${report.Approver__c}様 `;
     if (report.ApproverMail__c) {

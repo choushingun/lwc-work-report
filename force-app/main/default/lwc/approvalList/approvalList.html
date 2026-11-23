@@ -22,14 +22,17 @@
             disabled={isFirstMonth}
             onclick={handlePreviousMonth}
           ></lightning-button-icon>
-          <!-- 矢印の位置を調整するため、lightning-combobox ではなく標準の select を使う -->
-          <div class="slds-select_container month-select slds-m-horizontal_x-small">
-            <select class="slds-select" aria-label="年月" disabled={isLoading} onchange={handleMonthChange}>
-              <template for:each={monthOptions} for:item="opt">
-                <option key={opt.value} value={opt.value} selected={opt.selected}>{opt.label}</option>
-              </template>
-            </select>
-          </div>
+          <!-- 年月は共通部品(年月カレンダー)で選ぶ。直接入力もできる -->
+          <c-year-month-picker
+            class="month-picker slds-m-horizontal_x-small"
+            label="年月"
+            required
+            value={pickerValue}
+            min={pickerMin}
+            max={pickerMax}
+            disabled={isLoading}
+            onchange={handleMonthChange}
+          ></c-year-month-picker>
           <lightning-button-icon
             icon-name="utility:chevronright"
             alternative-text="翌月"
@@ -57,7 +60,7 @@
         </div>
       </div>
 
-      <div class="slds-card__body slds-card__body_inner">
+      <div class="slds-card__body slds-card__body_inner card-body">
         <div class="slds-scrollable_x">
           <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer report-table">
             <thead>
