@@ -6,8 +6,8 @@ const DEFAULT_MIN_YEAR = 1950;
  * 年月選択(年月カレンダー)
  *
  * 入力欄を押すとカレンダーを開き、年を ‹ › で切り替えて12か月から選ぶ。
- * value は月初日の日付文字列(yyyy-MM-dd)。日付が入っている場合も年月だけを表示する。
- * 選択・クリア(Delete・BackSpace キー)したら change イベントの detail.value に月初日(クリアは空文字)を渡す。
+ * value は年月の文字列(yyyyMM。例：202004)。
+ * 選択・クリア(Delete・BackSpace キー)したら change イベントの detail.value に年月(クリアは空文字)を渡す。
  */
 export default class YearMonthPicker extends LightningElement {
   // 項目名(読み上げ用。画面には表示しない)
@@ -26,11 +26,11 @@ export default class YearMonthPicker extends LightningElement {
 
   @api
   get value() {
-    return this.year && this.month ? `${this.year}-${String(this.month).padStart(2, '0')}-01` : '';
+    return this.year && this.month ? `${this.year}${String(this.month).padStart(2, '0')}` : '';
   }
 
   set value(value) {
-    const match = /^(\d{4})-(\d{2})/.exec(value ?? '');
+    const match = /^(\d{4})(0[1-9]|1[0-2])$/.exec(value ?? '');
     this.year = match ? Number(match[1]) : null;
     this.month = match ? Number(match[2]) : null;
   }

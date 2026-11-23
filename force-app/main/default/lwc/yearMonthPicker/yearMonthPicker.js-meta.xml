@@ -3,5 +3,5 @@
     <apiVersion>68.0</apiVersion>
     <isExposed>false</isExposed>
     <masterLabel>年月選択</masterLabel>
-    <description>年・月を選択する共通部品(値は月初日の yyyy-MM-dd)</description>
+    <description>年・月を選択する共通部品(値は yyyyMM)</description>
 </LightningComponentBundle>

@@ -14,8 +14,8 @@ const INPUT_FIELDS = [
   'graduatedSchool',
   'academicBackground',
   'major',
-  'graduateDate',
-  'comingJapanDate',
+  'graduateYearMonth',
+  'comingJapanYearMonth',
   'birthdate',
   'nearestLine',
   'nearestStation'

@@ -2,10 +2,10 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Experiences__c</fullName>
     <externalId>false</externalId>
-    <formula>IF(ISNULL(GraduateDate__c), 0,
-  IF(OR(MONTH(today())-MONTH(GraduateDate__c)&gt;0,AND(MONTH(TODAY()) - MONTH(GraduateDate__c)&gt;=0,DAY(TODAY()) - DAY(GraduateDate__c)&gt;=0)),
-  YEAR(TODAY()) - YEAR(GraduateDate__c),
-  YEAR(TODAY()) - YEAR(GraduateDate__c)-1)
+    <formula>IF(ISBLANK(GraduateYearMonth__c), 0,
+  FLOOR(
+    ((YEAR(TODAY()) * 12 + MONTH(TODAY())) - (VALUE(LEFT(GraduateYearMonth__c, 4)) * 12 + VALUE(RIGHT(GraduateYearMonth__c, 2)))) / 12
+  )
 )</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>【履歴書】実務年数</label>

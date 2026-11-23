@@ -2,7 +2,7 @@
  * 機能名 : 履歴書の基本情報画面(resumeContactInfo)のコントローラー
  *
  * ログイン社員(Contact)の履歴書用の基本情報(氏名・フリガナ・性別・学歴・最寄駅など)の参照・保存を行う。
- * 卒業年月・来日年月は年月のみ入力し、日付項目には月初日で保存する。
+ * 卒業年月・来日年月は年月のみ入力し、テキスト項目に yyyyMM で保存する。
  * 保存時は履歴情報(Resume__c)も更新する(社員の履歴情報がない場合は作成する)。
  * 履歴書の出力時に、出力済みの履歴書が最新かを履歴情報の最終更新日時で判断するため。
  * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
@@ -10,6 +10,8 @@
 public class ResumeContactInfoController {
   private static final Integer NAME_MAX_LENGTH = 40;
   private static final Integer TEXT_MAX_LENGTH = 30;
+  // 年月の形式(yyyyMM)
+  private static final Pattern YEAR_MONTH_PATTERN = Pattern.compile('^[0-9]{4}(0[1-9]|1[0-2])$');
 
   // 基本情報(画面との受け渡し用。年齢・実務年数は数式項目のため参照のみ)
   public class ContactInfo {
@@ -26,9 +28,9 @@ public class ResumeContactInfoController {
     @AuraEnabled
     public String major { get; set; }
     @AuraEnabled
-    public Date graduateDate { get; set; }
+    public String graduateYearMonth { get; set; }
     @AuraEnabled
-    public Date comingJapanDate { get; set; }
+    public String comingJapanYearMonth { get; set; }
     @AuraEnabled
     public Date birthdate { get; set; }
     @AuraEnabled
@@ -72,12 +74,12 @@ public class ResumeContactInfoController {
     info.graduatedSchool = con.GraduatedSchool__c;
     info.academicBackground = con.AcademicBackground__c;
     info.major = con.Major__c;
-    info.graduateDate = con.GraduateDate__c;
-    info.comingJapanDate = con.ComingJapanDate__c;
+    info.graduateYearMonth = con.GraduateYearMonth__c;
+    info.comingJapanYearMonth = con.ComingJapanYearMonth__c;
     info.birthdate = con.Birthdate;
     // 誕生日・卒業年月が未入力の場合は表示しない
     info.age = con.Birthdate == null ? null : con.Age__c?.intValue();
-    info.experiences = con.GraduateDate__c == null ? null : con.Experiences__c?.intValue();
+    info.experiences = con.GraduateYearMonth__c == null ? null : con.Experiences__c?.intValue();
     info.nearestLine = con.NearestLine__c;
     info.nearestStation = con.NearestStation__c;
     info.genderOptions = getOptions(Contact.Gender__c);
@@ -101,6 +103,8 @@ public class ResumeContactInfoController {
     String nearestStation = removeSuffix(optionalText(info.nearestStation, '最寄駅', TEXT_MAX_LENGTH), '駅');
     String gender = optionalOption(info.gender, '性別', Contact.Gender__c);
     String academicBackground = optionalOption(info.academicBackground, '最終学歴', Contact.AcademicBackground__c);
+    String graduateYearMonth = optionalYearMonth(info.graduateYearMonth, '卒業年月');
+    String comingJapanYearMonth = optionalYearMonth(info.comingJapanYearMonth, '来日年月');
     if (info.birthdate != null && info.birthdate > Date.today()) {
       throw createException('誕生日は今日以前の日付を入力してください。');
     }
@@ -117,9 +121,8 @@ public class ResumeContactInfoController {
           GraduatedSchool__c = graduatedSchool,
           AcademicBackground__c = academicBackground,
           Major__c = major,
-          // 卒業年月・来日年月は年月のみ入力するため、月初日で保存する
-          GraduateDate__c = info.graduateDate?.toStartOfMonth(),
-          ComingJapanDate__c = info.comingJapanDate?.toStartOfMonth(),
+          GraduateYearMonth__c = graduateYearMonth,
+          ComingJapanYearMonth__c = comingJapanYearMonth,
           Birthdate = info.birthdate,
           NearestLine__c = nearestLine,
           NearestStation__c = nearestStation
@@ -150,6 +153,18 @@ public class ResumeContactInfoController {
     }
     if (text.length() > maxLength) {
       throw createException(label + 'は' + maxLength + '文字以内で入力してください。');
+    }
+    return text;
+  }
+
+  // 任意の年月(yyyyMM。未入力は null。形式が違う場合はエラー)
+  private static String optionalYearMonth(String value, String label) {
+    String text = value?.trim();
+    if (String.isBlank(text)) {
+      return null;
+    }
+    if (!YEAR_MONTH_PATTERN.matcher(text).matches()) {
+      throw createException(label + 'を選択し直してください。');
     }
     return text;
   }

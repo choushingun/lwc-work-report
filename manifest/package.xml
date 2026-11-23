@@ -39,14 +39,14 @@
         <members>Account.ReportTo__c</members>
         <members>Contact.AcademicBackground__c</members>
         <members>Contact.Age__c</members>
-        <members>Contact.ComingJapanDate__c</members>
+        <members>Contact.ComingJapanYearMonth__c</members>
         <members>Contact.EmployeeNo__c</members>
         <members>Contact.EmploymentType__c</members>
         <members>Contact.Experiences__c</members>
         <members>Contact.FailedLoginCount__c</members>
         <members>Contact.Furigana__c</members>
         <members>Contact.Gender__c</members>
-        <members>Contact.GraduateDate__c</members>
+        <members>Contact.GraduateYearMonth__c</members>
         <members>Contact.GraduatedSchool__c</members>
         <members>Contact.Hiredate__c</members>
         <members>Contact.LockoutUntil__c</members>

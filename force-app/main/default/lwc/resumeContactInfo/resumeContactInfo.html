@@ -113,31 +113,6 @@
               </div>
             </div>
             <div class="form-row">
-              <div class="form-label">
-                卒業年月
-                <lightning-helptext content="実務年数は卒業年月から計算します。"></lightning-helptext>
-              </div>
-              <div class="form-control">
-                <c-year-month-picker
-                  label="卒業年月"
-                  data-field="graduateDate"
-                  value={info.graduateDate}
-                  onchange={handleInputChange}
-                ></c-year-month-picker>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-label">来日年月</div>
-              <div class="form-control">
-                <c-year-month-picker
-                  label="来日年月"
-                  data-field="comingJapanDate"
-                  value={info.comingJapanDate}
-                  onchange={handleInputChange}
-                ></c-year-month-picker>
-              </div>
-            </div>
-            <div class="form-row">
               <div class="form-label">誕生日</div>
               <div class="form-control">
                 <lightning-input
@@ -151,6 +126,31 @@
                   message-when-range-overflow="今日以前の日付を入力してください。"
                   onchange={handleInputChange}
                 ></lightning-input>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">
+                卒業年月
+                <lightning-helptext content="実務年数は卒業年月から計算します。"></lightning-helptext>
+              </div>
+              <div class="form-control">
+                <c-year-month-picker
+                  label="卒業年月"
+                  data-field="graduateYearMonth"
+                  value={info.graduateYearMonth}
+                  onchange={handleInputChange}
+                ></c-year-month-picker>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">来日年月</div>
+              <div class="form-control">
+                <c-year-month-picker
+                  label="来日年月"
+                  data-field="comingJapanYearMonth"
+                  value={info.comingJapanYearMonth}
+                  onchange={handleInputChange}
+                ></c-year-month-picker>
               </div>
             </div>
             <!-- 年齢・実務年数は数式項目のため参照のみ(誕生日・卒業年月から計算する) -->
