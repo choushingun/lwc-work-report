@@ -95,7 +95,7 @@ public class ResumeContactInfoController {
     }
     String shimei = requireText(info.shimei, '氏名', NAME_MAX_LENGTH);
     String furigana = requireText(info.furigana, 'フリガナ', NAME_MAX_LENGTH);
-    String graduatedSchool = optionalText(info.graduatedSchool, '出身', TEXT_MAX_LENGTH);
+    String graduatedSchool = optionalText(info.graduatedSchool, '出身校',TEXT_MAX_LENGTH);
     String major = optionalText(info.major, '専攻', TEXT_MAX_LENGTH);
     String nearestLine = removeSuffix(optionalText(info.nearestLine, '最寄駅の路線', TEXT_MAX_LENGTH), '線');
     String nearestStation = removeSuffix(optionalText(info.nearestStation, '最寄駅', TEXT_MAX_LENGTH), '駅');
