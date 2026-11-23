@@ -27,8 +27,18 @@
   padding-right: 0.75rem;
 }
 
+/* 項目は2列で並べる(左から右、上から下の順)。画面幅が狭いときは1列に戻す */
 .section-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 2rem;
   padding-top: 0.75rem;
+}
+
+@media (max-width: 48em) {
+  .section-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* 項目の行：項目名(左1/3)と入力欄を横に並べ、どちらも上下中央に置いて下線を引く
@@ -100,9 +110,8 @@
   max-width: 12rem;
 }
 
-/* 参照のみの値は入力欄の文字と左端をそろえる */
+/* 参照のみの値(年齢・実務年数)は左に寄せる */
 .form-static {
-  padding-left: 0.75rem;
   line-height: 1.5;
 }
 

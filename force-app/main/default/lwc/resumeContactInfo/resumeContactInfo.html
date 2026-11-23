@@ -71,13 +71,10 @@
               </div>
             </div>
             <div class="form-row">
-              <div class="form-label">
-                出身
-                <lightning-helptext content="出身校を入力してください。"></lightning-helptext>
-              </div>
+              <div class="form-label">出身校</div>
               <div class="form-control">
                 <lightning-input
-                  label="出身"
+                  label="出身校"
                   variant="label-hidden"
                   data-field="graduatedSchool"
                   value={info.graduatedSchool}
@@ -159,8 +156,15 @@
               <div class="form-control form-static">{ageLabel}</div>
             </div>
             <div class="form-row">
-              <div class="form-label">実務年数</div>
-              <div class="form-control form-static">{experiencesLabel}</div>
+              <div class="form-label">来日年月</div>
+              <div class="form-control">
+                <c-year-month-picker
+                  label="来日年月"
+                  data-field="comingJapanDate"
+                  value={info.comingJapanDate}
+                  onchange={handleInputChange}
+                ></c-year-month-picker>
+              </div>
             </div>
             <!-- 最寄駅は路線と駅に分けて入力する(「線」「駅」は入力欄の後ろに表示する) -->
             <div class="form-row">
