@@ -9,8 +9,11 @@ const RESUME_PAGE = 'resume__c';
 // 語学能力の入力項目(画面の data-field と Apex の Language の項目名)
 const LANGUAGE_TEXT_FIELDS = ['name', 'studyMethod', 'read', 'write', 'speak', 'qualification', 'qualifiedDate'];
 const LANGUAGE_NUMBER_FIELDS = ['studyYears', 'score'];
-// 資格/トレーニングの入力項目(画面の data-field と Apex の Training の項目名)
+const LANGUAGE_FIELDS = [...LANGUAGE_TEXT_FIELDS, ...LANGUAGE_NUMBER_FIELDS];
+// 資格・トレーニングの入力項目(画面の data-field と Apex の Training の項目名)
 const TRAINING_FIELDS = ['trainingDate', 'content', 'memo'];
+// 語学能力・資格・トレーニングの最大件数(Resume__c の項目の番号 1～5)
+const MAX_ROW_COUNT = 5;
 
 // 数値入力欄の値を整数にする(未入力は null)
 function toNumber(value) {
@@ -31,8 +34,62 @@ function toInputValues(record, fields) {
   return values;
 }
 
+// 行が未入力か
+function isEmptyRow(row, fields) {
+  return fields.every((field) => row[field] === '' || row[field] == null);
+}
+
+let rowKeySeq = 0;
+
+// 画面表示用の行(key は描画用の一意キー)
+function toRow(values, fields) {
+  rowKeySeq += 1;
+  return { key: `row-${rowKeySeq}`, ...toInputValues(values, fields) };
+}
+
+// 取得した行のうち入力済みのものを表示用の行にする(1件もない場合は空の1件)
+function toDisplayRows(records, fields) {
+  const rows = (records ?? []).filter((record) => !isEmptyRow(record, fields)).map((record) => toRow(record, fields));
+  return rows.length ? rows : [toRow({}, fields)];
+}
+
+// 語学能力の行に表示順の番号を振り直す
+function numberLanguages(rows) {
+  return rows.map((row, index) => ({ ...row, no: index + 1, removeLabel: `語学能力${index + 1}を削除` }));
+}
+
+// 資格・トレーニングの行に表示順の番号を振り直す
+// (表の入力欄は項目名を表示しないため、読み上げ用の項目名も持たせる)
+function numberTrainings(rows) {
+  return rows.map((row, index) => {
+    const label = `資格・トレーニング${index + 1}の`;
+    return {
+      ...row,
+      no: index + 1,
+      dateLabel: `${label}時間`,
+      contentLabel: `${label}内容`,
+      memoLabel: `${label}備考`,
+      removeLabel: `資格・トレーニング${index + 1}を削除`
+    };
+  });
+}
+
+// 保存用の行(未入力の行を除いて前から詰め、1から番号を振る。渡さない番号は Apex で未入力になる)
+function toSaveRows(rows, fields, convert) {
+  return rows
+    .filter((row) => !isEmptyRow(row, fields))
+    .map((row, index) => {
+      const values = { no: index + 1 };
+      fields.forEach((field) => {
+        values[field] = convert(field, row[field]);
+      });
+      return values;
+    });
+}
+
 export default class ResumeEducation extends NavigationMixin(LightningElement) {
-  // 語学能力・資格/トレーニング(no は項目の番号。各項目は入力中の値で、未入力は空文字)
+  // 語学能力・資格・トレーニング(画面に表示中の行。no は表示順の番号で、保存時に詰めて項目の番号にする)
+  // 各項目は入力中の値で、未入力は空文字
   languages = [];
   trainings = [];
   // 読む・書く・会話の選択肢(先頭は未選択)
@@ -63,48 +120,71 @@ export default class ResumeEducation extends NavigationMixin(LightningElement) {
 
   async fetchEducation() {
     const data = await getEducation({ sessionKey: getSessionKey() });
-    this.languages = (data.languages ?? []).map((language) => ({
-      no: language.no,
-      ...toInputValues(language, [...LANGUAGE_TEXT_FIELDS, ...LANGUAGE_NUMBER_FIELDS])
-    }));
-    this.trainings = (data.trainings ?? []).map((training) => ({
-      no: training.no,
-      // 表の入力欄は項目名を表示しないため、読み上げ用の項目名を持たせる
-      dateLabel: `資格/トレーニング${training.no}の時間`,
-      contentLabel: `資格/トレーニング${training.no}の内容`,
-      memoLabel: `資格/トレーニング${training.no}の備考`,
-      ...toInputValues(training, TRAINING_FIELDS)
-    }));
+    // 入力済みの行のみ表示する(1件もない場合は空の1件を表示する)
+    this.languages = numberLanguages(toDisplayRows(data.languages, LANGUAGE_FIELDS));
+    this.trainings = numberTrainings(toDisplayRows(data.trainings, TRAINING_FIELDS));
     this.levelOptions = [{ label: '--なし--', value: '' }, ...(data.levelOptions ?? [])];
     this.savedInputs = JSON.stringify(this.getInputs());
     this.isAuthenticated = true;
   }
 
   // 入力中の語学資格(Apex の EducationData の形。未入力は null)
+  // 語学能力・資格・トレーニングは未入力の行を除いて前から詰める
   getInputs() {
     return {
-      languages: this.languages.map((language) => {
-        const values = { no: language.no };
-        LANGUAGE_TEXT_FIELDS.forEach((field) => {
-          values[field] = toText(language[field]);
-        });
-        LANGUAGE_NUMBER_FIELDS.forEach((field) => {
-          values[field] = toNumber(language[field]);
-        });
-        return values;
-      }),
-      trainings: this.trainings.map((training) => {
-        const values = { no: training.no };
-        TRAINING_FIELDS.forEach((field) => {
-          values[field] = toText(training[field]);
-        });
-        return values;
-      })
+      languages: toSaveRows(this.languages, LANGUAGE_FIELDS, (field, value) =>
+        LANGUAGE_NUMBER_FIELDS.includes(field) ? toNumber(value) : toText(value)
+      ),
+      trainings: toSaveRows(this.trainings, TRAINING_FIELDS, (field, value) => toText(value))
     };
   }
 
   handleLanguageChange(event) {
     this.languages = this.updateRow(this.languages, event);
+  }
+
+  get canAddLanguage() {
+    return this.languages.length < MAX_ROW_COUNT;
+  }
+
+  // 1件のみの場合は削除できない(入力欄を空にすれば未入力として保存される)
+  get canRemoveLanguage() {
+    return this.languages.length > 1;
+  }
+
+  // 語学能力を末尾に1件追加する(最大5件)
+  handleAddLanguage() {
+    if (this.canAddLanguage) {
+      this.languages = numberLanguages([...this.languages, toRow({}, LANGUAGE_FIELDS)]);
+    }
+  }
+
+  // 語学能力を削除し、後ろの行を前に詰める
+  handleRemoveLanguage(event) {
+    const no = Number(event.currentTarget.dataset.no);
+    this.languages = numberLanguages(this.languages.filter((language) => language.no !== no));
+  }
+
+  get canAddTraining() {
+    return this.trainings.length < MAX_ROW_COUNT;
+  }
+
+  // 1件のみの場合は削除できない(語学能力と同じ)
+  get canRemoveTraining() {
+    return this.trainings.length > 1;
+  }
+
+  // 資格・トレーニングを末尾に1件追加する(最大5件)
+  handleAddTraining() {
+    if (this.canAddTraining) {
+      this.trainings = numberTrainings([...this.trainings, toRow({}, TRAINING_FIELDS)]);
+    }
+  }
+
+  // 資格・トレーニングを削除し、後ろの行を前に詰める
+  handleRemoveTraining(event) {
+    const no = Number(event.currentTarget.dataset.no);
+    this.trainings = numberTrainings(this.trainings.filter((training) => training.no !== no));
   }
 
   handleTrainingChange(event) {

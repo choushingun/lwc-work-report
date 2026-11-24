@@ -12,15 +12,29 @@
       </lightning-button-group>
 
       <div class="slds-p-horizontal_medium">
-        <!-- 語学能力(1件の項目が多いため、件ごとにまとめて画面幅に合わせて1～3列で並べる) -->
+        <!-- 語学能力(1件の項目が多いため、件ごとにまとめて画面幅に合わせて1～3列で並べる)
+             最初は1件表示し、＋ボタンで最大5件まで追加・削除ボタンで削除できる -->
         <div class="slds-section slds-is-open">
           <h2 class="slds-section__title slds-theme_shade">
             <span class="slds-truncate section-title-text">語学能力</span>
           </h2>
           <div class="section-body">
             <template for:each={languages} for:item="language">
-              <fieldset key={language.no} class="language-row">
-                <legend class="language-title">語学能力{language.no}</legend>
+              <fieldset key={language.key} class="language-row">
+                <legend class="language-title">
+                  語学能力{language.no}
+                  <lightning-button-icon
+                    lwc:if={canRemoveLanguage}
+                    class="language-remove"
+                    icon-name="utility:delete"
+                    variant="border-filled"
+                    size="x-small"
+                    alternative-text={language.removeLabel}
+                    title={language.removeLabel}
+                    data-no={language.no}
+                    onclick={handleRemoveLanguage}
+                  ></lightning-button-icon>
+                </legend>
                 <lightning-layout multiple-rows>
                   <lightning-layout-item
                     size="12"
@@ -171,65 +185,95 @@
                 </lightning-layout>
               </fieldset>
             </template>
+            <lightning-button
+              lwc:if={canAddLanguage}
+              label="語学能力を追加"
+              icon-name="utility:add"
+              class="slds-m-left_small"
+              onclick={handleAddLanguage}
+            ></lightning-button>
           </div>
         </div>
 
-        <!-- 資格/トレーニング(履歴書テンプレートと同じく 時間・内容・備考 の表で入力する) -->
+        <!-- 資格・トレーニング(履歴書テンプレートと同じく 時間・内容・備考 の表で入力する)
+             語学能力と同じく、最初は1件表示し、＋ボタンで最大5件まで追加・削除ボタンで削除できる -->
         <div class="slds-section slds-is-open">
           <h2 class="slds-section__title slds-theme_shade">
-            <span class="slds-truncate section-title-text">資格/トレーニング</span>
+            <span class="slds-truncate section-title-text">資格・トレーニング</span>
           </h2>
-          <div class="section-body slds-p-horizontal_small slds-scrollable_x">
-            <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer input-table">
-              <thead>
-                <tr class="slds-line-height_reset">
-                  <th scope="col" class="col-no">№</th>
-                  <th scope="col" class="col-date">時間</th>
-                  <th scope="col">内容</th>
-                  <th scope="col" class="col-memo">備考</th>
-                </tr>
-              </thead>
-              <tbody>
-                <template for:each={trainings} for:item="training">
-                  <tr key={training.no}>
-                    <th scope="row" class="col-no">{training.no}</th>
-                    <td class="col-date">
-                      <lightning-input
-                        type="date"
-                        label={training.dateLabel}
-                        variant="label-hidden"
-                        data-no={training.no}
-                        data-field="trainingDate"
-                        value={training.trainingDate}
-                        onchange={handleTrainingChange}
-                      ></lightning-input>
-                    </td>
-                    <td>
-                      <lightning-input
-                        label={training.contentLabel}
-                        variant="label-hidden"
-                        data-no={training.no}
-                        data-field="content"
-                        value={training.content}
-                        max-length="30"
-                        onchange={handleTrainingChange}
-                      ></lightning-input>
-                    </td>
-                    <td class="col-memo">
-                      <lightning-input
-                        label={training.memoLabel}
-                        variant="label-hidden"
-                        data-no={training.no}
-                        data-field="memo"
-                        value={training.memo}
-                        max-length="25"
-                        onchange={handleTrainingChange}
-                      ></lightning-input>
-                    </td>
+          <div class="section-body slds-p-horizontal_small">
+            <div class="slds-scrollable_x">
+              <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer input-table">
+                <thead>
+                  <tr class="slds-line-height_reset">
+                    <th scope="col" class="col-no">№</th>
+                    <th scope="col" class="col-date">時間</th>
+                    <th scope="col" class="col-content">内容</th>
+                    <th scope="col">備考</th>
+                    <th scope="col" class="col-action"><span class="slds-assistive-text">削除</span></th>
                   </tr>
-                </template>
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  <template for:each={trainings} for:item="training">
+                    <tr key={training.key}>
+                      <th scope="row" class="col-no">{training.no}</th>
+                      <td class="col-date">
+                        <lightning-input
+                          type="date"
+                          label={training.dateLabel}
+                          variant="label-hidden"
+                          data-no={training.no}
+                          data-field="trainingDate"
+                          value={training.trainingDate}
+                          onchange={handleTrainingChange}
+                        ></lightning-input>
+                      </td>
+                      <td class="col-content">
+                        <lightning-input
+                          label={training.contentLabel}
+                          variant="label-hidden"
+                          data-no={training.no}
+                          data-field="content"
+                          value={training.content}
+                          max-length="30"
+                          onchange={handleTrainingChange}
+                        ></lightning-input>
+                      </td>
+                      <td>
+                        <lightning-input
+                          label={training.memoLabel}
+                          variant="label-hidden"
+                          data-no={training.no}
+                          data-field="memo"
+                          value={training.memo}
+                          max-length="25"
+                          onchange={handleTrainingChange}
+                        ></lightning-input>
+                      </td>
+                      <td class="col-action">
+                        <lightning-button-icon
+                          lwc:if={canRemoveTraining}
+                          icon-name="utility:delete"
+                          variant="border-filled"
+                          size="x-small"
+                          alternative-text={training.removeLabel}
+                          title={training.removeLabel}
+                          data-no={training.no}
+                          onclick={handleRemoveTraining}
+                        ></lightning-button-icon>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+            <lightning-button
+              lwc:if={canAddTraining}
+              label="資格・トレーニングを追加"
+              icon-name="utility:add"
+              class="add-button"
+              onclick={handleAddTraining}
+            ></lightning-button>
           </div>
         </div>
       </div>

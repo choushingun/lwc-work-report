@@ -3,7 +3,7 @@
     <apiVersion>68.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>履歴書 語学資格</masterLabel>
-    <description>ログイン社員の履歴書の語学能力と資格/トレーニングを参照・保存するExperience Cloud用画面</description>
+    <description>ログイン社員の履歴書の語学能力と資格・トレーニングを参照・保存するExperience Cloud用画面</description>
     <targets>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>

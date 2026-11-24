@@ -1,14 +1,14 @@
 /**
  * 機能名 : 履歴書の語学資格画面(resumeEducation)のコントローラー
  *
- * ログイン社員の履歴情報(Resume__c)の語学能力(5件)と資格/トレーニング(5件)の参照・保存を行う。
+ * ログイン社員の履歴情報(Resume__c)の語学能力(5件)と資格・トレーニング(5件)の参照・保存を行う。
  * 語学能力の読む・書く・会話は選択リスト(グローバル値セット SkillOption：◎・〇・△・×)。
  * 項目は「Language_Name1__c」のように末尾の番号(1～5)で行を表す。
  * 社員の履歴情報がない場合は、保存時に作成する。
  * データアクセスはオブジェクトごとのDAOクラス(without sharing)で行う。
  */
 public class ResumeEducationController {
-  // 語学能力・資格/トレーニングの行数(項目の番号 1～ROW_COUNT)
+  // 語学能力・資格・トレーニングの行数(項目の番号 1～ROW_COUNT)
   private static final Integer ROW_COUNT = 5;
   private static final Integer LANGUAGE_TEXT_MAX_LENGTH = 15;
   private static final Integer STUDY_YEARS_MAX = 99;
@@ -28,7 +28,7 @@ public class ResumeEducationController {
     'Language_QualifiedDate',
     'Language_Score'
   };
-  // 資格/トレーニングの項目(番号を除いたAPI参照名)
+  // 資格・トレーニングの項目(番号を除いたAPI参照名)
   private static final List<String> TRAINING_FIELDS = new List<String>{
     'Training_Date',
     'Training_Content',
@@ -75,7 +75,7 @@ public class ResumeEducationController {
     public Integer score { get; set; }
   }
 
-  // 資格/トレーニング(1行分。no は項目の番号)
+  // 資格・トレーニング(1行分。no は項目の番号)
   public class Training {
     @AuraEnabled
     public Integer no { get; set; }
@@ -188,7 +188,7 @@ public class ResumeEducationController {
       resume.put(field('Language_Score', no), optionalNumber(language.score, label + '総点数', SCORE_MAX));
 
       Training training = trainings.get(no) ?? new Training();
-      label = '資格/トレーニング' + no + 'の';
+      label = '資格・トレーニング' + no + 'の';
       resume.put(field('Training_Date', no), training.trainingDate);
       resume.put(
         field('Training_Content', no),
@@ -259,7 +259,7 @@ public class ResumeEducationController {
     return new Resume__c(Contact__c = contactId, Name = contacts[0].Name);
   }
 
-  // 取得する項目(語学能力・資格/トレーニングの全行の全項目)
+  // 取得する項目(語学能力・資格・トレーニングの全行の全項目)
   private static List<String> getQueryFields() {
     List<String> fields = new List<String>();
     for (Integer no = 1; no <= ROW_COUNT; no++) {

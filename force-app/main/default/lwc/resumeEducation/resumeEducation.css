@@ -45,6 +45,14 @@
   font-weight: 600;
 }
 
+/* 語学能力の削除ボタンは見出しの横に置く */
+.language-remove {
+  position: relative;
+  top: -0.25rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
 /* 語学能力の入力欄は行の間を少し空ける */
 .language-row lightning-input,
 .language-row lightning-combobox {
@@ -52,10 +60,10 @@
   margin-bottom: 0.5rem;
 }
 
-/* 資格/トレーニングの表：№・時間・備考は固定幅、内容は残りの幅にする(狭い画面は横スクロール) */
+/* 資格・トレーニングの表：№・時間・内容・削除は固定幅、備考は残りの幅にする(狭い画面は横スクロール) */
 .input-table {
   table-layout: fixed;
-  min-width: 36rem;
+  min-width: 40rem;
 }
 
 .input-table .col-no {
@@ -66,12 +74,31 @@
   width: 11rem;
 }
 
-.input-table .col-memo {
-  width: 14rem;
+/* 内容は備考より狭くする */
+.input-table .col-content {
+  width: 35%;
+}
+
+.input-table .col-action {
+  width: 3rem;
+  text-align: center;
+}
+
+/* 資格・トレーニングの追加ボタンは表の下に少し空けて置く */
+.add-button {
+  display: inline-block;
+  margin-top: 0.75rem;
 }
 
 .input-table td,
 .input-table th {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
+  vertical-align: middle;
+}
+
+/* 入力欄はブロック表示にし、サイト共通の入力欄の下余白を消して、セルの上下中央に置く */
+.input-table lightning-input {
+  display: block;
+  margin: 0;
 }
