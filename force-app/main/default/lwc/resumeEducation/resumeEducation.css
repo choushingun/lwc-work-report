@@ -7,6 +7,9 @@
 /* 画面タイトルは太字にする(技術経験画面と同じ) */
 .page-title {
   font-weight: 700;
+  /* アイコンと縦位置を揃えるため、1px下げる */
+  position: relative;
+  top: 1px;
 }
 
 /* セクションの上下の余白・見出し(技術経験画面と同じ) */
@@ -55,12 +58,30 @@
 
 /* 語学能力の入力欄は行の間を少し空ける */
 .language-row lightning-input,
-.language-row lightning-combobox {
+.language-row lightning-combobox,
+.language-row .year-month-field {
   display: block;
   margin-bottom: 0.5rem;
 }
 
-/* 資格・トレーニングの表：№・時間・内容・削除は固定幅、備考は残りの幅にする(狭い画面は横スクロール) */
+/* 資格獲得年月の項目名(サイトの lightning-input の項目名と同じ見た目にする) */
+.field-label {
+  /* インラインブロックだと行の高さ分だけ下にずれるため、ブロックにして上の余白をなくす
+     (隣の列の lightning-input と項目名・入力欄の高さを揃える) */
+  display: block;
+  padding: 0;
+  margin-bottom: 0.125rem;
+  color: var(--dxp-g-root-contrast, #181818);
+  font-size: var(--dxp-s-form-element-label-font-size, inherit);
+  line-height: 1.5;
+}
+
+/* 資格獲得年月の入力欄は他の入力欄と同じく列の幅いっぱいにする */
+.year-month-field c-year-month-picker {
+  --year-month-picker-max-width: none;
+}
+
+/* 資格・トレーニングの表：№・獲得年月・内容・削除は固定幅、備考は残りの幅にする(狭い画面は横スクロール) */
 .input-table {
   table-layout: fixed;
   min-width: 40rem;
@@ -98,7 +119,8 @@
 }
 
 /* 入力欄はブロック表示にし、サイト共通の入力欄の下余白を消して、セルの上下中央に置く */
-.input-table lightning-input {
+.input-table lightning-input,
+.input-table c-year-month-picker {
   display: block;
   margin: 0;
 }

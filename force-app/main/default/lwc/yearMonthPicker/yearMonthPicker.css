@@ -7,7 +7,8 @@
    (サイトの日付入力欄と同じ見た目にする) */
 .picker {
   position: relative;
-  max-width: 12rem;
+  /* 幅は親から --year-month-picker-max-width で変えられる(未指定は日付入力欄と同じ 12rem) */
+  max-width: var(--year-month-picker-max-width, 12rem);
 }
 
 .input-wrapper {

@@ -154,14 +154,17 @@
                     large-device-size="4"
                     padding="horizontal-small"
                   >
-                    <lightning-input
-                      type="date"
-                      label="資格獲得年月"
-                      data-no={language.no}
-                      data-field="qualifiedDate"
-                      value={language.qualifiedDate}
-                      onchange={handleLanguageChange}
-                    ></lightning-input>
+                    <!-- 年月選択部品は項目名を表示しないため、他の入力欄と同じ見た目の項目名を上に置く -->
+                    <div class="year-month-field">
+                      <span class="field-label" aria-hidden="true">資格獲得年月</span>
+                      <c-year-month-picker
+                        label={language.qualifiedYearMonthLabel}
+                        data-no={language.no}
+                        data-field="qualifiedYearMonth"
+                        value={language.qualifiedYearMonth}
+                        onchange={handleLanguageChange}
+                      ></c-year-month-picker>
+                    </div>
                   </lightning-layout-item>
                   <lightning-layout-item
                     size="12"
@@ -195,7 +198,7 @@
           </div>
         </div>
 
-        <!-- 資格・トレーニング(履歴書テンプレートと同じく 時間・内容・備考 の表で入力する)
+        <!-- 資格・トレーニング(履歴書テンプレートと同じく 獲得年月・内容・備考 の表で入力する)
              語学能力と同じく、最初は1件表示し、＋ボタンで最大5件まで追加・削除ボタンで削除できる -->
         <div class="slds-section slds-is-open">
           <h2 class="slds-section__title slds-theme_shade">
@@ -207,7 +210,7 @@
                 <thead>
                   <tr class="slds-line-height_reset">
                     <th scope="col" class="col-no">№</th>
-                    <th scope="col" class="col-date">時間</th>
+                    <th scope="col" class="col-date">獲得年月</th>
                     <th scope="col" class="col-content">内容</th>
                     <th scope="col">備考</th>
                     <th scope="col" class="col-action"><span class="slds-assistive-text">削除</span></th>
@@ -218,15 +221,13 @@
                     <tr key={training.key}>
                       <th scope="row" class="col-no">{training.no}</th>
                       <td class="col-date">
-                        <lightning-input
-                          type="date"
-                          label={training.dateLabel}
-                          variant="label-hidden"
+                        <c-year-month-picker
+                          label={training.yearMonthLabel}
                           data-no={training.no}
-                          data-field="trainingDate"
-                          value={training.trainingDate}
+                          data-field="yearMonth"
+                          value={training.yearMonth}
                           onchange={handleTrainingChange}
-                        ></lightning-input>
+                        ></c-year-month-picker>
                       </td>
                       <td class="col-content">
                         <lightning-input
@@ -252,8 +253,8 @@
                       </td>
                       <td class="col-action">
                         <lightning-button-icon
-                          lwc:if={canRemoveTraining}
                           icon-name="utility:delete"
+                          disabled={isTrainingRemoveDisabled}
                           variant="border-filled"
                           size="x-small"
                           alternative-text={training.removeLabel}

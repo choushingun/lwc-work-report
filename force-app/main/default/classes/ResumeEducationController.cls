@@ -13,6 +13,8 @@ public class ResumeEducationController {
   private static final Integer LANGUAGE_TEXT_MAX_LENGTH = 15;
   private static final Integer STUDY_YEARS_MAX = 99;
   private static final Integer SCORE_MAX = 9999;
+  // 年月の形式(yyyyMM)
+  private static final Pattern YEAR_MONTH_PATTERN = Pattern.compile('^[0-9]{4}(0[1-9]|1[0-2])$');
   private static final Integer TRAINING_CONTENT_MAX_LENGTH = 30;
   private static final Integer TRAINING_MEMO_MAX_LENGTH = 25;
 
@@ -25,12 +27,12 @@ public class ResumeEducationController {
     'Language_Write',
     'Language_Speak',
     'Language_Qualification',
-    'Language_QualifiedDate',
+    'Language_QualifiedYearMonth',
     'Language_Score'
   };
   // 資格・トレーニングの項目(番号を除いたAPI参照名)
   private static final List<String> TRAINING_FIELDS = new List<String>{
-    'Training_Date',
+    'Training_YearMonth',
     'Training_Content',
     'Training_Memo'
   };
@@ -67,9 +69,9 @@ public class ResumeEducationController {
     // 資格名
     @AuraEnabled
     public String qualification { get; set; }
-    // 資格獲得年月
+    // 資格獲得年月(yyyyMM。例：202004)
     @AuraEnabled
-    public Date qualifiedDate { get; set; }
+    public String qualifiedYearMonth { get; set; }
     // 総点数
     @AuraEnabled
     public Integer score { get; set; }
@@ -79,9 +81,9 @@ public class ResumeEducationController {
   public class Training {
     @AuraEnabled
     public Integer no { get; set; }
-    // 時間(取得・受講した日付)
+    // 獲得年月(yyyyMM。例：202004)
     @AuraEnabled
-    public Date trainingDate { get; set; }
+    public String yearMonth { get; set; }
     @AuraEnabled
     public String content { get; set; }
     @AuraEnabled
@@ -121,13 +123,13 @@ public class ResumeEducationController {
       language.write = (String) resume.get(field('Language_Write', no));
       language.speak = (String) resume.get(field('Language_Speak', no));
       language.qualification = (String) resume.get(field('Language_Qualification', no));
-      language.qualifiedDate = (Date) resume.get(field('Language_QualifiedDate', no));
+      language.qualifiedYearMonth = (String) resume.get(field('Language_QualifiedYearMonth', no));
       language.score = toInteger(resume.get(field('Language_Score', no)));
       data.languages.add(language);
 
       Training training = new Training();
       training.no = no;
-      training.trainingDate = (Date) resume.get(field('Training_Date', no));
+      training.yearMonth = (String) resume.get(field('Training_YearMonth', no));
       training.content = (String) resume.get(field('Training_Content', no));
       training.memo = (String) resume.get(field('Training_Memo', no));
       data.trainings.add(training);
@@ -184,12 +186,15 @@ public class ResumeEducationController {
         field('Language_Qualification', no),
         optionalText(language.qualification, label + '資格名', LANGUAGE_TEXT_MAX_LENGTH)
       );
-      resume.put(field('Language_QualifiedDate', no), language.qualifiedDate);
+      resume.put(
+        field('Language_QualifiedYearMonth', no),
+        optionalYearMonth(language.qualifiedYearMonth, label + '資格獲得年月')
+      );
       resume.put(field('Language_Score', no), optionalNumber(language.score, label + '総点数', SCORE_MAX));
 
       Training training = trainings.get(no) ?? new Training();
       label = '資格・トレーニング' + no + 'の';
-      resume.put(field('Training_Date', no), training.trainingDate);
+      resume.put(field('Training_YearMonth', no), optionalYearMonth(training.yearMonth, label + '獲得年月'));
       resume.put(
         field('Training_Content', no),
         optionalText(training.content, label + '内容', TRAINING_CONTENT_MAX_LENGTH)
@@ -223,6 +228,18 @@ public class ResumeEducationController {
     }
     if (text.length() > maxLength) {
       throw createException(label + 'は' + maxLength + '文字以内で入力してください。');
+    }
+    return text;
+  }
+
+  // 任意の年月(yyyyMM。未入力は null。形式が違う場合はエラー)
+  private static String optionalYearMonth(String value, String label) {
+    String text = value?.trim();
+    if (String.isBlank(text)) {
+      return null;
+    }
+    if (!YEAR_MONTH_PATTERN.matcher(text).matches()) {
+      throw createException(label + 'を選択し直してください。');
     }
     return text;
   }

@@ -538,27 +538,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Resume__c.Language_QualifiedDate1__c</field>
+        <field>Resume__c.Language_QualifiedYearMonth1__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Resume__c.Language_QualifiedDate2__c</field>
+        <field>Resume__c.Language_QualifiedYearMonth2__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Resume__c.Language_QualifiedDate3__c</field>
+        <field>Resume__c.Language_QualifiedYearMonth3__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Resume__c.Language_QualifiedDate4__c</field>
+        <field>Resume__c.Language_QualifiedYearMonth4__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Resume__c.Language_QualifiedDate5__c</field>
+        <field>Resume__c.Language_QualifiedYearMonth5__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -848,27 +848,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Resume__c.Training_Date1__c</field>
+        <field>Resume__c.Training_YearMonth1__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Resume__c.Training_Date2__c</field>
+        <field>Resume__c.Training_YearMonth2__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Resume__c.Training_Date3__c</field>
+        <field>Resume__c.Training_YearMonth3__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Resume__c.Training_Date4__c</field>
+        <field>Resume__c.Training_YearMonth4__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Resume__c.Training_Date5__c</field>
+        <field>Resume__c.Training_YearMonth5__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

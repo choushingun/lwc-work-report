@@ -7,11 +7,11 @@ import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/auth';
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
 const RESUME_PAGE = 'resume__c';
 // 語学能力の入力項目(画面の data-field と Apex の Language の項目名)
-const LANGUAGE_TEXT_FIELDS = ['name', 'studyMethod', 'read', 'write', 'speak', 'qualification', 'qualifiedDate'];
+const LANGUAGE_TEXT_FIELDS = ['name', 'studyMethod', 'read', 'write', 'speak', 'qualification', 'qualifiedYearMonth'];
 const LANGUAGE_NUMBER_FIELDS = ['studyYears', 'score'];
 const LANGUAGE_FIELDS = [...LANGUAGE_TEXT_FIELDS, ...LANGUAGE_NUMBER_FIELDS];
 // 資格・トレーニングの入力項目(画面の data-field と Apex の Training の項目名)
-const TRAINING_FIELDS = ['trainingDate', 'content', 'memo'];
+const TRAINING_FIELDS = ['yearMonth', 'content', 'memo'];
 // 語学能力・資格・トレーニングの最大件数(Resume__c の項目の番号 1～5)
 const MAX_ROW_COUNT = 5;
 
@@ -54,8 +54,14 @@ function toDisplayRows(records, fields) {
 }
 
 // 語学能力の行に表示順の番号を振り直す
+// (資格獲得年月の年月選択部品は項目名を表示しないため、読み上げ用の項目名も持たせる)
 function numberLanguages(rows) {
-  return rows.map((row, index) => ({ ...row, no: index + 1, removeLabel: `語学能力${index + 1}を削除` }));
+  return rows.map((row, index) => ({
+    ...row,
+    no: index + 1,
+    qualifiedYearMonthLabel: `語学能力${index + 1}の資格獲得年月`,
+    removeLabel: `語学能力${index + 1}を削除`
+  }));
 }
 
 // 資格・トレーニングの行に表示順の番号を振り直す
@@ -66,7 +72,7 @@ function numberTrainings(rows) {
     return {
       ...row,
       no: index + 1,
-      dateLabel: `${label}時間`,
+      yearMonthLabel: `${label}獲得年月`,
       contentLabel: `${label}内容`,
       memoLabel: `${label}備考`,
       removeLabel: `資格・トレーニング${index + 1}を削除`
@@ -169,9 +175,9 @@ export default class ResumeEducation extends NavigationMixin(LightningElement) {
     return this.trainings.length < MAX_ROW_COUNT;
   }
 
-  // 1件のみの場合は削除できない(語学能力と同じ)
-  get canRemoveTraining() {
-    return this.trainings.length > 1;
+  // 1件のみの場合は削除できない(削除ボタンは表示したまま非活性にする)
+  get isTrainingRemoveDisabled() {
+    return this.trainings.length <= 1;
   }
 
   // 資格・トレーニングを末尾に1件追加する(最大5件)
@@ -183,6 +189,9 @@ export default class ResumeEducation extends NavigationMixin(LightningElement) {
 
   // 資格・トレーニングを削除し、後ろの行を前に詰める
   handleRemoveTraining(event) {
+    if (this.isTrainingRemoveDisabled) {
+      return;
+    }
     const no = Number(event.currentTarget.dataset.no);
     this.trainings = numberTrainings(this.trainings.filter((training) => training.no !== no));
   }
@@ -201,7 +210,7 @@ export default class ResumeEducation extends NavigationMixin(LightningElement) {
 
   // 保存したら履歴書トップ画面へ戻る(エラー時はこの画面に残ってダイアログで表示する)
   handleSave() {
-    const inputs = [...this.template.querySelectorAll('lightning-input, lightning-combobox')];
+    const inputs = [...this.template.querySelectorAll('lightning-input, lightning-combobox, c-year-month-picker')];
     const isValid = inputs.reduce((valid, input) => input.reportValidity() && valid, true);
     if (!isValid) {
       return;
