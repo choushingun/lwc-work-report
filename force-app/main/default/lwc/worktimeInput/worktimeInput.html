@@ -12,16 +12,6 @@
       </lightning-button-group>
 
       <div class="slds-p-horizontal_medium">
-        <div lwc:if={errorMessage} class="slds-scoped-notification slds-theme_error slds-m-bottom_small" role="alert">
-          <lightning-icon
-            icon-name="utility:error"
-            alternative-text="エラー"
-            size="x-small"
-            variant="inverse"
-            class="slds-m-right_x-small"
-          ></lightning-icon>
-          {errorMessage}
-        </div>
         <div lwc:if={isReadonly} class="slds-scoped-notification slds-scoped-notification_light slds-m-bottom_small">
           この勤務表は編集できません。
         </div>
@@ -276,6 +266,16 @@
         </div>
       </div>
     </lightning-card>
+    <!-- 共通ダイアログ(入力チェック・保存のエラー。勤務表作成画面と同じ) -->
+    <c-confirm-dialog
+      lwc:if={dialog}
+      title={dialog.title}
+      messages={dialog.messages}
+      confirm-label={dialog.confirmLabel}
+      is-error={dialog.isError}
+      onconfirm={handleDialogClose}
+      onclose={handleDialogClose}
+    ></c-confirm-dialog>
     <!-- キャンセル確認ダイアログ -->
     <template lwc:if={showCancelConfirm}>
       <section

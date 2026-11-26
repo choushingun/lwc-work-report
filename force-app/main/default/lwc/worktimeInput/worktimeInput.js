@@ -27,6 +27,8 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
   // ログイン確認済み(確認できるまで画面を表示しない)
   isAuthenticated = false;
   errorMessage = '';
+  // エラーダイアログ(null は非表示)
+  dialog = null;
   // キャンセル確認ダイアログ
   showCancelConfirm = false;
   focusCancelConfirm = false;
@@ -166,12 +168,15 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
       });
     } else {
       const r = this.report;
+      // 勤務表に入力した勤務開始・終了時間(HHmm)を時・分に分けて設定する
+      const start = r.WorkStart__c;
+      const end = r.WorkEnd__c;
       this.updateRow(id, {
         isVacation: false,
-        startHour: r.StartHour__c,
-        startTime: r.StartTime__c,
-        endHour: r.EndHour__c,
-        endTime: r.EndTime__c,
+        startHour: start.slice(0, 2),
+        startTime: start.slice(-2),
+        endHour: end.slice(0, 2),
+        endTime: end.slice(-2),
         restTime: r.RestTime__c ?? 0,
         projectName: this.projectOptions[1]?.value ?? '',
         workplace: this.workplaceOptions[1]?.value ?? '',
@@ -272,15 +277,23 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
 
   // 労働時間が0の日は休みにチェックが必要
   validate() {
-    this.errorMessage = '';
     const invalid = this.rows.find(
       (row) => !row.isVacation && row.startHour === row.endHour && row.startTime === row.endTime
     );
     if (invalid) {
-      this.errorMessage = `${invalid.name}：労働時間が０の場合、休みにチェックを入れてください。`;
+      this.showErrorDialog(`${invalid.name}：労働時間が０の場合、休みにチェックを入れてください。`);
       return false;
     }
     return true;
+  }
+
+  showErrorDialog(message) {
+    this.dialog = { title: 'エラー', messages: message, confirmLabel: 'OK', isError: true };
+  }
+
+  // エラーダイアログのOKボタン・×ボタン・Escキー
+  handleDialogClose() {
+    this.dialog = null;
   }
 
   // Apexに渡す形式に変換する(画面表示用の項目は除く)
@@ -303,6 +316,7 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
   async callApex(action) {
     this.errorMessage = '';
     this.isLoading = true;
+    let errorMessage;
     try {
       await action();
     } catch (error) {
@@ -310,9 +324,17 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
         redirectToLogin(this);
         return;
       }
-      this.errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
+      errorMessage = error?.body?.message || SYSTEM_ERROR_MESSAGE;
     } finally {
       this.isLoading = this.isNavigating;
+    }
+    // 画面表示後のエラーはダイアログ、初期表示のエラー(画面を表示できない場合)は画面上部に表示する
+    if (errorMessage) {
+      if (this.isAuthenticated) {
+        this.showErrorDialog(errorMessage);
+      } else {
+        this.errorMessage = errorMessage;
+      }
     }
   }
 
