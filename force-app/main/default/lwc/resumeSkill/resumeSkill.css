@@ -47,7 +47,8 @@
   border-bottom: 1px solid #e5e5e5;
 }
 
-/* 備考は数行分の高さで表示する */
+/* 備考は6行が収まる高さで表示する(仕事経験画面の得意業務・得意技術と同じ)
+   (lh は入力欄の文字の1行分の高さ。上下の内側余白0.5rem×2と枠線1px×2を足す) */
 .comment {
-  --slds-c-textarea-sizing-min-height: 5rem;
+  --slds-c-textarea-sizing-min-height: calc(6lh + 1rem + 2px);
 }

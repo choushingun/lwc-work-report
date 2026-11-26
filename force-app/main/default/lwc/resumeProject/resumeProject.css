@@ -51,16 +51,26 @@
 .input-table th {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
+  vertical-align: middle;
 }
 
-/* 作業経験のチェックボックスは行の間を少し空ける */
+/* 入力欄はブロック表示にし、サイト共通の入力欄の下余白を消して、セルの上下中央に置く(資格・トレーニングの表と同じ) */
+.input-table lightning-input {
+  display: block;
+  margin: 0;
+}
+
+/* 作業経験のチェックボックスは行の間を少し空ける
+   (サイト共通の入力欄の下余白は消す。残すと行間・セクション下の余白が広くなる) */
 .work-experience {
   display: block;
+  margin: 0;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 }
 
-/* 得意業務・得意技術は数行分の高さで表示する */
+/* 得意業務・得意技術は6行が収まる高さで表示する
+   (lh は入力欄の文字の1行分の高さ。上下の内側余白0.5rem×2と枠線1px×2を足す) */
 .enjoying {
-  --slds-c-textarea-sizing-min-height: 4rem;
+  --slds-c-textarea-sizing-min-height: calc(6lh + 1rem + 2px);
 }
