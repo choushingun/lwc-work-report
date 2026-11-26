@@ -3,6 +3,7 @@ import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import getInitData from '@salesforce/apex/WorkreportInputController.getInitData';
 import saveReport from '@salesforce/apex/WorkreportInputController.saveReport';
 import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/auth';
+import { setLeaveGuard, clearLeaveGuard } from 'c/leaveGuard';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
 const WORK_LIST_PAGE = 'workreport_list__c';
@@ -58,8 +59,34 @@ export default class WorkreportInput extends NavigationMixin(LightningElement) {
   // 表示中のダイアログ(確認・処理結果を1つの共通ダイアログで切り替えて表示する。null は非表示)
   // { title, messages, confirmLabel, cancelLabel, isError, onConfirm(確定時の処理) }
   dialog = null;
+
+  // キャンセルボタン以外(メニュー・ブラウザやタブを閉じるなど)で画面を離れるときの確認
+  leaveGuard = {
+    isDirty: () => this.isAuthenticated && !this.isNavigating && JSON.stringify(this.toInput()) !== this.initialInput,
+    confirmLeave: (onLeave) => {
+      this.dialog = {
+        title: '入力内容の破棄',
+        messages: ['入力内容を破棄して画面を移動しますか？', '保存されていない内容は失われます。'],
+        confirmLabel: 'はい',
+        cancelLabel: 'いいえ',
+        onConfirm: () => {
+          this.isNavigating = true;
+          onLeave();
+        }
+      };
+    }
+  };
+
   // 初期表示時の入力値(変更有無の判定に使う)
   initialInput = '';
+
+  connectedCallback() {
+    setLeaveGuard(this.leaveGuard);
+  }
+
+  disconnectedCallback() {
+    clearLeaveGuard(this.leaveGuard);
+  }
 
   @wire(CurrentPageReference)
   setPageReference(pageRef) {

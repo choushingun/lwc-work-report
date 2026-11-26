@@ -3,6 +3,7 @@ import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import getInitData from '@salesforce/apex/WorktimeInputController.getInitData';
 import saveWorktimes from '@salesforce/apex/WorktimeInputController.saveWorktimes';
 import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/auth';
+import { setLeaveGuard, clearLeaveGuard } from 'c/leaveGuard';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
 const MONTH_REPORT_PAGE = 'workreport_view__c';
@@ -29,8 +30,26 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
   // キャンセル確認ダイアログ
   showCancelConfirm = false;
   focusCancelConfirm = false;
+  cancelConfirmMessage = '';
+  // 「はい」で行う画面移動(メニューなどで離れる場合。null はキャンセルボタンで勤務表に戻る)
+  leaveAction = null;
   // 初期表示時の入力内容(キャンセル時に変更有無を判定する)
   initialInput = '';
+
+  // キャンセルボタン以外(メニュー・ブラウザやタブを閉じるなど)で画面を離れるときの確認
+  leaveGuard = {
+    isDirty: () =>
+      this.isAuthenticated && !this.isNavigating && JSON.stringify(this.toInput()) !== this.initialInput,
+    confirmLeave: (onLeave) => this.openCancelConfirm('入力内容を破棄して画面を移動しますか？', onLeave)
+  };
+
+  connectedCallback() {
+    setLeaveGuard(this.leaveGuard);
+  }
+
+  disconnectedCallback() {
+    clearLeaveGuard(this.leaveGuard);
+  }
 
   @wire(CurrentPageReference)
   setPageReference(pageRef) {
@@ -208,9 +227,16 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
   // 入力内容に変更がある場合のみキャンセル確認ダイアログを開く(はいボタンにフォーカスする)
   handleCancel() {
     if (JSON.stringify(this.toInput()) === this.initialInput) {
+      this.leaveAction = null;
       this.handleCancelConfirm();
       return;
     }
+    this.openCancelConfirm('入力内容を破棄して勤務表に戻りますか？', null);
+  }
+
+  openCancelConfirm(message, leaveAction) {
+    this.cancelConfirmMessage = message;
+    this.leaveAction = leaveAction;
     this.showCancelConfirm = true;
     this.focusCancelConfirm = true;
   }
@@ -224,6 +250,7 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
 
   handleCancelConfirmClose() {
     this.showCancelConfirm = false;
+    this.leaveAction = null;
   }
 
   handleCancelConfirmKeyDown(event) {
@@ -235,6 +262,10 @@ export default class WorktimeInput extends NavigationMixin(LightningElement) {
   handleCancelConfirm() {
     this.showCancelConfirm = false;
     this.isNavigating = true;
+    if (this.leaveAction) {
+      this.leaveAction();
+      return;
+    }
     this.isLoading = true;
     this.navigateTo(MONTH_REPORT_PAGE, { id: this.reportId });
   }

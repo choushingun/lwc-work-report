@@ -3,6 +3,7 @@ import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import basePath from '@salesforce/community/basePath';
 import getHeaderInfo from '@salesforce/apex/HeaderController.getHeaderInfo';
 import { PROFILE_CHANGE_EVENT, getSessionKey } from 'c/auth';
+import { confirmLeave } from 'c/leaveGuard';
 
 // ナビゲーションの項目(サイトのURLのパス)。managerOnly の項目は管理職にだけ表示する
 // subPaths : 項目の下の画面(表示中は項目に下線を表示する)
@@ -85,11 +86,14 @@ export default class WorkreportNav extends NavigationMixin(LightningElement) {
     return this.photoUrl ? this.userName : '写真はアップロードされていません';
   }
 
+  // 入力画面で未保存の変更がある場合は、確認ダイアログで「はい」を選んだときだけ移動する
   handlePersonalSetting() {
-    this[NavigationMixin.Navigate]({
-      type: 'comm__namedPage',
-      attributes: { name: PERSONAL_SETTING_PAGE }
-    });
+    confirmLeave(() =>
+      this[NavigationMixin.Navigate]({
+        type: 'comm__namedPage',
+        attributes: { name: PERSONAL_SETTING_PAGE }
+      })
+    );
   }
 
   get menuItems() {
@@ -111,9 +115,12 @@ export default class WorkreportNav extends NavigationMixin(LightningElement) {
 
   handleClick(event) {
     event.preventDefault();
-    this[NavigationMixin.Navigate]({
-      type: 'standard__webPage',
-      attributes: { url: event.currentTarget.dataset.url }
-    });
+    const url = event.currentTarget.dataset.url;
+    confirmLeave(() =>
+      this[NavigationMixin.Navigate]({
+        type: 'standard__webPage',
+        attributes: { url }
+      })
+    );
   }
 }

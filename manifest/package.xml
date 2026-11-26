@@ -90,6 +90,7 @@
         <members>authGuard</members>
         <members>confirmDialog</members>
         <members>homeRedirect</members>
+        <members>leaveGuard</members>
         <members>login</members>
         <members>logout</members>
         <members>passwordChangeDialog</members>
@@ -132,7 +133,6 @@
         <members>Resume</members>
         <members>Workreport</members>
         <members>WorkreportFavicon</members>
-        <members>WorkreportLogo</members>
         <members>XlsxPopulate</members>
         <name>StaticResource</name>
     </types>

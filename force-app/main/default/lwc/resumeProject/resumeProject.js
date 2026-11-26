@@ -3,6 +3,7 @@ import { NavigationMixin } from 'lightning/navigation';
 import getProject from '@salesforce/apex/ResumeProjectController.getProject';
 import saveProject from '@salesforce/apex/ResumeProjectController.saveProject';
 import { getSessionKey, isSessionInvalidError, redirectToLogin } from 'c/auth';
+import { setLeaveGuard, clearLeaveGuard } from 'c/leaveGuard';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
 const RESUME_PAGE = 'resume__c';
@@ -32,12 +33,34 @@ export default class ResumeProject extends NavigationMixin(LightningElement) {
   // { title, messages, confirmLabel, cancelLabel, isError, onConfirm(確定時の処理) }
   dialog = null;
 
+  // キャンセルボタン以外(メニュー・ブラウザやタブを閉じるなど)で画面を離れるときの確認
+  leaveGuard = {
+    isDirty: () => this.isAuthenticated && !this.isNavigating && this.isChanged,
+    confirmLeave: (onLeave) => {
+      this.dialog = {
+        title: '入力内容の破棄',
+        messages: ['入力内容を破棄して画面を移動しますか？', '保存されていない内容は失われます。'],
+        confirmLabel: 'はい',
+        cancelLabel: 'いいえ',
+        onConfirm: () => {
+          this.isNavigating = true;
+          onLeave();
+        }
+      };
+    }
+  };
+
   connectedCallback() {
+    setLeaveGuard(this.leaveGuard);
     if (!getSessionKey()) {
       redirectToLogin(this);
       return;
     }
     this.callApex(() => this.fetchProject());
+  }
+
+  disconnectedCallback() {
+    clearLeaveGuard(this.leaveGuard);
   }
 
   get showPageError() {

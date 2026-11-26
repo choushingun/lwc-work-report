@@ -4,6 +4,7 @@ import getSetting from '@salesforce/apex/PersonalSettingController.getSetting';
 import saveSetting from '@salesforce/apex/PersonalSettingController.saveSetting';
 import changePassword from '@salesforce/apex/PersonalSettingController.changePassword';
 import { getSessionKey, isSessionInvalidError, notifyProfileChange, redirectToLogin } from 'c/auth';
+import { setLeaveGuard, clearLeaveGuard } from 'c/leaveGuard';
 
 const SYSTEM_ERROR_MESSAGE = '処理に失敗しました。時間をおいて再度お試しください。';
 // 現在のパスワードの不一致・ロック中(ログインと同じく、続けて5回間違えると15分間ロックされる)
@@ -25,12 +26,32 @@ export default class PersonalSetting extends NavigationMixin(LightningElement) {
   // 選択した新しい写真(保存するまで登録しない)
   newPhoto = null;
   isLoading = false;
+  // 画面を移動中(移動中は離れるときの確認を出さない)
+  isNavigating = false;
   // ログイン確認済み(確認できるまで画面を表示しない)
   isAuthenticated = false;
   errorMessage = '';
   // 表示中のダイアログ(共通ダイアログで表示する。null は非表示)
   // { title, messages, confirmLabel, cancelLabel, isError, onConfirm(確定時の処理) }
   dialog = null;
+
+  // キャンセルボタン以外(メニュー・ブラウザやタブを閉じるなど)で画面を離れるときの確認
+  leaveGuard = {
+    isDirty: () => this.isAuthenticated && !this.isNavigating && this.isChanged,
+    confirmLeave: (onLeave) => {
+      this.dialog = {
+        title: '入力内容の破棄',
+        messages: ['入力内容を破棄して画面を移動しますか？', '保存されていない内容は失われます。'],
+        confirmLabel: 'はい',
+        cancelLabel: 'いいえ',
+        onConfirm: () => {
+          this.isNavigating = true;
+          onLeave();
+        }
+      };
+    }
+  };
+
   // パスワード変更ダイアログの表示・処理中・エラーメッセージ
   showPasswordDialog = false;
   isPasswordChanging = false;
@@ -38,11 +59,16 @@ export default class PersonalSetting extends NavigationMixin(LightningElement) {
   photoAccept = PHOTO_CONTENT_TYPES.join(',');
 
   connectedCallback() {
+    setLeaveGuard(this.leaveGuard);
     if (!getSessionKey()) {
       redirectToLogin(this);
       return;
     }
     this.callApex(() => this.fetchSetting());
+  }
+
+  disconnectedCallback() {
+    clearLeaveGuard(this.leaveGuard);
   }
 
   get showPageError() {
@@ -165,6 +191,7 @@ export default class PersonalSetting extends NavigationMixin(LightningElement) {
 
   // 前の画面へ戻る(前の画面がない場合は勤務表一覧へ)
   navigateBack() {
+    this.isNavigating = true;
     if (window.history.length > 1) {
       window.history.back();
       return;

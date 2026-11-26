@@ -2,7 +2,7 @@ import { LightningElement } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { navigateAfterLogin, setSessionKey } from 'c/auth';
 
-import basePath from '@salesforce/community/basePath';
+import { LOGO_IMAGE } from './logoImage';
 import login from '@salesforce/apex/LoginController.login';
 import requestReset from '@salesforce/apex/PasswordResetController.requestReset';
 
@@ -15,8 +15,8 @@ export default class Login extends NavigationMixin(LightningElement) {
   password = '';
   errorMessage = '';
   isLoading = false;
-  // サイトのheadで先読みしている画像と同じURLにする(違うURLだと先読みが使われず、二重に取得する)
-  logoUrl = `${basePath}/sfsites/c/resource/WorkreportLogo`;
+  // ロゴ画像はコンポーネントに埋め込んだものを使う(画面と同時に表示され、読み込み待ちの空白が出ない)
+  logoUrl = LOGO_IMAGE;
   // 表示中のダイアログ(null は非表示)
   // { title, messages, confirmLabel, cancelLabel, isError, onConfirm(確定時の処理) }
   dialog = null;
